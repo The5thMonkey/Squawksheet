@@ -135,14 +135,16 @@ function gameTab() {
   </div>`;
 }
 function shootoutForm(f, popts) {
-  const so = f.shootout || { goals: [], goalie: f.goalie || null, saves: null, ga: null };
+  const so = f.shootout || { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null };
   const gcand = [...new Set([f.goalie, ...DATA.players.filter(p => p.goalie).map(p => p.id)].filter(Boolean))];
-  return `<h3 style="margin-top:1rem">Shootout ${info('Kept separate: shootout goals, saves and goals allowed never count toward regular stats or team totals. Shootout goals are not added to the Goals list above.')}</h3>
+  return `<h3 style="margin-top:1rem">Shootout ${info('Kept separate: shootout goals, saves and goals allowed never count toward regular stats or team totals. Shootout goals are not added to the Goals list above. Add a miss for every one of our shooters who didn\'t score, so shooting percentages are right.')}</h3>
   <div class="row"><label>Our goalie<select data-so="goalie"><option value="">—</option>${gcand.map(p => `<option value="${p}" ${p === so.goalie ? 'selected' : ''}>${esc(pname(p))}</option>`).join('')}</select></label>
     <label>Saves<input type="number" min="0" style="width:5rem" data-so="saves" value="${so.saves ?? ''}"></label>
     <label>Goals allowed<input type="number" min="0" style="width:5rem" data-so="ga" value="${so.ga ?? ''}"></label></div>
   <div class="row">${(so.goals || []).map((p, i) => `<label>Shootout goal ${i + 1}<select data-sog="${i}">${popts(p)}</select></label> <button class="x" data-delsog="${i}">✕</button>`).join('')}
-    <button class="btn" id="g-addsog">+ Shootout goal</button></div>`;
+    <button class="btn" id="g-addsog">+ Shootout goal</button></div>
+  <div class="row">${(so.misses || []).map((p, i) => `<label>Shootout miss ${i + 1}<select data-som="${i}">${popts(p)}</select></label> <button class="x" data-delsom="${i}">✕</button>`).join('')}
+    <button class="btn" id="g-addsom">+ Shootout miss</button></div>`;
 }
 function autoResult(f) {
   if (f.gf == null || f.ga == null || f.gf === '' || f.ga === '') return null;
@@ -162,7 +164,7 @@ function gameFromForm() {
   if (!f.en_against) delete f.en_against;
   if (!f.forfeit) delete f.forfeit;
   if (f.ot !== 'SO') delete f.shootout;
-  else if (f.shootout) { f.shootout.goals = (f.shootout.goals || []).filter(Boolean); if (!f.shootout.goals.length && f.shootout.saves == null && f.shootout.ga == null && !f.shootout.goalie) delete f.shootout; }
+  else if (f.shootout) { f.shootout.goals = (f.shootout.goals || []).filter(Boolean); f.shootout.misses = (f.shootout.misses || []).filter(Boolean); if (!f.shootout.misses.length) delete f.shootout.misses; if (!f.shootout.goals.length && !f.shootout.misses && f.shootout.saves == null && f.shootout.ga == null && !f.shootout.goalie) delete f.shootout; }
   delete f._new; delete f._manualResult;
   return f;
 }
@@ -195,8 +197,9 @@ document.addEventListener('change', e => {
   if (t.dataset.roster) { const p = t.dataset.roster; f.roster = t.checked ? [...f.roster, p] : f.roster.filter(x => x !== p); return render(); }
   if (t.dataset.goal !== undefined && t.tagName === 'SELECT') { f.goals[+t.dataset.goal][t.dataset.k] = t.value || null; return; }
   if (t.dataset.star !== undefined) { f.stars[+t.dataset.star] = t.value || null; return; }
-  if (t.dataset.so) { const so = f.shootout ||= { goals: [], goalie: f.goalie || null, saves: null, ga: null }; so[t.dataset.so] = t.dataset.so === 'goalie' ? (t.value || null) : (t.value === '' ? null : +t.value); return; }
+  if (t.dataset.so) { const so = f.shootout ||= { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null }; so[t.dataset.so] = t.dataset.so === 'goalie' ? (t.value || null) : (t.value === '' ? null : +t.value); return; }
   if (t.dataset.sog !== undefined) { f.shootout.goals[+t.dataset.sog] = t.value || null; return; }
+  if (t.dataset.som !== undefined) { f.shootout.misses[+t.dataset.som] = t.value || null; return; }
   if (t.dataset.pen !== undefined && t.tagName === 'SELECT') { f.penalties[+t.dataset.pen].player = t.value || null; return; }
 });
 function leaveOK() {
@@ -210,8 +213,10 @@ document.addEventListener('click', e => {
   const t = e.target; const f = G.f;
   if (t.id === 'g-addgoal') { f.goals.push({ scorer: null, a1: null, a2: null, video: null }); render(); }
   else if (t.dataset.delgoal !== undefined) { f.goals.splice(+t.dataset.delgoal, 1); render(); }
-  else if (t.id === 'g-addsog') { const so = f.shootout ||= { goals: [], goalie: f.goalie || null, saves: null, ga: null }; so.goals.push(null); render(); }
+  else if (t.id === 'g-addsog') { const so = f.shootout ||= { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null }; so.goals.push(null); render(); }
   else if (t.dataset.delsog !== undefined) { f.shootout.goals.splice(+t.dataset.delsog, 1); render(); }
+  else if (t.id === 'g-addsom') { const so = f.shootout ||= { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null }; (so.misses ||= []).push(null); render(); }
+  else if (t.dataset.delsom !== undefined) { f.shootout.misses.splice(+t.dataset.delsom, 1); render(); }
   else if (t.id === 'g-addpen') { f.penalties.push({ player: null, count: 1, pim: 3 }); render(); }
   else if (t.dataset.delpen !== undefined) { f.penalties.splice(+t.dataset.delpen, 1); render(); }
   else if (t.id === 'g-clearun') { e.preventDefault(); if (confirm('Remove the unpaired assists from this game?')) { f.assists_unpaired = []; render(); } }

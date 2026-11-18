@@ -188,6 +188,7 @@ export function validate(data) {
     if (so) {
       if (g.ot !== 'SO') errs.push(`${w}: shootout stats entered but the game isn't marked as a shootout`);
       for (const p of so.goals || []) { if (!P.has(p)) errs.push(`${w}: shootout goal by unknown player "${p}"`); else if (!ros.has(p)) errs.push(`${w}: shootout scorer ${p} is not in the game roster`); }
+      for (const p of so.misses || []) { if (!P.has(p)) errs.push(`${w}: shootout miss by unknown player "${p}"`); else if (!ros.has(p)) errs.push(`${w}: shootout shooter ${p} is not in the game roster`); }
       if (so.goalie && !P.has(so.goalie)) errs.push(`${w}: unknown shootout goalie "${so.goalie}"`);
       for (const k of ['saves', 'ga']) if (so[k] != null && (!Number.isInteger(so[k]) || so[k] < 0)) errs.push(`${w}: shootout ${k} must be a whole number`);
     }
@@ -278,8 +279,10 @@ export function shootoutTotals(ix) {
   const sk = {}, gk = {};
   for (const g of ix.data.games.filter(final)) {
     const so = g.shootout; if (!so) continue;
-    for (const p of so.goals || []) { const x = sk[p] ||= { player: p, g: 0, games: new Set() }; x.g++; x.games.add(g.id); }
+    const shooter = p => sk[p] ||= { player: p, g: 0, miss: 0, games: new Set() };
+    for (const p of so.goals || []) { const x = shooter(p); x.g++; x.games.add(g.id); }
+    for (const p of so.misses || []) { const x = shooter(p); x.miss++; x.games.add(g.id); }
     if (so.goalie) { const x = gk[so.goalie] ||= { player: so.goalie, gp: 0, saves: 0, ga: 0, w: 0 }; x.gp++; x.saves += so.saves || 0; x.ga += so.ga || 0; if (g.result === 'W') x.w++; }
   }
-  return { skaters: Object.values(sk).map(x => ({ ...x, games: x.games.size })), goalies: Object.values(gk) };
+  return { skaters: Object.values(sk).map(x => ({ ...x, games: x.games.size, att: x.g + x.miss })), goalies: Object.values(gk) };
 }

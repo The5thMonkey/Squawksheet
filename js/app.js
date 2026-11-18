@@ -139,7 +139,7 @@ function shootoutTables(filt) {
   const so = C.shootoutTotals(IX);
   const nm = { k: 'name', h: 'Player', l: 1, f: c => plink(c.player), v: c => pname(c.player) };
   return `<p class="small">${info('Shootout stats started being tracked after the old sheets. They are kept on their own and never added to goals, points, wins or team totals.')}</p>
-  <h2>Shooters</h2>${table('so-sk', [nm, { k: 'games', h: 'SO games' }, { k: 'g', h: 'SO goals' }], filt(so.skaters), { k: 'g', asc: false })}
+  <h2>Shooters</h2>${table('so-sk', [nm, { k: 'games', h: 'SO games' }, { k: 'att', h: 'Attempts' }, { k: 'g', h: 'Goals' }, { k: 'miss', h: 'Misses' }, { k: 'pct', h: 'SO%', f: c => c.att ? C.fmt.n3(c.g / c.att) : '–', v: c => c.att ? c.g / c.att : null, title: 'Shootout goals ÷ attempts' }], filt(so.skaters), { k: 'g', asc: false })}
   <h2>Goalies</h2>${table('so-gk', [nm, { k: 'gp', h: 'SO games' }, { k: 'w', h: 'SO wins' }, { k: 'saves', h: 'Saves' }, { k: 'ga', h: 'Goals allowed' },
     { k: 'sv', h: 'SV%', f: c => (c.saves + c.ga) ? C.fmt.n3(c.saves / (c.saves + c.ga)) : '–', v: c => (c.saves + c.ga) ? c.saves / (c.saves + c.ga) : null }], filt(so.goalies), { k: 'gp', asc: false })}`;
 }
