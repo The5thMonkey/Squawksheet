@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WinterSquawks · Enter stats</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦅</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .row{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end;margin:.4rem 0}
+  .row label{display:flex;flex-direction:column;font-size:.78rem;color:var(--mute);gap:.15rem}
+  .row label.inline{flex-direction:row;align-items:center;color:var(--ink);font-size:.88rem}
+  .chk{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.2rem .8rem;font-size:.88rem}
+  .goalrow{display:grid;grid-template-columns:2rem 1fr 1fr 1fr 2fr 2rem;gap:.4rem;align-items:center;margin:.25rem 0}
+  .penrow{display:grid;grid-template-columns:1fr 6rem 6rem 2rem;gap:.4rem;align-items:center;margin:.25rem 0}
+  .msgs .err{color:var(--red)} .msgs .warn{color:#9a6b00} .msgs .ok{color:var(--green)}
+  .sticky{position:sticky;bottom:0;background:#fffe;border-top:1px solid var(--line);padding:.6rem 1rem;margin:0 -1.1rem -1rem;border-radius:0 0 10px 10px;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+  textarea{width:100%;min-height:5rem}
+  .goalrow select,.goalrow input{font-size:.88rem}
+  .x{border:0;background:none;color:var(--red);cursor:pointer;font-size:1.1rem}
+  code{background:#eef2f7;padding:.05rem .3rem;border-radius:4px}
+  ol.steps li{margin:.35rem 0}
+  .aq{border-left:6px solid var(--sq-secondary)}
+  .aq .ctx{background:var(--tint);border-radius:8px;padding:.6rem .8rem;margin:.6rem 0;font-size:.88rem}
+  .alist{max-height:420px;overflow:auto} .alist tr{cursor:pointer} .alist tr.cur td{background:var(--sq-primary)}
+  .tabs .pill{margin-left:.3rem}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="mark">🦅</span><span><b>WINTERSQUAWKS</b><small>Stats entry</small></span></a>
+  <nav><a href="index.html">← Back to site</a></nav>
+</header>
+<main>
+  <div id="status" class="note" style="margin-bottom:1rem">Loading data…</div>
+  <div class="tabs" id="tabs">
+    <button data-tab="game" class="on">Game</button>
+    <button data-tab="season">Season &amp; roster</button>
+    <button data-tab="players">Players</button>
+    <button data-tab="export">Save &amp; publish</button>
+  </div>
+  <section id="pane"></section>
+</main>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
