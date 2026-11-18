@@ -94,7 +94,7 @@ function pageHome() {
   const lead = (k, n = 5) => [...car.skaters].sort((a, b) => b[k] - a[k]).slice(0, n).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)}</td><td>${c[k]}</td></tr>`).join('');
   return `
   <section class="hero"><div class="hero-id"><img class="hero-logo" src="img/logos/alternate.png" alt=""><div><h1>WinterSquawks</h1><div class="sub">All-time ${tot.w}-${tot.l}-${tot.t}-${tot.otl} ${info('W-L-T-OTL, regular season and playoffs combined, Winter 2022 onward.')}</div></div></div>
-  <div class="trophies" title="Stanley Keg championships / President's Trophies">${'🏆'.repeat(champs.length)} ${'🥇'.repeat(pres.length)}</div></section>
+  <div class="trophies stacked">${champs.length ? `<div title="Stanley Keg championships">${'🏆'.repeat(champs.length)}</div>` : ''}${pres.length ? `<div title="President's Trophies">${'🥇'.repeat(pres.length)}</div>` : ''}</div></section>
   <div class="grid g4">
     <div class="stat"><div class="k">Stanley Kegs</div><div class="v">${champs.length}</div><div class="s">${champs.map(s => slink(s.id)).join(', ')}</div></div>
     <div class="stat"><div class="k">President's Trophies</div><div class="v">${pres.length}</div><div class="s">${pres.map(s => slink(s.id)).join(', ')}</div></div>
@@ -325,11 +325,11 @@ function pagePlayers() {
   const skCols = [name, { k: 'span', h: 'Seasons', f: c => `${c.seasons} <span class="muted small">${span(c)}</span>`, v: c => c.seasons },
     { k: 'gp', h: 'GP' }, { k: 'g', h: 'G' }, { k: 'a', h: 'A' }, { k: 'pts', h: 'PTS' }, { k: 'ppg', h: 'P/GP', f: c => C.fmt.n2(ppg(c.pts, c.gp)), v: c => ppg(c.pts, c.gp) },
     { k: 'gpg', h: 'G/GP', f: c => C.fmt.n2(ppg(c.g, c.gp)), v: c => ppg(c.g, c.gp) },
-    { k: 'cup', h: 'Squawk 🏆' }, { k: 'pim', h: 'PIM' }, { k: 'champs', h: '🏆', title: 'Stanley Keg seasons' }, { k: 'pres', h: '🥇', title: "President's Trophy seasons" }];
+    { k: 'cup', h: 'Squawk 🏆' }, { k: 'pim', h: 'PIM' }];
   const gkCols = [name, { k: 'span', h: 'Seasons', f: c => `${c.seasons} <span class="muted small">${span(c)}</span>`, v: c => c.seasons },
     { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'ga', h: 'GA' }, { k: 'gaa', h: 'GAA', f: c => C.fmt.n2(c.gp ? c.ga / c.gp : null), v: c => c.gp ? c.ga / c.gp : null },
     { k: 'so', h: 'SO', title: 'Game-log era only' }, { k: 'sv', h: 'SV%', f: c => c.sa ? C.fmt.n3(1 - c.gaS / c.sa) : '–', v: c => c.sa ? 1 - c.gaS / c.sa : null, title: 'Games with shot data only' },
-    { k: 'a', h: 'A' }, { k: 'cup', h: 'Squawk 🏆' }, { k: 'champs', h: '🏆' }, { k: 'pres', h: '🥇' }];
+    { k: 'a', h: 'A' }, { k: 'cup', h: 'Squawk 🏆' }];
   const body = PL_STATE.tab === 'sk' ? table('car-sk', skCols, filt(car.skaters), { k: 'pts', asc: false }) : PL_STATE.tab === 'gk' ? table('car-gk', gkCols, filt(car.goalies), { k: 'gp', asc: false }) : shootoutTables(filt);
   return `<h1>Players ${info('Squawk 🏆 points start in F24, penalties in F25. Before F24, games played are what the old league site listed.')}</h1>
   <div class="tabs"><button data-pl-tab="sk" class="${PL_STATE.tab === 'sk' ? 'on' : ''}">Skaters</button><button data-pl-tab="gk" class="${PL_STATE.tab === 'gk' ? 'on' : ''}">Goalies</button><button data-pl-tab="so" class="${PL_STATE.tab === 'so' ? 'on' : ''}">Shootouts</button></div>
@@ -517,7 +517,10 @@ function pageTeam(code) {
   const kv = r => `${r.w}-${r.l}-${r.t}-${r.otl}`;
   return `<p class="small"><a href="#/opponents">← Opponents</a></p>
   <section class="hero team-hero" style="background:${bg};color:${fg2}">${tlogo(code, 'tlogo xl')}<div style="flex:1"><h1 style="color:${fg2}">${esc(tname(code))}</h1>
-    <div class="sub" style="color:${fg2}">WinterSquawks vs ${esc(tname(code))}${fg.length ? ` · ${fg.length} logged game${fg.length === 1 ? '' : 's'} since Fall 2024` : ''}</div></div>
+    <div class="sub team-trophies" style="color:${fg2}">${(() => { const aw = IX.data.awards || [];
+      const keg = aw.filter(a => a.stanley_keg === code).map(a => a.season), pres = aw.filter(a => a.presidents === code).map(a => a.season);
+      const line = (n, e, one, many, ss) => `<div title="${esc(many)}: ${esc(ss.join(', ') || 'none')}">${n ? e.repeat(n) : '–'} <span>${n} ${n === 1 ? one : many}</span></div>`;
+      return line(keg.length, '🏆', 'Stanley Keg', 'Stanley Kegs', keg) + line(pres.length, '🥇', "President's Trophy", "President's Trophies", pres); })()}</div></div></div>
     ${fg.length ? `<div style="text-align:right"><div class="big" style="color:${fg2}">${kv(all)}</div><div class="sub" style="color:${fg2}">Squawks' W-L-T-OTL (F24 →)</div></div>` : leg ? `<div style="text-align:right"><div class="big" style="color:${fg2}">${leg.regular.w}-${leg.regular.l}-${leg.regular.t}-${leg.regular.otl}</div><div class="sub" style="color:${fg2}">Squawks' all-time regular season</div></div>` : ''}</section>
   ${fg.length ? `<div class="grid g4">
     <div class="stat"><div class="k">Regular season</div><div class="v">${kv(reg)}</div><div class="s">${reg.gf}–${reg.ga} goals · ${pct(reg)} pt%</div></div>

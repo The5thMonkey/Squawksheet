@@ -202,3 +202,5 @@ a.tl:hover{text-decoration:none} a.tl:hover .team{box-shadow:inset 0 0 0 2px #00
 @keyframes strap{0%,100%{box-shadow:0 0 0 #c9971a00}50%{box-shadow:0 0 14px #c9971aaa}}
 @media (prefers-reduced-motion:reduce){ .paper.won .np-strap{animation:none} }
 @media (max-width:700px){ .paper.title .np-head{font-size:1.9rem} }
+.team-trophies{display:flex;flex-direction:column;gap:.15rem;margin-top:.3rem;font-size:1.25rem;letter-spacing:.06em}
+.team-trophies span{font-size:.8rem;letter-spacing:0;font-weight:600;opacity:.9;margin-left:.3rem;vertical-align:.15em}
