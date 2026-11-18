@@ -134,6 +134,10 @@ function gameTab() {
   <div class="sticky"><button class="btn pri" id="g-save">Save game</button><button class="btn" id="g-reset">Discard edits</button>${info("Saving checks the game, then keeps it in this browser's working copy until you publish.")}</div>
   </div>`;
 }
+// Every game is at night: a bare '10:05' means 10:05 PM. Stored as 24-hour 'HH:MM'.
+function toPM(t, ap) { let [h, mi] = t.split(':').map(Number); ap = (ap || '').toLowerCase();
+  if (ap === 'am') { if (h === 12) h = 0; } else if (h < 12) h += 12;
+  return `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}`; }
 function shootoutForm(f, popts) {
   const so = f.shootout || { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null };
   const gcand = [...new Set([f.goalie, ...DATA.players.filter(p => p.goalie).map(p => p.id)].filter(Boolean))];
@@ -280,8 +284,8 @@ function seasonTab() {
   </tbody></table></div>
   <div class="row"><label>Add player to roster<select id="s-addp"><option value="">—</option>${others.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></label>
     ${info('New to the team? Add them on the Players tab first.')}</div>
-  <h3>Add schedule ${info('One game per line, e.g. <code>2027-01-08 20:40 Puck Norris</code>. They go in as scheduled games.')}</h3>
-  <textarea id="s-sched" placeholder="2027-01-08 20:40 Puck Norris"></textarea>
+  <h3>Add schedule ${info('One game per line, e.g. <code>2027-01-08 8:40 Puck Norris</code>. Times are read as PM unless you add am. They go in as scheduled games.')}</h3>
+  <textarea id="s-sched" placeholder="2027-01-08 8:40 Puck Norris  (times are PM)"></textarea>
   <button class="btn" id="s-addsched">Add games</button> <span id="s-schedmsg" class="small"></span>
   <h3 style="margin-top:1rem">Add a story line ${info('Start a line with the game date (e.g. <code>1/9 Hammerheads: …</code>) and it also shows on that game\'s page.')}</h3>
   <div class="row"><label style="flex:2;min-width:280px">Text<input id="s-line"></label><label style="flex:1;min-width:200px">Link (optional)<input id="s-link" type="url"></label><button class="btn" id="s-addline">Add</button></div>
@@ -322,10 +326,10 @@ document.addEventListener('click', e => {
     const lines = $('#s-sched').value.split('\n').map(x => x.trim()).filter(Boolean); const bad = []; let n = 0;
     const byName = Object.fromEntries(Object.entries(DATA.teams).map(([k, v]) => [v.toLowerCase(), k]));
     for (const l of lines) {
-      const m = l.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}:\d{2})?\s*(.+)$/);
-      const opp = m && (byName[m[3].trim().toLowerCase()] || (DATA.teams[m[3].trim().toUpperCase()] ? m[3].trim().toUpperCase() : null));
+      const m = l.match(/^(\d{4}-\d{2}-\d{2})\s+(?:(\d{1,2}:\d{2})\s*(am|pm)?)?\s*(.+)$/i);
+      const opp = m && (byName[m[4].trim().toLowerCase()] || (DATA.teams[m[4].trim().toUpperCase()] ? m[4].trim().toUpperCase() : null));
       if (!m || !opp) { bad.push(l); continue; }
-      const g = newGame(s.id); g.date = m[1]; g.time = m[2] ? m[2].padStart(5, '0') : null; g.opponent = opp; delete g._new;
+      const g = newGame(s.id); g.date = m[1]; g.time = m[2] ? toPM(m[2], m[3]) : null; g.opponent = opp; delete g._new;
       DATA.games.push(g); reindex(); n++;
     }
     $('#s-schedmsg').innerHTML = `${n} added.${bad.length ? ` <span style="color:var(--red)">Couldn't read: ${bad.map(esc).join(' | ')}</span>` : ''}`;

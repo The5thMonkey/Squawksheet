@@ -105,7 +105,7 @@ function pageHome() {
     <div class="card"><h2 style="margin-top:0">${esc(cur.name)} ${seasonBadge(cur)}</h2>
       <div class="kv"><dt>Record</dt><dd>${C.fmt.rec4(cs.rec.reg)} (W-L-T-OTL) · ${C.points(IX.data, cs.rec.reg)} pts${C.place(cur) ? ' · ' + ordinal(C.place(cur)) + ' place' : ''}</dd>
       <dt>Last game</dt><dd>${last ? `${glink(last, `${C.fmt.date(last.date)} vs ${tchip(last.opponent)}`)} ${resPill(last)} ${score(last)}` : '–'}</dd>
-      <dt><span class="hovertip" tabindex="0">Next game ⓘ<span class="tip wide">${milestoneHtml()}</span></span></dt><dd>${next ? `${C.fmt.date(next.date)} ${next.time ?? ''} vs ${tchip(next.opponent)}` : '–'}</dd>
+      <dt><span class="hovertip" tabindex="0">Next game ⓘ<span class="tip wide">${milestoneHtml()}</span></span></dt><dd>${next ? `${C.fmt.date(next.date)} ${C.fmt.time(next.time)} vs ${tchip(next.opponent)}` : '–'}</dd>
       <dt>Points leader</dt><dd>${whoList(cs.pl)}</dd><dt>Squawk 🏆 leader</dt><dd>${whoList(cs.cup)}</dd></div>
       <h3 style="margin-top:1rem">Recent games</h3>
       <div class="tw"><table><tbody>${cg.filter(C.final).slice(-6).reverse().map(g => `<tr><td class="l">${glink(g, C.fmt.date(g.date))}</td><td class="l">${tchip(g.opponent)}</td><td>${resPill(g)}</td><td>${score(g)}</td><td class="l small">${g.stars[0] ? '⭐ ' + esc(pname(g.stars[0])) : ''}</td></tr>`).join('')}</tbody></table></div>
@@ -205,7 +205,7 @@ function pageSeason(id) {
     ...(tracked ? [{ k: 'so', h: 'SO' }, { k: 'sv', h: 'SV%', f: r => r.sa ? C.fmt.n3(1 - r.gaS / r.sa) : '–', v: r => r.sa ? 1 - r.gaS / r.sa : null, title: 'Only games with shot data' }, { k: 'cup', h: 'Squawk 🏆' }] : []),
   ];
   const gameCols = [
-    { k: 'date', h: 'Date', l: 1, f: g => glink(g, C.fmt.date(g.date) || '–') }, { k: 'time', h: 'Time', f: g => g.time ?? '' },
+    { k: 'date', h: 'Date', l: 1, f: g => glink(g, C.fmt.date(g.date) || '–') }, { k: 'time', h: 'Time', f: g => C.fmt.time(g.time), v: g => g.time || '' },
     { k: 'opp', h: 'Opponent', l: 1, f: g => tchip(g.opponent) + (g.playoff ? ` <span class="pill champ">${g.championship ? 'Final' : 'Playoff'}</span>` : '') },
     { k: 'res', h: 'Result', f: g => resPill(g) }, { k: 'score', h: 'Score', f: g => glink(g, score(g)) },
     { k: 'sh', h: 'Shots', f: g => g.shots_for != null ? `${g.shots_for}–${g.shots_against}` : '' },
@@ -293,7 +293,7 @@ function pageGame(id) {
   <section class="hero matchup">
     <div class="mu-team"><img class="mu-logo" src="img/logos/secondary.png" alt="WinterSquawks logo"><div class="mu-name">${esc(tname('WSQ'))}</div></div>
     <div class="mu-mid"><div class="big">${score(g)}</div><div>${resPill(g)}</div>${g.shots_for != null ? `<div class="sub">Shots ${g.shots_for}–${g.shots_against}</div>` : ''}
-      <div class="sub">${C.fmt.date(g.date)} ${g.time ?? ''}</div><div class="sub">${g.playoff ? (g.championship ? 'Championship' : 'Playoffs') : 'Regular season'}</div></div>
+      <div class="sub">${C.fmt.date(g.date)} ${C.fmt.time(g.time)}</div><div class="sub">${g.playoff ? (g.championship ? 'Championship' : 'Playoffs') : 'Regular season'}</div></div>
     <a class="mu-team r" href="#/team/${esc(g.opponent)}">${tlogo(g.opponent, 'mu-logo')}<div class="mu-name">${tchip(g.opponent)}</div></a>
   </section>
   <div class="grid g2">

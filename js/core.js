@@ -206,6 +206,8 @@ export const fmt = {
   n2: v => (v == null || !isFinite(v)) ? '–' : v.toFixed(2),
   n3: v => (v == null || !isFinite(v)) ? '–' : v.toFixed(3).replace(/^0/, ''),
   date: d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return `${+m}/${+dd}/${y.slice(2)}`; },
+  // stored as 24-hour 'HH:MM'; shown as '10:05 PM'
+  time: t => { if (!t) return ''; const [h, m] = t.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; },
 };
 
 export function teamColor(data, code) { return (data.team_colors || {})[code] || ['#e9edf1', '#333f42']; }
