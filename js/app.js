@@ -155,7 +155,8 @@ function winnersBand(s) {
   const rec = c => { const r = (s.standings || []).find(x => x.team === c); if (!r) return '';
     const pos = (s.standings || []).indexOf(r) + 1;
     return `${r.w != null ? `${r.w}-${r.l}-${r.t_otl ?? 0} · ` : ''}${r.pts} pts · ${ordinal(pos)} in standings`; };
-  const side = (c, trophy, label, extra, right) => c ? `<div class="wb-side${right ? ' r' : ''}">${tlogo(c, 'tlogo lg')}<div>
+  const logo = c => c === 'WSQ' ? '<img class="tlogo lg" src="img/logos/alternate.png" alt="WinterSquawks logo">' : tlogo(c, 'tlogo lg');
+  const side = (c, trophy, label, extra, right) => c ? `<div class="wb-side${right ? ' r' : ''}">${logo(c)}<div>
     <div class="wb-label">${trophy} ${label}</div><div class="wb-team">${esc(tname(c))}</div><div class="wb-info">${rec(c)}${extra ? `<br>${extra}` : ''}</div></div></div>` : '<div></div>';
   const final = a.runner_up ? `Beat ${esc(tname(a.runner_up))} in the final` : '';
   return `<section class="winners" style="--wb-bg:${bg};--wb-fg:${fg}">
@@ -198,8 +199,8 @@ function pageSeason(id) {
     ...['w', 'l', 't_otl', 'pts', 'gp', 'gf', 'ga'].filter(k => st.some(r => r[k] != null)).map(k => ({ k, h: { w: 'W', l: 'L', t_otl: 'T/OTL', pts: 'PTS', gp: 'GP', gf: 'GF', ga: 'GA' }[k], f: r => r[k] ?? '' }))];
   return `
   <p class="small">${prev ? `<a href="#/season/${prev.id}">← ${esc(prev.name)}</a>` : ''} ${next ? ` · <a href="#/season/${next.id}">${esc(next.name)} →</a>` : ''}</p>
-  <section class="hero"><div><h1>${esc(s.name)}</h1><div class="sub">${esc(s.team_name)} · ${esc(s.division)} ${seasonBadge(s)} ${tracked ? info(`${ver.video_linked} of ${ver.goals} goals have a video link (▶). The links are kept for reference; the video tracking site is no longer online.`) : info("Season totals scraped by hand from the old league site, which no longer exists. They can't be checked game by game.")}</div>
-  ${s.story_title ? `<div class="sub" style="margin-top:.4rem"><i>${esc(s.story_title)}</i></div>` : ''}</div>
+  <section class="hero"><div class="hero-id"><img class="hero-logo sec" src="img/logos/secondary.png" alt=""><div><h1>${esc(s.name)}</h1><div class="sub">${esc(s.team_name)} · ${esc(s.division)} ${seasonBadge(s)} ${tracked ? info(`${ver.video_linked} of ${ver.goals} goals have a video link (▶). The links are kept for reference; the video tracking site is no longer online.`) : info("Season totals scraped by hand from the old league site, which no longer exists. They can't be checked game by game.")}</div>
+  ${s.story_title ? `<div class="sub" style="margin-top:.4rem"><i>${esc(s.story_title)}</i></div>` : ''}</div></div>
   <div style="text-align:right"><div class="big">${C.fmt.rec4(x.rec.reg)}</div><div class="sub">W-L-T-OTL · ${C.points(IX.data, x.rec.reg)} pts${C.place(s) ? ' · ' + ordinal(C.place(s)) : ''}</div>
   <div class="sub">${s.champion ? '🏆 STANLEY KEG CHAMPIONS' : esc(s.result || '')}${s.presidents ? ' · 🥇 President\'s Trophy' : ''}</div></div></section>
   ${winnersBand(s)}
@@ -361,13 +362,21 @@ function pageRecords() {
   const gb = k => sgSorted(k).slice(0, 8).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.p)} <span class="muted small">${glink(c.g, C.fmt.date(c.g.date) + ' v ' + c.g.opponent)}</span></td><td>${c[k]}</td></tr>`).join('');
   const fg = IX.data.games.filter(C.final);
   const wins = [...fg].sort((a, b) => (b.gf - b.ga) - (a.gf - a.ga)).slice(0, 5).map(g => `<tr><td class="l">${glink(g, `${C.fmt.date(g.date)} vs ${tchip(g.opponent)}`)}</td><td>${g.gf}–${g.ga}</td></tr>`).join('');
-  let streak = 0, best = 0, bestEnd = null; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result === 'W') { streak++; if (streak > best) { best = streak; bestEnd = g; } } else streak = 0; }
-  let un = 0, bestUn = 0; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result !== 'L' && g.result !== 'OTL') { un++; bestUn = Math.max(bestUn, un); } else un = 0; }
+  // streaks over every logged game in order, keeping every run that ties the longest
+  const ordered = IX.seasons.flatMap(s => (IX.gamesBySeason[s.id] || []).filter(C.final));
+  const runs = test => { let cur = []; const out = []; for (const g of ordered) { if (test(g)) cur.push(g); else { if (cur.length) out.push(cur); cur = []; } } if (cur.length) out.push(cur);
+    const n = Math.max(0, ...out.map(r => r.length)); return { n, spans: out.filter(r => r.length === n && n > 0) }; };
+  const ongoing = r => r[r.length - 1] === ordered[ordered.length - 1];
+  const span = r => `${glink(r[0], C.fmt.date(r[0].date))} – ${glink(r[r.length - 1], C.fmt.date(r[r.length - 1].date))}${ongoing(r) ? ' <span class="pill champ">active</span>' : ''}`;
+  const streakCard = (k, x, sub) => `<div class="stat"><div class="k">${k}</div><div class="v">${x.n}</div><div class="s">${sub ? sub + '<br>' : ''}${x.spans.map(span).join('<br>') || '–'}</div></div>`;
+  const winRun = runs(g => g.result === 'W'), unbeaten = runs(g => g.result !== 'L' && g.result !== 'OTL'), loseRun = runs(g => g.result === 'L' || g.result === 'OTL');
+  const losses = [...fg].filter(g => g.ga > g.gf).sort((a, b) => (b.ga - b.gf) - (a.ga - a.gf) || (b.date > a.date ? 1 : -1)).slice(0, 5).map(g => `<tr><td class="l">${glink(g, `${C.fmt.date(g.date)} vs ${tchip(g.opponent)}`)}</td><td>${g.gf}–${g.ga}</td></tr>`).join('');
   return `<h1>Records</h1>
   <h2>Career</h2><div class="grid rec4">${lbox('Points', car.skaters, 'pts')}${lbox('Goals', car.skaters, 'g')}${lbox('Assists', car.skaters, 'a')}${lbox('Points per game (50+ GP)', car.skaters, 'ppg', v => v.toFixed(2), c => c.gp >= 50)}${lbox('Games played', car.skaters, 'gp')}${lbox('Squawk 🏆 points', car.skaters, 'cup')}${lbox('Penalty minutes', car.skaters, 'pim')}${lbox('Goalie wins', car.goalies, 'w')}</div>
   <h2>Single season</h2><div class="grid rec3">${sbox('Points', 'pts')}${sbox('Goals', 'g')}${sbox('Assists', 'a')}</div>
   <h2>Single game (F24 →)</h2><div class="grid rec3">${gbox('Points', 'PTS')}${gbox('Goals', 'G')}${gbox('Assists', 'A')}</div>
-  <h2>Team (F24 →)</h2><div class="grid g3">${box('Biggest wins', wins)}<div class="stat"><div class="k">Longest win streak</div><div class="v">${best}</div><div class="s">ended ${bestEnd ? glink(bestEnd, C.fmt.date(bestEnd.date)) : ''}</div></div><div class="stat"><div class="k">Longest unbeaten run</div><div class="v">${bestUn}</div><div class="s">wins + ties</div></div></div>`;
+  <h2>Team (F24 →)</h2><div class="grid g2 team-rec">${box('Biggest wins', wins)}${box('Biggest losses', losses)}</div>
+  <div class="grid g3" style="margin-top:1rem">${streakCard('Longest win streak', winRun)}${streakCard('Longest unbeaten run', unbeaten, 'wins + ties')}${streakCard('Longest losing streak', loseRun, 'losses + OT losses')}</div>`;
 }
 
 function pageOpponents() {
@@ -379,12 +388,12 @@ function pageOpponents() {
   const leg = IX.data.legacy.head_to_head.map(h => ({ ...h, gp: ['w', 'l', 't', 'otl'].reduce((n, k) => n + (h.regular[k] || 0), 0) + ['w', 'l', 'otl'].reduce((n, k) => n + (h.playoffs[k] || 0), 0) }));
   return `<h1>Opponents</h1>
   <h2>Head to head, game-log era (F24 →)</h2>${table('opp', [
-    { k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opp, 'tlogo sm')} ${tchip(r.opp)}`, v: r => tname(r.opp) }, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL' },
+    { k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opp, 'tlogo sm')} ${tlink(r.opp)}`, v: r => tname(r.opp) }, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL' },
     { k: 'pct', h: 'Pt%', f: r => C.fmt.n3((2 * r.w + r.t + r.otl) / (2 * r.gp)), v: r => (2 * r.w + r.t + r.otl) / (2 * r.gp) }, { k: 'gf', h: 'GF' }, { k: 'ga', h: 'GA' },
     { k: 'dif', h: 'Diff', f: r => (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga), v: r => r.gf - r.ga }, { k: 'po', h: 'Playoff GP' }, { k: 'last', h: 'Last meeting', l: 1, f: r => `${glink(r.last, C.fmt.date(r.last.date))} ${resPill(r.last)} ${score(r.last)}`, v: r => r.last.date }],
     Object.values(agg), { k: 'gp', asc: false })}
   <h2>All-time (old hand-kept table) ${info(esc(IX.data.legacy.head_to_head_note) + " Kept as it was; it can't be recalculated because games before F24 weren't logged one by one." + (IX.data.legacy.anomalies?.length ? `<br><br><b>${esc(IX.data.legacy.anomalies[0])}</b><br>${IX.data.legacy.anomalies.slice(1).map(esc).join('<br>')}` : ''))}</h2>
-  ${table('opp-leg', [{ k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opponent, 'tlogo sm')} ${tchip(r.opponent)}` }, { k: 'gp', h: 'GP' }, { k: 'rw', h: 'Reg W-L-T-OTL', f: r => `${r.regular.w}-${r.regular.l}-${r.regular.t}-${r.regular.otl}`, nosort: 1 }, { k: 'rgf', h: 'Reg GF-GA', f: r => `${r.regular.gf}-${r.regular.ga}`, nosort: 1 }, { k: 'pw', h: 'Playoff W-L-OTL', f: r => r.playoffs.w == null ? '–' : `${r.playoffs.w}-${r.playoffs.l}-${r.playoffs.otl}`, nosort: 1 }, { k: 'pgf', h: 'Playoff GF-GA', f: r => r.playoffs.gf == null ? '–' : `${r.playoffs.gf}-${r.playoffs.ga}`, nosort: 1 }], leg, { k: 'gp', asc: false })}
+  ${table('opp-leg', [{ k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opponent, 'tlogo sm')} ${tlink(r.opponent)}` }, { k: 'gp', h: 'GP' }, { k: 'rw', h: 'Reg W-L-T-OTL', f: r => `${r.regular.w}-${r.regular.l}-${r.regular.t}-${r.regular.otl}`, nosort: 1 }, { k: 'rgf', h: 'Reg GF-GA', f: r => `${r.regular.gf}-${r.regular.ga}`, nosort: 1 }, { k: 'pw', h: 'Playoff W-L-OTL', f: r => r.playoffs.w == null ? '–' : `${r.playoffs.w}-${r.playoffs.l}-${r.playoffs.otl}`, nosort: 1 }, { k: 'pgf', h: 'Playoff GF-GA', f: r => r.playoffs.gf == null ? '–' : `${r.playoffs.gf}-${r.playoffs.ga}`, nosort: 1 }], leg, { k: 'gp', asc: false })}
 `;
 }
 
@@ -422,17 +431,59 @@ function pageAbout() {
   ${Object.entries(KL).filter(([k]) => byKind[k]).map(([k, label]) => `<details class="card" ><summary><b>${label}</b> (${byKind[k].length})</summary><ul class="issues small">${byKind[k].map(i => `<li>${esc(i.msg)}${i.ref ? ` <span class="muted">— ${esc(i.ref)}</span>` : ''}</li>`).join('')}</ul></details>`).join('')}
   <p class="small"><a href="data/squawks.json" download>Download the full data file</a></p>`;
 }
+// ---------- team page: the WinterSquawks against one opponent ----------
+const tlink = c => `<a class="tl" href="#/team/${esc(c)}">${tchip(c)}</a>`;
+function pageTeam(code) {
+  if (!IX.teams[code] || code === 'WSQ') return notFound();
+  const games = IX.seasons.flatMap(s => (IX.gamesBySeason[s.id] || []).filter(g => g.opponent === code));
+  const fg = games.filter(C.final), upcoming = games.filter(g => !C.final(g));
+  const rec = gs => gs.reduce((a, g) => { a.gp++; a[{ W: 'w', L: 'l', T: 't', OTL: 'otl' }[g.result]]++; a.gf += g.gf; a.ga += g.ga; return a; }, { gp: 0, w: 0, l: 0, t: 0, otl: 0, gf: 0, ga: 0 });
+  const reg = rec(fg.filter(g => !g.playoff)), po = rec(fg.filter(g => g.playoff)), all = rec(fg);
+  const pct = r => r.gp ? C.fmt.n3((2 * r.w + r.t + r.otl) / (2 * r.gp)) : '–';
+  const leg = IX.data.legacy.head_to_head.find(h => h.opponent === code);
+  const [bg, fg2] = C.teamColor(IX.data, code);
+  // players against this team
+  const sk = {}, gk = {};
+  for (const g of fg) {
+    const as = C.gameAssists(g);
+    for (const p of g.roster) {
+      if (p === g.goalie) { const x = gk[p] ||= { pid: p, gp: 0, w: 0, l: 0, t: 0, otl: 0, ga: 0, so: 0 }; x.gp++; x[{ W: 'w', L: 'l', T: 't', OTL: 'otl' }[g.result]]++; x.ga += g.ga; if (g.ga === 0) x.so++; continue; }
+      const x = sk[p] ||= { pid: p, gp: 0, g: 0, a: 0, stars: 0 }; x.gp++;
+      x.g += g.goals.filter(y => y.scorer === p).length; x.a += as.filter(y => y === p).length; if (g.stars.includes(p)) x.stars++;
+    }
+  }
+  Object.values(sk).forEach(x => { x.pts = x.g + x.a; });
+  const big = (sign) => [...fg].filter(g => sign * (g.gf - g.ga) > 0).sort((a, b) => sign * ((b.gf - b.ga) - (a.gf - a.ga)))[0];
+  const bw = big(1), bl = big(-1);
+  const kv = r => `${r.w}-${r.l}-${r.t}-${r.otl}`;
+  return `<p class="small"><a href="#/opponents">← Opponents</a></p>
+  <section class="hero team-hero" style="background:${bg};color:${fg2}">${tlogo(code, 'tlogo xl')}<div style="flex:1"><h1 style="color:${fg2}">${esc(tname(code))}</h1>
+    <div class="sub" style="color:${fg2}">WinterSquawks vs ${esc(tname(code))}${fg.length ? ` · ${fg.length} logged game${fg.length === 1 ? '' : 's'} since Fall 2024` : ''}</div></div>
+    ${fg.length ? `<div style="text-align:right"><div class="big" style="color:${fg2}">${kv(all)}</div><div class="sub" style="color:${fg2}">Squawks' W-L-T-OTL (F24 →)</div></div>` : leg ? `<div style="text-align:right"><div class="big" style="color:${fg2}">${leg.regular.w}-${leg.regular.l}-${leg.regular.t}-${leg.regular.otl}</div><div class="sub" style="color:${fg2}">Squawks' all-time regular season</div></div>` : ''}</section>
+  ${fg.length ? `<div class="grid g4">
+    <div class="stat"><div class="k">Regular season</div><div class="v">${kv(reg)}</div><div class="s">${reg.gf}–${reg.ga} goals · ${pct(reg)} pt%</div></div>
+    <div class="stat"><div class="k">Playoffs</div><div class="v">${po.gp ? kv(po) : '–'}</div><div class="s">${po.gp ? `${po.gf}–${po.ga} goals` : 'No playoff meetings logged'}</div></div>
+    <div class="stat"><div class="k">Biggest win</div><div class="v">${bw ? `${bw.gf}–${bw.ga}` : '–'}</div><div class="s">${bw ? glink(bw, C.fmt.date(bw.date)) : ''}</div></div>
+    <div class="stat"><div class="k">Biggest loss</div><div class="v">${bl ? `${bl.gf}–${bl.ga}` : '–'}</div><div class="s">${bl ? glink(bl, C.fmt.date(bl.date)) : ''}</div></div>
+  </div>` : ''}
+  ${leg ? `<h2>All-time ${info("From the old hand-kept head-to-head table, which covers seasons before game-by-game logging began. Kept as it was.")}</h2>
+  <div class="grid g3"><div class="stat"><div class="k">Regular season</div><div class="v">${leg.regular.w}-${leg.regular.l}-${leg.regular.t}-${leg.regular.otl}</div><div class="s">${leg.regular.gf}–${leg.regular.ga} goals</div></div>
+  <div class="stat"><div class="k">Playoffs</div><div class="v">${leg.playoffs.w == null ? '–' : `${leg.playoffs.w}-${leg.playoffs.l}-${leg.playoffs.otl}`}</div><div class="s">${leg.playoffs.gf == null ? '' : `${leg.playoffs.gf}–${leg.playoffs.ga} goals`}</div></div></div>` : ''}
+  ${Object.keys(sk).length ? `<h2>Skaters vs ${esc(tname(code))} (F24 →)</h2>${table('ts-' + code, [{ k: 'name', h: 'Skater', l: 1, f: r => plink(r.pid), v: r => pname(r.pid) }, { k: 'gp', h: 'GP' }, { k: 'g', h: 'G' }, { k: 'a', h: 'A' }, { k: 'pts', h: 'PTS' }, { k: 'ppg', h: 'P/GP', f: r => C.fmt.n2(ppg(r.pts, r.gp)), v: r => ppg(r.pts, r.gp) }, { k: 'stars', h: '⭐', title: 'Times named one of the three stars' }], Object.values(sk), { k: 'pts', asc: false })}` : ''}
+  ${Object.keys(gk).length ? `<h2>Goalies vs ${esc(tname(code))} (F24 →)</h2>${table('tg-' + code, [{ k: 'name', h: 'Goalie', l: 1, f: r => plink(r.pid), v: r => pname(r.pid) }, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL' }, { k: 'ga', h: 'GA' }, { k: 'gaa', h: 'GAA', f: r => C.fmt.n2(r.ga / r.gp), v: r => r.ga / r.gp }, { k: 'so', h: 'SO' }], Object.values(gk), { k: 'gp', asc: false })}` : ''}
+  ${games.length ? `<h2>Games</h2>${table('tm-' + code, [{ k: 'date', h: 'Date', l: 1, f: g => glink(g, C.fmt.date(g.date) || '–'), v: g => g.date }, { k: 'season', h: 'Season', l: 1, f: g => slink(g.season) }, { k: 'type', h: '', l: 1, f: g => g.playoff ? `<span class="pill champ">${g.championship ? 'Final' : 'Playoff'}</span>` : '', nosort: 1 }, { k: 'res', h: 'Result', f: g => resPill(g), nosort: 1 }, { k: 'score', h: 'Score', f: g => glink(g, score(g)), nosort: 1 }, { k: 'st', h: '⭐ 1st star', l: 1, f: g => g.stars[0] ? plink(g.stars[0]) : '', nosort: 1 }], games, { k: 'date', asc: false })}` : '<p class="muted">No logged games against this team. Game-by-game logs start in Fall 2024.</p>'}`;
+}
 const notFound = () => `<h1>Not found</h1><p><a href="#/">Home</a></p>`;
 
 // ---------- router ----------
 function route() {
   const h = location.hash.replace(/^#\/?/, '');
   const [page, arg] = h.split('/');
-  const map = { '': pageHome, seasons: pageSeasons, season: pageSeason, game: pageGame, players: pagePlayers, player: pagePlayer, records: pageRecords, opponents: pageOpponents, trophies: pageTrophies, about: pageAbout };
+  const map = { '': pageHome, seasons: pageSeasons, season: pageSeason, game: pageGame, players: pagePlayers, player: pagePlayer, team: pageTeam, records: pageRecords, opponents: pageOpponents, trophies: pageTrophies, about: pageAbout };
   const fn = map[page] || notFound;
   try { $app.innerHTML = fn(decodeURIComponent(arg || '')); if (page === 'player' && P(arg)) loadPlayerPhoto(P(arg)); }
   catch (err) { console.error(err); $app.innerHTML = `<h1>Something broke</h1><pre>${esc(err.stack)}</pre>`; }
-  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#/' + (page === 'season' ? 'seasons' : page === 'player' ? 'players' : page)));
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#/' + (page === 'season' ? 'seasons' : page === 'player' ? 'players' : page === 'team' ? 'opponents' : page)));
   if (!h.includes('#')) window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
