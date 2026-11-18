@@ -11,6 +11,8 @@ const pname = id => P(id)?.name ?? id;
 const plink = id => P(id) ? `<a href="#/player/${id}">${esc(pname(id))}</a>` : esc(id);
 const tname = c => IX.teams[c] ?? c ?? '';
 const tchip = (c, abbr = false) => { if (!c) return ''; const [bg, fg] = C.teamColor(IX.data, c); return `<span class="team" style="background:${bg};color:${fg}">${esc(abbr ? c : tname(c))}</span>`; };
+const tlogoSrc = c => (IX.data.team_logos || {})[c];
+const tlogo = (c, cls = 'tlogo') => tlogoSrc(c) ? `<img class="${cls}" src="${esc(tlogoSrc(c))}" alt="${esc(tname(c))} logo">` : `<span class="${cls} none" style="background:${C.teamColor(IX.data, c)[0]};color:${C.teamColor(IX.data, c)[1]}">${esc(c)}</span>`;
 const slink = id => `<a href="#/season/${id}">${esc(IX.seasonById[id]?.name ?? id)}</a>`;
 const glink = (g, label) => `<a href="#/game/${g.id}">${label}</a>`;
 const resPill = g => g.status !== 'final' ? '<span class="pill T">—</span>' : `<span class="pill ${g.result}">${g.result}${g.ot && g.result !== 'OTL' ? ' ' + g.ot : g.result === 'OTL' && g.ot === 'SO' ? ' SO' : ''}</span>`;
@@ -145,6 +147,21 @@ function pageSeasons() {
   return `<h1>Seasons ${info('Goals for/against before Fall 2024 are the old Overview totals and include playoffs. Points: 2 per win, 1 per tie or OT/SO loss.')}</h1>${seasonsTable('seasons')}`;
 }
 
+// Stanley Keg winner (left) and President's Trophy winner (right), in the Keg winner's colors
+function winnersBand(s) {
+  const a = (IX.data.awards || []).find(x => x.season === s.id);
+  if (!a || !(a.stanley_keg || a.presidents)) return '';
+  const [bg, fg] = C.teamColor(IX.data, a.stanley_keg || a.presidents);
+  const rec = c => { const r = (s.standings || []).find(x => x.team === c); if (!r) return '';
+    const pos = (s.standings || []).indexOf(r) + 1;
+    return `${r.w != null ? `${r.w}-${r.l}-${r.t_otl ?? 0} · ` : ''}${r.pts} pts · ${ordinal(pos)} in standings`; };
+  const side = (c, trophy, label, extra, right) => c ? `<div class="wb-side${right ? ' r' : ''}">${tlogo(c, 'tlogo lg')}<div>
+    <div class="wb-label">${trophy} ${label}</div><div class="wb-team">${esc(tname(c))}</div><div class="wb-info">${rec(c)}${extra ? `<br>${extra}` : ''}</div></div></div>` : '<div></div>';
+  const final = a.runner_up ? `Beat ${esc(tname(a.runner_up))} in the final` : '';
+  return `<section class="winners" style="--wb-bg:${bg};--wb-fg:${fg}">
+    ${side(a.stanley_keg, '🏆', 'Stanley Keg', final, false)}
+    ${side(a.presidents, '🥇', "President's Trophy", 'Regular-season champions', true)}</section>`;
+}
 function pageSeason(id) {
   const s = IX.seasonById[id]; if (!s) return notFound();
   const x = seasonSummary(s); const gs = IX.gamesBySeason[id] || [];
@@ -185,6 +202,7 @@ function pageSeason(id) {
   ${s.story_title ? `<div class="sub" style="margin-top:.4rem"><i>${esc(s.story_title)}</i></div>` : ''}</div>
   <div style="text-align:right"><div class="big">${C.fmt.rec4(x.rec.reg)}</div><div class="sub">W-L-T-OTL · ${C.points(IX.data, x.rec.reg)} pts${C.place(s) ? ' · ' + ordinal(C.place(s)) : ''}</div>
   <div class="sub">${s.champion ? '🏆 STANLEY KEG CHAMPIONS' : esc(s.result || '')}${s.presidents ? ' · 🥇 President\'s Trophy' : ''}</div></div></section>
+  ${winnersBand(s)}
   <h2>Skaters</h2>${table('sk-' + id, skCols, sk, { k: 'pts', asc: false }, { total: tot })}
   <h2>Goalies</h2>${table('gk-' + id, gkCols, gk, { k: 'gp', asc: false })}
   ${gs.length ? `<h2>Games</h2>${table('gm-' + id, gameCols, gs, null)}` : ''}
@@ -321,6 +339,7 @@ function pageRecords() {
     if (!rows.length) return '';
     const best = fmt(val(rows[0]), rows[0]);
     const tied = rows.filter(r => fmt(val(r), r) === best);
+    if (tied.length > 3) return `<div class="rec-leader tie many"><b>${best}</b><span class="small">${tied.length} players tied</span></div>`;
     return `<div class="rec-leader${tied.length > 1 ? ' tie' : ''}">${tied.map(r => { const p = P(pid(r)); if (!p) return ''; const n = note(r);
       return `<div class="rec-person"><a href="#/player/${p.id}"><img src="${esc(photoOf(p))}" alt="${esc(p.name)}"></a><a class="nm" href="#/player/${p.id}">${esc(p.name)}</a>${n ? `<span class="muted small">${n}</span>` : ''}</div>`; }).join('')}
       <b>${best}</b>${tied.length > 1 ? '<span class="small">tied</span>' : ''}</div>`;
@@ -360,12 +379,12 @@ function pageOpponents() {
   const leg = IX.data.legacy.head_to_head.map(h => ({ ...h, gp: ['w', 'l', 't', 'otl'].reduce((n, k) => n + (h.regular[k] || 0), 0) + ['w', 'l', 'otl'].reduce((n, k) => n + (h.playoffs[k] || 0), 0) }));
   return `<h1>Opponents</h1>
   <h2>Head to head, game-log era (F24 →)</h2>${table('opp', [
-    { k: 'opp', h: 'Opponent', l: 1, f: r => tchip(r.opp), v: r => tname(r.opp) }, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL' },
+    { k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opp, 'tlogo sm')} ${tchip(r.opp)}`, v: r => tname(r.opp) }, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL' },
     { k: 'pct', h: 'Pt%', f: r => C.fmt.n3((2 * r.w + r.t + r.otl) / (2 * r.gp)), v: r => (2 * r.w + r.t + r.otl) / (2 * r.gp) }, { k: 'gf', h: 'GF' }, { k: 'ga', h: 'GA' },
     { k: 'dif', h: 'Diff', f: r => (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga), v: r => r.gf - r.ga }, { k: 'po', h: 'Playoff GP' }, { k: 'last', h: 'Last meeting', l: 1, f: r => `${glink(r.last, C.fmt.date(r.last.date))} ${resPill(r.last)} ${score(r.last)}`, v: r => r.last.date }],
     Object.values(agg), { k: 'gp', asc: false })}
   <h2>All-time (old hand-kept table) ${info(esc(IX.data.legacy.head_to_head_note) + " Kept as it was; it can't be recalculated because games before F24 weren't logged one by one." + (IX.data.legacy.anomalies?.length ? `<br><br><b>${esc(IX.data.legacy.anomalies[0])}</b><br>${IX.data.legacy.anomalies.slice(1).map(esc).join('<br>')}` : ''))}</h2>
-  ${table('opp-leg', [{ k: 'opp', h: 'Opponent', l: 1, f: r => tchip(r.opponent) }, { k: 'gp', h: 'GP' }, { k: 'rw', h: 'Reg W-L-T-OTL', f: r => `${r.regular.w}-${r.regular.l}-${r.regular.t}-${r.regular.otl}`, nosort: 1 }, { k: 'rgf', h: 'Reg GF-GA', f: r => `${r.regular.gf}-${r.regular.ga}`, nosort: 1 }, { k: 'pw', h: 'Playoff W-L-OTL', f: r => r.playoffs.w == null ? '–' : `${r.playoffs.w}-${r.playoffs.l}-${r.playoffs.otl}`, nosort: 1 }, { k: 'pgf', h: 'Playoff GF-GA', f: r => r.playoffs.gf == null ? '–' : `${r.playoffs.gf}-${r.playoffs.ga}`, nosort: 1 }], leg, { k: 'gp', asc: false })}
+  ${table('opp-leg', [{ k: 'opp', h: 'Opponent', l: 1, f: r => `${tlogo(r.opponent, 'tlogo sm')} ${tchip(r.opponent)}` }, { k: 'gp', h: 'GP' }, { k: 'rw', h: 'Reg W-L-T-OTL', f: r => `${r.regular.w}-${r.regular.l}-${r.regular.t}-${r.regular.otl}`, nosort: 1 }, { k: 'rgf', h: 'Reg GF-GA', f: r => `${r.regular.gf}-${r.regular.ga}`, nosort: 1 }, { k: 'pw', h: 'Playoff W-L-OTL', f: r => r.playoffs.w == null ? '–' : `${r.playoffs.w}-${r.playoffs.l}-${r.playoffs.otl}`, nosort: 1 }, { k: 'pgf', h: 'Playoff GF-GA', f: r => r.playoffs.gf == null ? '–' : `${r.playoffs.gf}-${r.playoffs.ga}`, nosort: 1 }], leg, { k: 'gp', asc: false })}
 `;
 }
 

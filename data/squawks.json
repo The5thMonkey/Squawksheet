@@ -107,6 +107,16 @@
    "#fcb514"
   ]
  },
+ "team_logos": {
+  "WSQ": "img/logos/primary.png",
+  "CHF": "img/teams/CHF.png",
+  "DKM": "img/teams/DKM.png",
+  "FIC": "img/teams/FIC.png",
+  "NOR": "img/teams/NOR.png",
+  "HMR": "img/teams/HMR.png",
+  "AMW": "img/teams/AMW.png",
+  "BDB": "img/teams/BDB.png"
+ },
  "players": [
   {
    "id": "austin-cox",
