@@ -140,3 +140,8 @@ th .tip{font-weight:400}
 a.tl:hover{text-decoration:none} a.tl:hover .team{box-shadow:inset 0 0 0 2px #0006}
 .hero-logo.sec{height:6rem}
 @media (max-width:640px){ .hero-logo.sec{height:4rem} }
+/* goal videos play inline under the scorer */
+.vidbtn{border:1px solid var(--line);background:var(--paper);color:var(--blue);font:600 .8rem var(--body);padding:.12rem .5rem;border-radius:6px;cursor:pointer}
+.vidbtn:hover,.vidbtn.on{background:var(--sq-secondary);border-color:var(--sq-secondary);color:#fff}
+.vidbox{margin:.5rem 0 .3rem;max-width:640px}
+.vidbox iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000;margin-bottom:.25rem}

@@ -19,6 +19,24 @@ const resPill = g => g.status !== 'final' ? '<span class="pill T">—</span>' : 
 const score = g => g.status === 'final' ? `${g.gf}–${g.ga}${g.forfeit ? ' <span class="pill T" title="Awarded by forfeit">FF</span>' : ''}` : 'scheduled';
 const ppg = (p, gp) => gp ? p / gp : null;
 const info = html => `<span class="info" tabindex="0" aria-label="More info">i<span class="tip">${html}</span></span>`;
+// YouTube links play inside the site; anything else (e.g. Google Photos) opens in a new tab
+const ytInfo = url => { try { const u = new URL(url); let id = null;
+  if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('/')[0];
+  else if (/(^|\.)youtube\.com$/.test(u.hostname)) id = u.searchParams.get('v') || (u.pathname.match(/\/(?:shorts|embed|live)\/([\w-]+)/) || [])[1];
+  if (!id) return null; const t = u.searchParams.get('t') || u.searchParams.get('start') || '';
+  const m = String(t).match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/); const start = m ? (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0) : 0;
+  return { id, start }; } catch { return null; } };
+function openVideo(btn) {
+  const li = btn.closest('[data-goal]'); const box = li?.querySelector('.vidbox'); if (!box) return;
+  const open = !box.hidden;
+  document.querySelectorAll('.vidbox').forEach(b => { b.hidden = true; b.innerHTML = ''; });
+  document.querySelectorAll('.vidbtn.on').forEach(b => b.classList.remove('on'));
+  if (open) return;
+  const y = ytInfo(btn.dataset.url);
+  box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(y.id)}?autoplay=1&rel=0&playsinline=1${y.start ? '&start=' + y.start : ''}" title="Goal video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><a class="small" href="${esc(btn.dataset.url)}" target="_blank" rel="noopener">Open on YouTube ↗</a>`;
+  box.hidden = false; btn.classList.add('on');
+}
+document.addEventListener('click', e => { const b = e.target.closest('.vidbtn'); if (b) { e.preventDefault(); openVideo(b); } });
 const vidIcon = url => url ? `<a class="vid" href="${esc(url)}" target="_blank" rel="noopener" title="Goal video">▶</a>` : '';
 const seasonBadge = s => s.tracking === 'game-log'
   ? `<span class="pill ver" title="Game-by-game log">game log</span>`
@@ -230,7 +248,7 @@ function pageGame(id) {
   const g = IX.data.games.find(x => x.id === id); if (!g) return notFound();
   const s = IX.seasonById[g.season]; const gs = IX.gamesBySeason[g.season]; const i = gs.indexOf(g);
   const paired = g.goals.some(x => x.a1);
-  const goals = g.goals.map((x, k) => `<li>${k + 1}. <b>${plink(x.scorer)}</b>${x.a1 ? ` <span class="muted">from ${plink(x.a1)}${x.a2 ? ', ' + plink(x.a2) : ''}</span>` : ''} ${x.video ? `<a href="${esc(x.video)}" target="_blank" rel="noopener">▶ video</a>` : '<span class="muted small">no video</span>'}</li>`).join('');
+  const goals = g.goals.map((x, k) => `<li data-goal="${k}" id="goal-${k}">${k + 1}. <b>${plink(x.scorer)}</b>${x.a1 ? ` <span class="muted">from ${plink(x.a1)}${x.a2 ? ', ' + plink(x.a2) : ''}</span>` : ''} ${!x.video ? '<span class="muted small">no video</span>' : ytInfo(x.video) ? `<button class="vidbtn" data-url="${esc(x.video)}">▶ video</button>` : `<a href="${esc(x.video)}" target="_blank" rel="noopener" title="Opens in a new tab">▶ video ↗</a>`}<div class="vidbox" hidden></div></li>`).join('');
   const [m, d] = g.date ? [+g.date.slice(5, 7), +g.date.slice(8, 10)] : [0, 0];
   const tale = (s.story || []).filter(l => new RegExp(`(^|\\D)${m}/${d}(\\D|$)`).test(l.text));
   const stars = ['1st', '2nd', '3rd'];
@@ -315,7 +333,7 @@ function pagePlayer(pid) {
     if (!g.roster.includes(pid)) continue;
     const gl = g.goals.filter(x => x.scorer === pid); const a = C.gameAssists(g).filter(x => x === pid).length;
     const star = g.stars.indexOf(pid);
-    log.push({ g, G: gl.length, A: a, vids: gl.map(x => x.video).filter(Boolean), star, goalie: g.goalie === pid });
+    log.push({ g, G: gl.length, A: a, vids: g.goals.map((x, k) => ({ x, k })).filter(o => o.x.scorer === pid && o.x.video), star, goalie: g.goalie === pid });
   }
   return `<section class="hero has-photo"><img class="pphoto" id="pphoto" src="${esc(defaultPhoto(p))}" alt="${esc(p.name)}"><div style="flex:1"><h1>${esc(p.name)}</h1><div class="sub">${p.number ? '#' + esc(p.number) + ' · ' : ''}${esc(p.position || (p.goalie ? 'G' : ''))}${p.nicknames?.length ? ' · "' + p.nicknames.map(esc).join('", "') + '"' : ''} · ${C.isActive(IX, pid) ? 'Active' : 'Alumni'}${p.sub ? ' · Sub goalie' : ''}</div></div>
   <div class="trophies stacked">${champs ? `<div title="Stanley Keg championships">${'🏆'.repeat(champs)}</div>` : ''}${pres ? `<div title="President's Trophies">${'🥇'.repeat(pres)}</div>` : ''}</div></section>
@@ -325,7 +343,7 @@ function pagePlayer(pid) {
   ${log.length ? `<h2>Game log (F24 →)</h2>${table('pl-' + pid, [
     { k: 'date', h: 'Date', l: 1, f: r => glink(r.g, C.fmt.date(r.g.date)), v: r => r.g.date }, { k: 'opp', h: 'Opponent', l: 1, f: r => tchip(r.g.opponent) + (r.g.playoff ? ' <span class="pill champ">PO</span>' : '') },
     { k: 'res', h: 'Result', f: r => `${resPill(r.g)} ${score(r.g)}` }, { k: 'G', h: 'G' }, { k: 'A', h: 'A' }, { k: 'pts', h: 'PTS', f: r => r.G + r.A, v: r => r.G + r.A },
-    { k: 'star', h: '⭐', f: r => r.star >= 0 ? ['1st', '2nd', '3rd'][r.star] : '', v: r => r.star >= 0 ? 3 - r.star : 0 }, { k: 'v', h: 'Videos', l: 1, f: r => (r.goalie ? '🥅 ' : '') + r.vids.map(vidIcon).join(' ') }], log, { k: 'date', asc: false })}` : ''}
+    { k: 'star', h: '⭐', f: r => r.star >= 0 ? ['1st', '2nd', '3rd'][r.star] : '', v: r => r.star >= 0 ? 3 - r.star : 0 }, { k: 'v', h: 'Videos', l: 1, f: r => (r.goalie ? '🥅 ' : '') + r.vids.map(o => ytInfo(o.x.video) ? `<a class="vid" href="#/game/${esc(r.g.id)}/v${o.k}" title="Watch on the game page">▶</a>` : vidIcon(o.x.video)).join(' ') }], log, { k: 'date', asc: false })}` : ''}
   ${p.links?.length ? `<p class="small">Links: ${p.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.season)} profile</a>`).join(' · ')}</p>` : ''}`;
 }
 
@@ -478,13 +496,14 @@ const notFound = () => `<h1>Not found</h1><p><a href="#/">Home</a></p>`;
 // ---------- router ----------
 function route() {
   const h = location.hash.replace(/^#\/?/, '');
-  const [page, arg] = h.split('/');
+  const [page, arg, extra] = h.split('/'); let focusEl = null;
   const map = { '': pageHome, seasons: pageSeasons, season: pageSeason, game: pageGame, players: pagePlayers, player: pagePlayer, team: pageTeam, records: pageRecords, opponents: pageOpponents, trophies: pageTrophies, about: pageAbout };
   const fn = map[page] || notFound;
-  try { $app.innerHTML = fn(decodeURIComponent(arg || '')); if (page === 'player' && P(arg)) loadPlayerPhoto(P(arg)); }
+  try { $app.innerHTML = fn(decodeURIComponent(arg || '')); if (page === 'player' && P(arg)) loadPlayerPhoto(P(arg));
+    if (page === 'game' && /^v\d+$/.test(extra || '')) { const li = document.getElementById('goal-' + extra.slice(1)); const b = li?.querySelector('.vidbtn'); if (b) { openVideo(b); focusEl = li; } } }
   catch (err) { console.error(err); $app.innerHTML = `<h1>Something broke</h1><pre>${esc(err.stack)}</pre>`; }
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#/' + (page === 'season' ? 'seasons' : page === 'player' ? 'players' : page === 'team' ? 'opponents' : page)));
-  if (!h.includes('#')) window.scrollTo(0, 0);
+  if (focusEl) focusEl.scrollIntoView({ block: 'center' }); else if (!h.includes('#')) window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
 
