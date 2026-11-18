@@ -175,3 +175,30 @@ a.tl:hover{text-decoration:none} a.tl:hover .team{box-shadow:inset 0 0 0 2px #00
 .paper .vidbtn{font-family:Georgia,serif}
 @media (max-width:700px){ .np-body{column-count:1} .mh-name{font-size:1.7rem} .np-head{font-size:1.5rem} .mh-meta span:last-child{display:none} }
 .np-body.short{column-count:1}
+/* playoff editions */
+.paper{position:relative;overflow:hidden}
+.np-strap{display:inline-block;margin:.1rem 0 .35rem;padding:.2rem 1rem;font:700 .8rem/1.2 var(--head);letter-spacing:.25em;text-transform:uppercase;color:#1d1a16;border-top:2px solid #1d1a16;border-bottom:2px solid #1d1a16}
+.paper.po{border:3px double #b8860b;box-shadow:0 4px 18px #b8860b33}
+.paper.po .mh{border-bottom-color:#b8860b}
+.paper.po .np-kicker{color:#a0740a}
+.paper.won .np-strap{background:#c9971a;color:#1d1a16;border-color:#1d1a16;animation:strap 2.4s ease-in-out infinite}
+.paper.won .np-head{color:var(--sq-secondary)}
+.paper.title{background-color:#fbf4dc}
+.paper.title .np-head{font-size:3rem;text-align:center;line-height:1;margin:.3rem 0 .2rem;text-shadow:2px 2px 0 #c9971a55}
+.paper.title .np-kicker,.paper.title .np-deck{text-align:center}
+.np-score{text-align:center;font:700 1.3rem Georgia,serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem}
+.np-score span{color:#b8860b;margin:0 .4rem}
+.np-photo{margin:.4rem 0 1rem;border:1px solid #1d1a16;padding:.4rem;background:#fff}
+.np-photo img{display:block;width:100%;height:auto;filter:saturate(.92) contrast(1.03)}
+.np-photo figcaption{font:italic .86rem/1.4 Georgia,serif;color:#3d372f;padding:.45rem .1rem .1rem;border-top:1px solid #c9bfa6;margin-top:.4rem}
+.confetti{position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:
+    radial-gradient(circle,#c9971a 0 3px,transparent 3.5px),radial-gradient(circle,#912522 0 2.5px,transparent 3px),
+    radial-gradient(circle,#a6c1da 0 3px,transparent 3.5px),radial-gradient(circle,#c9971a 0 2px,transparent 2.5px);
+  background-size:140px 120px,170px 150px,120px 160px,90px 110px;background-position:10px 20px,60px 80px,100px 10px,30px 55px;
+  -webkit-mask-image:linear-gradient(#000 0,#000 9rem,transparent 14rem);mask-image:linear-gradient(#000 0,#000 9rem,transparent 14rem)}
+.paper.title .confetti{opacity:.75;-webkit-mask-image:linear-gradient(#000 0,#000 16rem,transparent 24rem);mask-image:linear-gradient(#000 0,#000 16rem,transparent 24rem)}
+.paper > *:not(.confetti){position:relative}
+@keyframes strap{0%,100%{box-shadow:0 0 0 #c9971a00}50%{box-shadow:0 0 14px #c9971aaa}}
+@media (prefers-reduced-motion:reduce){ .paper.won .np-strap{animation:none} }
+@media (max-width:700px){ .paper.title .np-head{font-size:1.9rem} }

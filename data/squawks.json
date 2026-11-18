@@ -7665,7 +7665,8 @@
    "shots_against": null,
    "links": [],
    "source": "season-tab",
-   "status": "final"
+   "status": "final",
+   "photo": {"src": "img/championships/F24.jpg", "caption": "Fall 2024 Stanley Keg Champions: the WinterSquawks after beating Drunken Masters 3–1, December 22, 2024"}
   },
   {
    "id": "W25-01",
@@ -14890,7 +14891,8 @@
    "shots_against": 17,
    "links": [],
    "source": "season-tab",
-   "status": "final"
+   "status": "final",
+   "photo": {"src": "img/championships/S26.jpg", "caption": "Summer 2026 Stanley Keg Champions: the WinterSquawks after beating Apuckalypse Meow 6–4, August 30, 2026"}
   },
   {
    "id": "F26-01",

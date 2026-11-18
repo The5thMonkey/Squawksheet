@@ -248,25 +248,36 @@ function storyBlock(s) {
 function newspaper(g, s, tale) {
   const opp = tname(g.opponent).toUpperCase(), sc = `${g.gf}–${g.ga}`;
   const extra = g.ot === 'SO' ? ' IN A SHOOTOUT' : g.ot ? ' IN OVERTIME' : '';
+  const won = g.status === 'final' && g.result === 'W', po = !!g.playoff, champ = po && g.championship;
+  const title = champ && won;   // won the Stanley Keg
   const head = g.status !== 'final' ? `SQUAWKS VS. ${opp}`
-    : g.result === 'W' ? `SQUAWKS BEAT ${opp} ${sc}${extra}`
+    : title ? 'SQUAWKS WIN THE STANLEY KEG!'
+    : won ? `SQUAWKS BEAT ${opp} ${sc}${extra}${po ? '!' : ''}`
     : g.result === 'T' ? `SQUAWKS, ${opp} SKATE TO ${sc} TIE`
     : `SQUAWKS FALL TO ${opp} ${sc}${extra}`;
-  const kicker = g.playoff ? (g.championship ? 'Championship Final' : 'Playoffs') : 'Regular Season';
-  const deck = g.stars[0] ? `${esc(pname(g.stars[0]))} named first star${g.stars[1] ? `; ${esc(pname(g.stars[1]))} and ${g.stars[2] ? esc(pname(g.stars[2])) : '–'} round out the three` : ''}` : '';
+  const kicker = champ ? 'Championship Final' : po ? 'Playoffs' : 'Regular Season';
+  const stars = g.stars[0] ? `${esc(pname(g.stars[0]))} named first star${g.stars[1] ? `; ${esc(pname(g.stars[1]))} and ${g.stars[2] ? esc(pname(g.stars[2])) : '–'} round out the three` : ''}` : '';
+  const deck = title ? `Beat ${esc(tname(g.opponent))} ${sc}${extra.toLowerCase()} in the final${stars ? ' · ' + stars : ''}` : stars;
   const d = g.date ? new Date(g.date + 'T12:00:00') : null;
   const dateline = d ? d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
   // drop the "5/8 Drunken Masters:" lead-in the season story uses
   const body = tale.map(l => esc(l.text.replace(/^\s*(?:[^\d:]{1,40}?\s)?\d{1,2}\/\d{1,2}(?:\/\d{2,4})?(?:\s+[^:\-–\d]{1,40}?)?\s*[:\-–]\s*/, '')));
   const watch = tale.filter(l => l.link).map(l => ytInfo(l.link) ? `<button class="vidbtn" data-url="${esc(l.link)}">▶ Watch the game</button>` : `<a href="${esc(l.link)}" target="_blank" rel="noopener">▶ Watch the game ↗</a>`).join(' ');
-  return `<article class="paper" data-goal="paper">
+  const strap = title ? '★ Championship Extra ★' : champ ? 'Championship Edition' : po && won ? '★ Playoff Extra ★' : po ? 'Playoff Edition' : '';
+  const photo = g.photo?.src ? `<figure class="np-photo"><img src="${esc(g.photo.src)}" alt="${esc(g.photo.caption || 'Championship photo')}" loading="lazy"><figcaption>${esc(g.photo.caption || '')}</figcaption></figure>` : '';
+  const cls = ['paper', po && 'po', won && 'won', champ && 'champ', title && 'title'].filter(Boolean).join(' ');
+  return `<article class="${cls}" data-goal="paper">
+    ${po && won ? '<div class="confetti" aria-hidden="true"></div>' : ''}
     <header class="mh"><div class="mh-meta"><span>${esc(s.name)}</span><span>${esc(dateline)}</span><span>${esc(s.division)}</span></div>
+      ${strap ? `<div class="np-strap">${strap}</div>` : ''}
       <div class="mh-name">The Beer League Telegraph<span>(ed Pass)</span></div>
       <div class="mh-sec"><span>Sports</span></div></header>
     <div class="np-kicker">${kicker}</div>
     <h3 class="np-head">${head}</h3>
+    ${title ? `<div class="np-score">${esc(tname('WSQ'))} ${g.gf} <span>·</span> ${esc(tname(g.opponent))} ${g.ga}</div>` : ''}
     ${deck ? `<div class="np-deck">${deck}</div>` : ''}
-    <div class="np-body${body.join('').length < 260 ? ' short' : ''}">${body.map((t, k) => `<p${k === 0 ? ' class="lede"' : ''}>${t}</p>`).join('')}</div>
+    ${photo}
+    ${body.length ? `<div class="np-body${body.join('').length < 260 ? ' short' : ''}">${body.map((t, k) => `<p${k === 0 ? ' class="lede"' : ''}>${t}</p>`).join('')}</div>` : ''}
     ${watch ? `<div class="np-watch">${watch}</div>` : ''}<div class="vidbox" hidden></div>
   </article>`;
 }
@@ -296,7 +307,7 @@ function pageGame(id) {
       ${g.links?.length ? `<h3>Links</h3><p>${g.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' · ')}</p>` : ''}
       ${g.notes ? `<h3>Notes</h3><p>${esc(g.notes)}</p>` : ''}</div>
   </div>
-  ${tale.length ? newspaper(g, s, tale) : ''}`;
+  ${tale.length || g.photo ? newspaper(g, s, tale) : ''}`;
 }
 
 const SCOPES = {
