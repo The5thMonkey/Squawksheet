@@ -315,27 +315,39 @@ function pageRecords() {
   const lb = (arr, k, f = v => v, n = 10, min = null) => arr.filter(c => min ? min(c) : true).sort((a, b) => b[k] - a[k]).slice(0, n).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)}</td><td>${f(c[k], c)}</td></tr>`).join('');
   const box = (title, rows) => `<div class="tw"><table><thead><tr><th class="l">${title}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   car.skaters.forEach(c => { c.ppg = c.gp ? c.pts / c.gp : 0; });
-  // career box with the #1 player's photo shown above the rankings
+  // leader card(s) shown above a ranking: everyone tied for #1 gets their photo
+  const photoOf = p => p.photos?.[0] || defaultPhoto(p);
+  const leaders = (rows, pid, val, fmt = v => v, note = () => '') => {
+    if (!rows.length) return '';
+    const best = fmt(val(rows[0]), rows[0]);
+    const tied = rows.filter(r => fmt(val(r), r) === best);
+    return `<div class="rec-leader${tied.length > 1 ? ' tie' : ''}">${tied.map(r => { const p = P(pid(r)); if (!p) return ''; const n = note(r);
+      return `<div class="rec-person"><a href="#/player/${p.id}"><img src="${esc(photoOf(p))}" alt="${esc(p.name)}"></a><a class="nm" href="#/player/${p.id}">${esc(p.name)}</a>${n ? `<span class="muted small">${n}</span>` : ''}</div>`; }).join('')}
+      <b>${best}</b>${tied.length > 1 ? '<span class="small">tied</span>' : ''}</div>`;
+  };
+  const rbox = (title, leaderHtml, table) => `<div class="rec-box"><div class="rec-title">${title}</div>${leaderHtml}${table}</div>`;
   const lbox = (title, arr, k, f = v => v, min = null) => {
-    const top = arr.filter(c => min ? min(c) : true).sort((a, b) => b[k] - a[k])[0];
-    const p = top && P(top.player);
-    const leader = p ? `<a class="rec-leader" href="#/player/${p.id}"><img src="${esc(p.photos?.[0] || defaultPhoto(p))}" alt="${esc(p.name)}"><span>${esc(p.name)}</span><b>${f(top[k], top)}</b></a>` : '';
-    return `<div class="rec-box"><div class="rec-title">${title}</div>${leader}${box('Top 10', lb(arr, k, f, 10, min))}</div>`;
+    const rows = arr.filter(c => min ? min(c) : true).sort((a, b) => b[k] - a[k]);
+    return rbox(title, leaders(rows, r => r.player, r => r[k], f), box('Top 10', lb(arr, k, f, 10, min)));
   };
   // single season
   const ss = []; for (const s of IX.seasons) for (const e of new Set([...(s.roster || []).map(e => e.player), ...(IX.gamesBySeason[s.id] || []).flatMap(g => g.roster)])) { const l = C.skaterSeasonLine(IX, s, e); if (l) ss.push({ player: e, season: s.id, ...l }); }
-  const sb = (k) => [...ss].sort((a, b) => b[k] - a[k]).slice(0, 10).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)} <span class="muted small">${c.season}</span></td><td>${c[k]}</td></tr>`).join('');
+  const ssSorted = k => [...ss].sort((a, b) => b[k] - a[k]);
+  const sbox = (title, k) => rbox(title, leaders(ssSorted(k), r => r.player, r => r[k], v => v, r => slink(r.season)), box('Top 10', sb(k)));
+  const sb = (k) => ssSorted(k).slice(0, 10).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)} <span class="muted small">${c.season}</span></td><td>${c[k]}</td></tr>`).join('');
   // single game
   const sg = []; for (const g of IX.data.games.filter(C.final)) for (const p of g.roster) { if (p === g.goalie) continue; const G = g.goals.filter(x => x.scorer === p).length, A = C.gameAssists(g).filter(x => x === p).length; if (G + A) sg.push({ p, g, G, A, PTS: G + A }); }
-  const gb = k => [...sg].sort((a, b) => b[k] - a[k] || (b.g.date > a.g.date ? 1 : -1)).slice(0, 8).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.p)} <span class="muted small">${glink(c.g, C.fmt.date(c.g.date) + ' v ' + c.g.opponent)}</span></td><td>${c[k]}</td></tr>`).join('');
+  const sgSorted = k => [...sg].sort((a, b) => b[k] - a[k] || (b.g.date > a.g.date ? 1 : -1));
+  const gbox = (title, k) => rbox(title, leaders(sgSorted(k), r => r.p, r => r[k], v => v, r => glink(r.g, C.fmt.date(r.g.date) + ' v ' + r.g.opponent)), box('Top 8', gb(k)));
+  const gb = k => sgSorted(k).slice(0, 8).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.p)} <span class="muted small">${glink(c.g, C.fmt.date(c.g.date) + ' v ' + c.g.opponent)}</span></td><td>${c[k]}</td></tr>`).join('');
   const fg = IX.data.games.filter(C.final);
   const wins = [...fg].sort((a, b) => (b.gf - b.ga) - (a.gf - a.ga)).slice(0, 5).map(g => `<tr><td class="l">${glink(g, `${C.fmt.date(g.date)} vs ${tchip(g.opponent)}`)}</td><td>${g.gf}–${g.ga}</td></tr>`).join('');
   let streak = 0, best = 0, bestEnd = null; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result === 'W') { streak++; if (streak > best) { best = streak; bestEnd = g; } } else streak = 0; }
   let un = 0, bestUn = 0; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result !== 'L' && g.result !== 'OTL') { un++; bestUn = Math.max(bestUn, un); } else un = 0; }
   return `<h1>Records</h1>
   <h2>Career</h2><div class="grid rec4">${lbox('Points', car.skaters, 'pts')}${lbox('Goals', car.skaters, 'g')}${lbox('Assists', car.skaters, 'a')}${lbox('Points per game (50+ GP)', car.skaters, 'ppg', v => v.toFixed(2), c => c.gp >= 50)}${lbox('Games played', car.skaters, 'gp')}${lbox('Squawk 🏆 points', car.skaters, 'cup')}${lbox('Penalty minutes', car.skaters, 'pim')}${lbox('Goalie wins', car.goalies, 'w')}</div>
-  <h2>Single season</h2><div class="grid g3">${box('Points', sb('pts'))}${box('Goals', sb('g'))}${box('Assists', sb('a'))}</div>
-  <h2>Single game (F24 →)</h2><div class="grid g3">${box('Points', gb('PTS'))}${box('Goals', gb('G'))}${box('Assists', gb('A'))}</div>
+  <h2>Single season</h2><div class="grid rec3">${sbox('Points', 'pts')}${sbox('Goals', 'g')}${sbox('Assists', 'a')}</div>
+  <h2>Single game (F24 →)</h2><div class="grid rec3">${gbox('Points', 'PTS')}${gbox('Goals', 'G')}${gbox('Assists', 'A')}</div>
   <h2>Team (F24 →)</h2><div class="grid g3">${box('Biggest wins', wins)}<div class="stat"><div class="k">Longest win streak</div><div class="v">${best}</div><div class="s">ended ${bestEnd ? glink(bestEnd, C.fmt.date(bestEnd.date)) : ''}</div></div><div class="stat"><div class="k">Longest unbeaten run</div><div class="v">${bestUn}</div><div class="s">wins + ties</div></div></div>`;
 }
 
