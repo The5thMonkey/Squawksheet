@@ -4,7 +4,7 @@ The team's single source of truth: one data file (`data/squawks.json`) and a sma
 
 ```
 index.html            the public site
-admin.html            stats entry (anyone can open it; only approved changes get published)
+admin.html            stats entry (not linked from the site; only The5thMonkey and mkinz006 can publish)
 data/squawks.json     ALL the data: players, seasons, rosters, games, goals, video links, awards, stories
 js/core.js            all stat math + the data checks (shared by site, entry page and GitHub check)
 js/app.js, css/       the site
@@ -29,7 +29,7 @@ tools/validate.mjs    the check that runs on every change
 
 ## Entering a game
 
-1. Open `admin.html` on the live site (the **Enter stats** link in the footer).
+1. Open `admin.html` on the live site by adding it to the address, e.g. `https://YOUR-USERNAME.github.io/squawksheet/admin.html`. It isn't linked from the site.
 2. On the **Game** tab, the next scheduled game is already picked. Set it to *Final*, enter the score, tick who played, then add each goal with its scorer, assists and optional video link, plus the three stars, any penalties, and any empty-net goals against (those don't count against the goalie).
 3. Click **Save game**. It checks the entry: scorers must be in the lineup, the goal count must match the score, nobody can assist their own goal, and so on.
 4. On the **Save & publish** tab, click **Download squawks.json**, then upload it into the repo's `data/` folder as a pull request (the steps are on that page). Approve and merge it, and the site updates.
