@@ -244,6 +244,32 @@ function storyBlock(s) {
   return `<h2>Story of the season</h2><div class="card story">${html.replace(/\n/g, '<br>')}</div>`;
 }
 
+// The season-story blurb for a game, laid out as the front page of a sports section
+function newspaper(g, s, tale) {
+  const opp = tname(g.opponent).toUpperCase(), sc = `${g.gf}–${g.ga}`;
+  const extra = g.ot === 'SO' ? ' IN A SHOOTOUT' : g.ot ? ' IN OVERTIME' : '';
+  const head = g.status !== 'final' ? `SQUAWKS VS. ${opp}`
+    : g.result === 'W' ? `SQUAWKS BEAT ${opp} ${sc}${extra}`
+    : g.result === 'T' ? `SQUAWKS, ${opp} SKATE TO ${sc} TIE`
+    : `SQUAWKS FALL TO ${opp} ${sc}${extra}`;
+  const kicker = g.playoff ? (g.championship ? 'Championship Final' : 'Playoffs') : 'Regular Season';
+  const deck = g.stars[0] ? `${esc(pname(g.stars[0]))} named first star${g.stars[1] ? `; ${esc(pname(g.stars[1]))} and ${g.stars[2] ? esc(pname(g.stars[2])) : '–'} round out the three` : ''}` : '';
+  const d = g.date ? new Date(g.date + 'T12:00:00') : null;
+  const dateline = d ? d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
+  // drop the "5/8 Drunken Masters:" lead-in the season story uses
+  const body = tale.map(l => esc(l.text.replace(/^\s*(?:[^\d:]{1,40}?\s)?\d{1,2}\/\d{1,2}(?:\/\d{2,4})?(?:\s+[^:\-–\d]{1,40}?)?\s*[:\-–]\s*/, '')));
+  const watch = tale.filter(l => l.link).map(l => ytInfo(l.link) ? `<button class="vidbtn" data-url="${esc(l.link)}">▶ Watch the game</button>` : `<a href="${esc(l.link)}" target="_blank" rel="noopener">▶ Watch the game ↗</a>`).join(' ');
+  return `<article class="paper" data-goal="paper">
+    <header class="mh"><div class="mh-meta"><span>${esc(s.name)}</span><span>${esc(dateline)}</span><span>${esc(s.division)}</span></div>
+      <div class="mh-name">The Beer League Telegraph<span>(ed Pass)</span></div>
+      <div class="mh-sec"><span>Sports</span></div></header>
+    <div class="np-kicker">${kicker}</div>
+    <h3 class="np-head">${head}</h3>
+    ${deck ? `<div class="np-deck">${deck}</div>` : ''}
+    <div class="np-body${body.join('').length < 260 ? ' short' : ''}">${body.map((t, k) => `<p${k === 0 ? ' class="lede"' : ''}>${t}</p>`).join('')}</div>
+    ${watch ? `<div class="np-watch">${watch}</div>` : ''}<div class="vidbox" hidden></div>
+  </article>`;
+}
 function pageGame(id) {
   const g = IX.data.games.find(x => x.id === id); if (!g) return notFound();
   const s = IX.seasonById[g.season]; const gs = IX.gamesBySeason[g.season]; const i = gs.indexOf(g);
@@ -253,8 +279,12 @@ function pageGame(id) {
   const tale = (s.story || []).filter(l => new RegExp(`(^|\\D)${m}/${d}(\\D|$)`).test(l.text));
   const stars = ['1st', '2nd', '3rd'];
   return `<p class="small"><a href="#/season/${s.id}">← ${esc(s.name)}</a>${gs[i - 1] ? ` · <a href="#/game/${gs[i - 1].id}">previous game</a>` : ''}${gs[i + 1] ? ` · <a href="#/game/${gs[i + 1].id}">next game</a>` : ''}</p>
-  <section class="hero"><div><h1>vs ${tchip(g.opponent)}</h1><div class="sub">${C.fmt.date(g.date)} ${g.time ?? ''} ${g.playoff ? `· ${g.championship ? 'Championship' : 'Playoffs'}` : '· Regular season'}</div></div>
-  <div style="text-align:right"><div class="big">${score(g)}</div><div>${resPill(g)}</div>${g.shots_for != null ? `<div class="sub">Shots ${g.shots_for}–${g.shots_against}</div>` : ''}</div></section>
+  <section class="hero matchup">
+    <div class="mu-team"><img class="mu-logo" src="img/logos/secondary.png" alt="WinterSquawks logo"><div class="mu-name">${esc(tname('WSQ'))}</div></div>
+    <div class="mu-mid"><div class="big">${score(g)}</div><div>${resPill(g)}</div>${g.shots_for != null ? `<div class="sub">Shots ${g.shots_for}–${g.shots_against}</div>` : ''}
+      <div class="sub">${C.fmt.date(g.date)} ${g.time ?? ''}</div><div class="sub">${g.playoff ? (g.championship ? 'Championship' : 'Playoffs') : 'Regular season'}</div></div>
+    <a class="mu-team r" href="#/team/${esc(g.opponent)}">${tlogo(g.opponent, 'mu-logo')}<div class="mu-name">${tchip(g.opponent)}</div></a>
+  </section>
   <div class="grid g2">
     <div class="card"><h3>Goals</h3>${goals ? `<ul class="goal-list">${goals}</ul>` : '<p class="muted">No goals logged.</p>'}
       ${g.assists_unpaired?.length ? `<h3 style="margin-top:1rem">Assists ${info("The old sheet didn't record which goal each assist went with.")}</h3><p>${g.assists_unpaired.map(plink).join(', ')}</p>` : ''}
@@ -266,7 +296,7 @@ function pageGame(id) {
       ${g.links?.length ? `<h3>Links</h3><p>${g.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' · ')}</p>` : ''}
       ${g.notes ? `<h3>Notes</h3><p>${esc(g.notes)}</p>` : ''}</div>
   </div>
-  ${tale.length ? `<h2>From the season story</h2><div class="card story">${tale.map(l => `<p>${l.link ? `<a href="${esc(l.link)}" target="_blank" rel="noopener">${esc(l.text)}</a>` : esc(l.text)}</p>`).join('')}</div>` : ''}`;
+  ${tale.length ? newspaper(g, s, tale) : ''}`;
 }
 
 const SCOPES = {
