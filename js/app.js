@@ -16,7 +16,6 @@ const glink = (g, label) => `<a href="#/game/${g.id}">${label}</a>`;
 const resPill = g => g.status !== 'final' ? '<span class="pill T">—</span>' : `<span class="pill ${g.result}">${g.result}${g.ot && g.result !== 'OTL' ? ' ' + g.ot : g.result === 'OTL' && g.ot === 'SO' ? ' SO' : ''}</span>`;
 const score = g => g.status === 'final' ? `${g.gf}–${g.ga}${g.forfeit ? ' <span class="pill T" title="Awarded by forfeit">FF</span>' : ''}` : 'scheduled';
 const ppg = (p, gp) => gp ? p / gp : null;
-const trophyStr = (c, p) => `${'🏆'.repeat(c)}${p ? ' ' + '🥇'.repeat(p) : ''}`;
 const info = html => `<span class="info" tabindex="0" aria-label="More info">i<span class="tip">${html}</span></span>`;
 const vidIcon = url => url ? `<a class="vid" href="${esc(url)}" target="_blank" rel="noopener" title="Goal video">▶</a>` : '';
 const seasonBadge = s => s.tracking === 'game-log'
@@ -74,7 +73,7 @@ function pageHome() {
   const car = C.careers(IX);
   const lead = (k, n = 5) => [...car.skaters].sort((a, b) => b[k] - a[k]).slice(0, n).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)}</td><td>${c[k]}</td></tr>`).join('');
   return `
-  <section class="hero"><div><h1>WinterSquawks</h1><div class="sub">All-time ${tot.w}-${tot.l}-${tot.t}-${tot.otl} ${info('W-L-T-OTL, regular season and playoffs combined, Winter 2022 onward.')}</div></div>
+  <section class="hero"><div class="hero-id"><img class="hero-logo" src="img/logos/alternate.png" alt=""><div><h1>WinterSquawks</h1><div class="sub">All-time ${tot.w}-${tot.l}-${tot.t}-${tot.otl} ${info('W-L-T-OTL, regular season and playoffs combined, Winter 2022 onward.')}</div></div></div>
   <div class="trophies" title="Stanley Keg championships / President's Trophies">${'🏆'.repeat(champs.length)} ${'🥇'.repeat(pres.length)}</div></section>
   <div class="grid g4">
     <div class="stat"><div class="k">Stanley Kegs</div><div class="v">${champs.length}</div><div class="s">${champs.map(s => slink(s.id)).join(', ')}</div></div>
@@ -300,7 +299,7 @@ function pagePlayer(pid) {
     log.push({ g, G: gl.length, A: a, vids: gl.map(x => x.video).filter(Boolean), star, goalie: g.goalie === pid });
   }
   return `<section class="hero has-photo"><img class="pphoto" id="pphoto" src="${esc(defaultPhoto(p))}" alt="${esc(p.name)}"><div style="flex:1"><h1>${esc(p.name)}</h1><div class="sub">${p.number ? '#' + esc(p.number) + ' · ' : ''}${esc(p.position || (p.goalie ? 'G' : ''))}${p.nicknames?.length ? ' · "' + p.nicknames.map(esc).join('", "') + '"' : ''} · ${C.isActive(IX, pid) ? 'Active' : 'Alumni'}${p.sub ? ' · Sub goalie' : ''}</div></div>
-  <div class="trophies">${trophyStr(champs, pres)}</div></section>
+  <div class="trophies stacked">${champs ? `<div title="Stanley Keg championships">${'🏆'.repeat(champs)}</div>` : ''}${pres ? `<div title="President's Trophies">${'🥇'.repeat(pres)}</div>` : ''}</div></section>
   <div class="grid g4">${cards.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
   ${skRows.length ? `<h2>Skater, season by season</h2>${table('ps-' + pid, [sCol, { k: 'number', h: '#', f: r => r.number ?? '' }, { k: 'gp', h: 'GP' }, { k: 'g', h: 'G' }, { k: 'a', h: 'A' }, { k: 'pts', h: 'PTS' }, { k: 'ppg', h: 'P/GP', f: r => C.fmt.n2(ppg(r.pts, r.gp)), v: r => ppg(r.pts, r.gp) }, { k: 'cup', h: 'Squawk 🏆', f: r => r.verified ? r.cup : '–' }, { k: 'pim', h: 'PIM', f: r => r.verified ? r.pim : '–' }, { k: 'vg', h: '▶ G', f: r => r.verified ? r.vg : '–' }], skRows, { k: 'season', asc: true })}` : ''}
   ${gkRows.length ? `<h2>Goalie, season by season</h2>${table('pg-' + pid, [sCol, { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L', f: r => r.l ?? '–' }, { k: 'ga', h: 'GA' }, { k: 'gaa', h: 'GAA', f: r => C.fmt.n2(r.gp ? r.ga / r.gp : null) }, { k: 'so', h: 'SO', f: r => r.so ?? '–' }], gkRows, { k: 'season', asc: true })}` : ''}
@@ -316,6 +315,13 @@ function pageRecords() {
   const lb = (arr, k, f = v => v, n = 10, min = null) => arr.filter(c => min ? min(c) : true).sort((a, b) => b[k] - a[k]).slice(0, n).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)}</td><td>${f(c[k], c)}</td></tr>`).join('');
   const box = (title, rows) => `<div class="tw"><table><thead><tr><th class="l">${title}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   car.skaters.forEach(c => { c.ppg = c.gp ? c.pts / c.gp : 0; });
+  // career box with the #1 player's photo shown above the rankings
+  const lbox = (title, arr, k, f = v => v, min = null) => {
+    const top = arr.filter(c => min ? min(c) : true).sort((a, b) => b[k] - a[k])[0];
+    const p = top && P(top.player);
+    const leader = p ? `<a class="rec-leader" href="#/player/${p.id}"><img src="${esc(p.photos?.[0] || defaultPhoto(p))}" alt="${esc(p.name)}"><span>${esc(p.name)}</span><b>${f(top[k], top)}</b></a>` : '';
+    return `<div class="rec-box"><div class="rec-title">${title}</div>${leader}${box('Top 10', lb(arr, k, f, 10, min))}</div>`;
+  };
   // single season
   const ss = []; for (const s of IX.seasons) for (const e of new Set([...(s.roster || []).map(e => e.player), ...(IX.gamesBySeason[s.id] || []).flatMap(g => g.roster)])) { const l = C.skaterSeasonLine(IX, s, e); if (l) ss.push({ player: e, season: s.id, ...l }); }
   const sb = (k) => [...ss].sort((a, b) => b[k] - a[k]).slice(0, 10).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)} <span class="muted small">${c.season}</span></td><td>${c[k]}</td></tr>`).join('');
@@ -327,7 +333,7 @@ function pageRecords() {
   let streak = 0, best = 0, bestEnd = null; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result === 'W') { streak++; if (streak > best) { best = streak; bestEnd = g; } } else streak = 0; }
   let un = 0, bestUn = 0; for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) { if (g.result !== 'L' && g.result !== 'OTL') { un++; bestUn = Math.max(bestUn, un); } else un = 0; }
   return `<h1>Records</h1>
-  <h2>Career</h2><div class="grid g4">${box('Points', lb(car.skaters, 'pts'))}${box('Goals', lb(car.skaters, 'g'))}${box('Assists', lb(car.skaters, 'a'))}${box('Points per game (50+ GP)', lb(car.skaters, 'ppg', v => v.toFixed(2), 10, c => c.gp >= 50))}${box('Games played', lb(car.skaters, 'gp'))}${box('Squawk 🏆 points', lb(car.skaters, 'cup'))}${box('Penalty minutes', lb(car.skaters, 'pim'))}${box('Goalie wins', lb(car.goalies, 'w'))}</div>
+  <h2>Career</h2><div class="grid rec4">${lbox('Points', car.skaters, 'pts')}${lbox('Goals', car.skaters, 'g')}${lbox('Assists', car.skaters, 'a')}${lbox('Points per game (50+ GP)', car.skaters, 'ppg', v => v.toFixed(2), c => c.gp >= 50)}${lbox('Games played', car.skaters, 'gp')}${lbox('Squawk 🏆 points', car.skaters, 'cup')}${lbox('Penalty minutes', car.skaters, 'pim')}${lbox('Goalie wins', car.goalies, 'w')}</div>
   <h2>Single season</h2><div class="grid g3">${box('Points', sb('pts'))}${box('Goals', sb('g'))}${box('Assists', sb('a'))}</div>
   <h2>Single game (F24 →)</h2><div class="grid g3">${box('Points', gb('PTS'))}${box('Goals', gb('G'))}${box('Assists', gb('A'))}</div>
   <h2>Team (F24 →)</h2><div class="grid g3">${box('Biggest wins', wins)}<div class="stat"><div class="k">Longest win streak</div><div class="v">${best}</div><div class="s">ended ${bestEnd ? glink(bestEnd, C.fmt.date(bestEnd.date)) : ''}</div></div><div class="stat"><div class="k">Longest unbeaten run</div><div class="v">${bestUn}</div><div class="s">wins + ties</div></div></div>`;
