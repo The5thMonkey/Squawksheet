@@ -155,7 +155,7 @@ function winnersBand(s) {
   const rec = c => { const r = (s.standings || []).find(x => x.team === c); if (!r) return '';
     const pos = (s.standings || []).indexOf(r) + 1;
     return `${r.w != null ? `${r.w}-${r.l}-${r.t_otl ?? 0} · ` : ''}${r.pts} pts · ${ordinal(pos)} in standings`; };
-  const logo = c => c === 'WSQ' ? '<img class="tlogo lg" src="img/logos/alternate.png" alt="WinterSquawks logo">' : tlogo(c, 'tlogo lg');
+  const logo = c => c === 'WSQ' ? '<img class="tlogo lg wsq" src="img/logos/secondary.png" alt="WinterSquawks logo">' : tlogo(c, 'tlogo lg');
   const side = (c, trophy, label, extra, right) => c ? `<div class="wb-side${right ? ' r' : ''}">${logo(c)}<div>
     <div class="wb-label">${trophy} ${label}</div><div class="wb-team">${esc(tname(c))}</div><div class="wb-info">${rec(c)}${extra ? `<br>${extra}` : ''}</div></div></div>` : '<div></div>';
   const final = a.runner_up ? `Beat ${esc(tname(a.runner_up))} in the final` : '';
@@ -199,7 +199,7 @@ function pageSeason(id) {
     ...['w', 'l', 't_otl', 'pts', 'gp', 'gf', 'ga'].filter(k => st.some(r => r[k] != null)).map(k => ({ k, h: { w: 'W', l: 'L', t_otl: 'T/OTL', pts: 'PTS', gp: 'GP', gf: 'GF', ga: 'GA' }[k], f: r => r[k] ?? '' }))];
   return `
   <p class="small">${prev ? `<a href="#/season/${prev.id}">← ${esc(prev.name)}</a>` : ''} ${next ? ` · <a href="#/season/${next.id}">${esc(next.name)} →</a>` : ''}</p>
-  <section class="hero"><div class="hero-id"><img class="hero-logo sec" src="img/logos/secondary.png" alt=""><div><h1>${esc(s.name)}</h1><div class="sub">${esc(s.team_name)} · ${esc(s.division)} ${seasonBadge(s)} ${tracked ? info(`${ver.video_linked} of ${ver.goals} goals have a video link (▶). The links are kept for reference; the video tracking site is no longer online.`) : info("Season totals scraped by hand from the old league site, which no longer exists. They can't be checked game by game.")}</div>
+  <section class="hero"><div class="hero-id"><img class="hero-logo" src="img/logos/alternate.png" alt=""><div><h1>${esc(s.name)}</h1><div class="sub">${esc(s.team_name)} · ${esc(s.division)} ${seasonBadge(s)} ${tracked ? info(`${ver.video_linked} of ${ver.goals} goals have a video link (▶). The links are kept for reference; the video tracking site is no longer online.`) : info("Season totals scraped by hand from the old league site, which no longer exists. They can't be checked game by game.")}</div>
   ${s.story_title ? `<div class="sub" style="margin-top:.4rem"><i>${esc(s.story_title)}</i></div>` : ''}</div></div>
   <div style="text-align:right"><div class="big">${C.fmt.rec4(x.rec.reg)}</div><div class="sub">W-L-T-OTL · ${C.points(IX.data, x.rec.reg)} pts${C.place(s) ? ' · ' + ordinal(C.place(s)) : ''}</div>
   <div class="sub">${s.champion ? '🏆 STANLEY KEG CHAMPIONS' : esc(s.result || '')}${s.presidents ? ' · 🥇 President\'s Trophy' : ''}</div></div></section>

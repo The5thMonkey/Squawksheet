@@ -140,3 +140,4 @@ th .tip{font-weight:400}
 a.tl:hover{text-decoration:none} a.tl:hover .team{box-shadow:inset 0 0 0 2px #0006}
 .hero-logo.sec{height:6rem}
 @media (max-width:640px){ .hero-logo.sec{height:4rem} }
+.tlogo.lg.wsq{background:var(--sq-black)}
