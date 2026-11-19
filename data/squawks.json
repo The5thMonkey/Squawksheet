@@ -15753,7 +15753,8 @@
     "nick-berry",
     "will-murphy",
     "jeff-stackhouse",
-    "evan-baechler"
+    "evan-baechler",
+    "evan-miller"
    ],
    "goalie": "dennis-griffis",
    "goals": [
@@ -15794,7 +15795,11 @@
     ],
     "goalie": "dennis-griffis",
     "saves": 2,
-    "ga": 1
+    "ga": 1,
+    "misses": [
+     "evan-miller",
+     "robert-otero"
+    ]
    },
    "lineup": {
     "f": [
@@ -15816,7 +15821,7 @@
      ],
      [
       "evan-baechler",
-      null
+      "evan-miller"
      ]
     ],
     "g": [
