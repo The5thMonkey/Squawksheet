@@ -293,7 +293,7 @@ function lineupCard(g) {
   return `<h2>Lineup</h2><div class="lineup">
     <div class="lu-group"><div class="lu-head">Forwards</div>${rows(lu.f || [], ['LW', 'C', 'RW'], 'line')}</div>
     <div class="lu-group"><div class="lu-head">Defense</div>${rows(lu.d || [], ['LD', 'RD'], 'pair')}</div>
-    <div class="lu-group"><div class="lu-head">Goalies</div><div class="lu-row"><div class="lu-lab"></div><div class="lu-slots n2 goalies">${gs.map(p => slot(p, 'G', p === g.goalie && gs.length > 1 ? ' rec' : '')).join('')}</div></div>
+    <div class="lu-group"><div class="lu-head">Goalies</div><div class="lu-row"><div class="lu-lab"></div><div class="lu-slots goalies">${gs.map(p => slot(p, 'G', p === g.goalie && gs.length > 1 ? ' rec' : '')).join('')}</div></div>
       ${gs.length > 1 && g.goalie ? `<p class="small muted lu-note">★ Goalie of record: ${esc(pname(g.goalie))} (credited with the result, goals against and any shutout)</p>` : ''}</div>
   </div>`;
 }
