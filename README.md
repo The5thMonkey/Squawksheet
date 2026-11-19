@@ -51,7 +51,10 @@ Browsers won't load the data straight from disk, so serve the folder:
 ```
 python3 -m http.server 8000     # then open http://localhost:8000
 node tools/validate.mjs         # run the same check GitHub runs
+node tools/stamp.mjs            # after changing anything in css/ or js/
 ```
+
+The stamp adds `?v=…` to the style and script links so visitors get the new version on their next refresh instead of a cached copy. The GitHub check fails if it's out of date.
 
 ## How the data is organised
 
