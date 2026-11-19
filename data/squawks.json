@@ -15745,16 +15745,15 @@
    "championship": false,
    "roster": [
     "dennis-griffis",
-    "robert-otero",
-    "will-murphy",
-    "nick-berry",
-    "evan-miller",
-    "thomas-fischer",
+    "ross-taylor",
     "mark-kinz",
+    "robert-otero",
+    "thomas-fischer",
     "chayne-husband",
-    "evan-baechler",
+    "nick-berry",
+    "will-murphy",
     "jeff-stackhouse",
-    "ross-taylor"
+    "evan-baechler"
    ],
    "goalie": "dennis-griffis",
    "goals": [
@@ -15797,7 +15796,33 @@
     "saves": 2,
     "ga": 1
    },
-   "notes": "With the Squawks down 3 wingers and all 3 of their usual centers, Bandits finally avoid a loss."
+   "lineup": {
+    "f": [
+     [
+      "ross-taylor",
+      "mark-kinz",
+      "robert-otero"
+     ],
+     [
+      "thomas-fischer",
+      "chayne-husband",
+      "nick-berry"
+     ]
+    ],
+    "d": [
+     [
+      "will-murphy",
+      "jeff-stackhouse"
+     ],
+     [
+      "evan-baechler",
+      null
+     ]
+    ],
+    "g": [
+     "dennis-griffis"
+    ]
+   }
   },
   {
    "id": "F26-12",

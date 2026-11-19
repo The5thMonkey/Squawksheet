@@ -441,7 +441,7 @@ function exportTab() {
   <ol class="steps small">
     <li>Click <b>Download squawks.json</b>.</li>
     <li>On GitHub, open the site's repository, go into the <code>data</code> folder and choose <b>Add file → Upload files</b>.</li>
-    <li>Drop in the downloaded <code>squawks.json</code>. It replaces the old one.</li>
+    <li>Drop in the downloaded file. <b>It must be named exactly <code>squawks.json</code></b> so it replaces the old one. If your browser saved it as <code>squawks(1).json</code> or similar, rename it first, or delete older copies from your Downloads folder before downloading. Otherwise GitHub adds it as a new file and the site won't change (the automatic check will flag it).</li>
     <li>Write a short note (e.g. "F26 vs Fiction 11/20") and pick <b>Create a new branch… and start a pull request</b> (if you're the owner you can also commit straight to main).</li>
     <li>The automatic check runs on the pull request. If it's green and you approve, merge it. The site updates within a minute or two.</li>
   </ol></div>`;
