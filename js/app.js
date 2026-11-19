@@ -281,6 +281,22 @@ function newspaper(g, s, tale) {
     ${watch ? `<div class="np-watch">${watch}</div>` : ''}<div class="vidbox" hidden></div>
   </article>`;
 }
+// A game's lines, laid out like a lineup card: forward lines, defense pairs, goalies
+function lineupCard(g) {
+  const lu = g.lineup; if (!lu) return '';
+  const num = p => { const e = (IX.seasonById[g.season]?.roster || []).find(x => x.player === p); return e?.number ?? IX.players[p]?.number ?? ''; };
+  const slot = (p, pos, extra = '') => p ? `<a class="lu-p${extra}" href="#/player/${esc(p)}"><span class="lu-pos">${pos}</span><span class="lu-num">${num(p) !== '' ? '#' + esc(num(p)) : ''}</span><span class="lu-name">${esc(pname(p))}</span></a>`
+    : `<div class="lu-p empty"><span class="lu-pos">${pos}</span><span class="lu-name">—</span></div>`;
+  const ord = ['1st', '2nd', '3rd', '4th'];
+  const rows = (lines, pos, label) => lines.map((l, i) => l.some(Boolean) ? `<div class="lu-row"><div class="lu-lab">${ord[i]} ${label}</div><div class="lu-slots n${pos.length}">${l.map((p, k) => slot(p, pos[k])).join('')}</div></div>` : '').join('');
+  const gs = (lu.g || []).filter(Boolean);
+  return `<h2>Lineup</h2><div class="lineup">
+    <div class="lu-group"><div class="lu-head">Forwards</div>${rows(lu.f || [], ['LW', 'C', 'RW'], 'line')}</div>
+    <div class="lu-group"><div class="lu-head">Defense</div>${rows(lu.d || [], ['LD', 'RD'], 'pair')}</div>
+    <div class="lu-group"><div class="lu-head">Goalies</div><div class="lu-row"><div class="lu-lab"></div><div class="lu-slots n2 goalies">${gs.map(p => slot(p, 'G', p === g.goalie && gs.length > 1 ? ' rec' : '')).join('')}</div></div>
+      ${gs.length > 1 && g.goalie ? `<p class="small muted lu-note">★ Goalie of record: ${esc(pname(g.goalie))} (credited with the result, goals against and any shutout)</p>` : ''}</div>
+  </div>`;
+}
 function pageGame(id) {
   const g = IX.data.games.find(x => x.id === id); if (!g) return notFound();
   const s = IX.seasonById[g.season]; const gs = IX.gamesBySeason[g.season]; const i = gs.indexOf(g);
@@ -302,11 +318,12 @@ function pageGame(id) {
       ${!paired && !g.assists_unpaired?.length && g.goals.length ? '<p class="muted small">No assists recorded.</p>' : ''}</div>
     <div class="card"><h3>Three stars</h3>${g.stars.some(Boolean) ? g.stars.map((p, k) => p ? `<div>⭐ ${stars[k]}: ${plink(p)}</div>` : '').join('') : '<p class="muted">–</p>'}
       ${shootoutBlock(g)}
-      <h3 style="margin-top:1rem">Lineup</h3><p>${g.goalie ? `🥅 ${plink(g.goalie)} · ` : ''}${g.roster.filter(p => p !== g.goalie).map(plink).join(', ') || '<span class="muted">not recorded</span>'}</p>
+      ${g.lineup ? '' : `<h3 style="margin-top:1rem">Lineup</h3><p>${g.goalie ? `🥅 ${plink(g.goalie)} · ` : ''}${g.roster.filter(p => p !== g.goalie).map(plink).join(', ') || '<span class="muted">not recorded</span>'}</p>`}
       ${g.penalties?.length ? `<h3>Penalties</h3><p>${g.penalties.map(p => `${plink(p.player)} (${p.count}, ${p.pim} min)`).join(', ')}</p>` : ''}
       ${g.links?.length ? `<h3>Links</h3><p>${g.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' · ')}</p>` : ''}
       ${g.notes ? `<h3>Notes</h3><p>${esc(g.notes)}</p>` : ''}</div>
   </div>
+  ${lineupCard(g)}
   ${tale.length || g.photo ? newspaper(g, s, tale) : ''}`;
 }
 
@@ -371,7 +388,7 @@ function pagePlayer(pid) {
   const sCol = { k: 'season', h: 'Season', l: 1, f: r => `${slink(r.season)} ${r.s.champion ? '🏆' : ''}${r.s.presidents ? '🥇' : ''} ${r.verified ? '' : '<span class="pill unv">unverified</span>'}`, v: r => r.s.year * 10 + C.TERM_ORDER[r.season[0]] };
   const log = [];
   for (const s of IX.seasons) for (const g of (IX.gamesBySeason[s.id] || []).filter(C.final)) {
-    if (!g.roster.includes(pid)) continue;
+    if (!g.roster.includes(pid) || C.isBackupGoalie(g, pid)) continue;
     const gl = g.goals.filter(x => x.scorer === pid); const a = C.gameAssists(g).filter(x => x === pid).length;
     const star = g.stars.indexOf(pid);
     log.push({ g, G: gl.length, A: a, vids: g.goals.map((x, k) => ({ x, k })).filter(o => o.x.scorer === pid && o.x.video), star, goalie: g.goalie === pid });
@@ -415,7 +432,7 @@ function pageRecords() {
   const sbox = (title, k) => rbox(title, leaders(ssSorted(k), r => r.player, r => r[k], v => v, r => slink(r.season)), box('Top 10', sb(k)));
   const sb = (k) => ssSorted(k).slice(0, 10).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.player)} <span class="muted small">${c.season}</span></td><td>${c[k]}</td></tr>`).join('');
   // single game
-  const sg = []; for (const g of IX.data.games.filter(C.final)) for (const p of g.roster) { if (p === g.goalie) continue; const G = g.goals.filter(x => x.scorer === p).length, A = C.gameAssists(g).filter(x => x === p).length; if (G + A) sg.push({ p, g, G, A, PTS: G + A }); }
+  const sg = []; for (const g of IX.data.games.filter(C.final)) for (const p of g.roster) { if (p === g.goalie || C.isBackupGoalie(g, p)) continue; const G = g.goals.filter(x => x.scorer === p).length, A = C.gameAssists(g).filter(x => x === p).length; if (G + A) sg.push({ p, g, G, A, PTS: G + A }); }
   const sgSorted = k => [...sg].sort((a, b) => b[k] - a[k] || (b.g.date > a.g.date ? 1 : -1));
   const gbox = (title, k) => rbox(title, leaders(sgSorted(k), r => r.p, r => r[k], v => v, r => glink(r.g, C.fmt.date(r.g.date) + ' v ' + r.g.opponent)), box('Top 8', gb(k)));
   const gb = k => sgSorted(k).slice(0, 8).map((c, i) => `<tr><td class="l">${i + 1}. ${plink(c.p)} <span class="muted small">${glink(c.g, C.fmt.date(c.g.date) + ' v ' + c.g.opponent)}</span></td><td>${c[k]}</td></tr>`).join('');
@@ -507,6 +524,7 @@ function pageTeam(code) {
     const as = C.gameAssists(g);
     for (const p of g.roster) {
       if (p === g.goalie) { const x = gk[p] ||= { pid: p, gp: 0, w: 0, l: 0, t: 0, otl: 0, ga: 0, so: 0 }; x.gp++; x[{ W: 'w', L: 'l', T: 't', OTL: 'otl' }[g.result]]++; x.ga += g.ga; if (g.ga === 0) x.so++; continue; }
+      if (C.isBackupGoalie(g, p)) continue;
       const x = sk[p] ||= { pid: p, gp: 0, g: 0, a: 0, stars: 0 }; x.gp++;
       x.g += g.goals.filter(y => y.scorer === p).length; x.a += as.filter(y => y === p).length; if (g.stars.includes(p)) x.stars++;
     }

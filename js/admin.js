@@ -48,21 +48,52 @@ function teamOpts(sel) { return Object.entries(DATA.teams).filter(([k]) => k !==
 function newGame(season) {
   const n = (IX.gamesBySeason[season] || []).length + 1;
   let id; let k = n; do { id = `${season}-${String(k).padStart(2, '0')}`; k++; } while (DATA.games.some(g => g.id === id));
-  const roster = defaultRoster(season);
-  const goalies = roster.filter(p => IX.players[p]?.goalie && !IX.players[p]?.sub);
-  return { id, season, date: '', time: '', opponent: '', result: null, ot: null, gf: null, ga: null, playoff: false, championship: false,
-    roster, goalie: goalies[0] || null, goals: [], assists_unpaired: [], stars: [null, null, null], penalties: [],
-    shots_for: null, shots_against: null, links: [], source: 'entry', status: 'scheduled', _new: true };
+  const g = { id, season, date: '', time: '', opponent: '', result: null, ot: null, gf: null, ga: null, playoff: false, championship: false,
+    roster: [], goalie: null, lineup: emptyLineup(season), goals: [], assists_unpaired: [], stars: [null, null, null], penalties: [],
+    shots_for: null, shots_against: null, links: [], source: 'entry', status: 'scheduled', _new: true, _legacyRoster: [], _legacyGoalie: null };
+  syncRoster(g); return g;
 }
-function defaultRoster(season) {
-  const ros = (IX.seasonById[season]?.roster || []).filter(e => !(e.tags || []).some(t => /LTIR/i.test(t)));
-  const sk = ros.filter(e => e.pos !== 'G').map(e => e.player);
-  const g = ros.find(e => e.pos === 'G' && !IX.players[e.player]?.sub);
-  return [...new Set([...(g ? [g.player] : []), ...sk])];
+// ---------- lineup builder ----------
+// Starts with one forward line, one D pair and the season's starting goalie in G1.
+function emptyLineup(season) {
+  const g1 = (IX.seasonById[season]?.roster || []).find(e => e.pos === 'G' && !IX.players[e.player]?.sub && !(e.tags || []).some(t => /LTIR/i.test(t)));
+  return { f: [[null, null, null]], d: [[null, null]], g: [g1 ? g1.player : null] };
+}
+// The game's roster is whoever is in the lineup; with one goalie they're the goalie of record.
+function syncRoster(f) {
+  if (!f.lineup) return;
+  const lp = C.lineupPlayers(f.lineup);
+  if (!lp.length) { f.roster = [...(f._legacyRoster || [])]; f.goalie = f._legacyGoalie ?? null; return; }
+  f.roster = [...new Set(lp)];
+  const gs = f.lineup.g.filter(Boolean);
+  // two goalies: the goalie of record has to be picked on purpose
+  if (gs.length === 1) { f.goalie = gs[0]; f._recPicked = false; } else if (gs.length === 0) f.goalie = null; else if (!f._recPicked || !gs.includes(f.goalie)) f.goalie = null;
+}
+function lineBuilder(f, s) {
+  const pos = p => (s.roster || []).find(e => e.player === p)?.pos || (IX.players[p]?.goalie ? 'G' : (IX.players[p]?.position || '')[0] === 'D' ? 'D' : 'F');
+  const pool = [...new Set([...(s.roster || []).map(e => e.player), ...(f._extra || []), ...C.lineupPlayers(f.lineup), ...(f._legacyRoster || [])])].filter(p => IX.players[p]);
+  const used = new Set(C.lineupPlayers(f.lineup));
+  const groups = [['F', 'Forwards'], ['D', 'Defense'], ['G', 'Goalies']];
+  const sel = (key, cur) => `<select data-lu="${key}"><option value="">—</option>${groups.map(([k, label]) => {
+    const ps = pool.filter(p => pos(p) === k).sort((a, b) => pname(a).localeCompare(pname(b)));
+    return ps.length ? `<optgroup label="${label}">${ps.map(p => `<option value="${p}" ${p === cur ? 'selected' : ''} ${used.has(p) && p !== cur ? 'disabled' : ''}>${esc(pname(p))}</option>`).join('')}</optgroup>` : '';
+  }).join('')}</select>`;
+  const ord = ['1st', '2nd', '3rd', '4th'];
+  const sec = (k, title, labels, unit) => {
+    const lines = f.lineup[k];
+    return `<div class="lb-sec"><h4>${title}</h4>${lines.map((l, i) => `<div class="lb-row" style="--n:${labels.length}"><div class="lb-lab">${k === 'g' ? 'G' + (i + 1) : ord[i] + ' ' + unit}</div>
+      ${(k === 'g' ? [l] : l).map((p, c) => `<label>${labels[c]}${sel(k === 'g' ? `g:${i}` : `${k}:${i}:${c}`, p)}</label>`).join('')}
+      ${lines.length > 1 ? `<button class="x" data-dellu="${k}:${i}" title="Remove">✕</button>` : '<span></span>'}</div>`).join('')}
+      ${lines.length < C.LINEUP_MAX[k] ? `<button class="btn" data-addlu="${k}">+ ${k === 'f' ? 'Forward line' : k === 'd' ? 'D pair' : 'Second goalie'}</button>` : ''}</div>`;
+  };
+  return `<div class="lb">${sec('f', 'Forwards', ['LW', 'C', 'RW'], 'line')}${sec('d', 'Defense', ['LD', 'RD'], 'pair')}${sec('g', 'Goalies', ['G'], '')}</div>`;
 }
 function loadGame(id) {
   const g = clone(DATA.games.find(x => x.id === id));
-  if (g.status !== 'final' && !g.roster.length) { g.roster = defaultRoster(g.season); g.goalie = g.goalie || g.roster.find(p => IX.players[p]?.goalie && !IX.players[p]?.sub) || null; }
+  g._legacyRoster = g.lineup ? [] : [...g.roster]; g._legacyGoalie = g.lineup ? null : g.goalie;
+  g._recPicked = !!(g.lineup && g.lineup.g.filter(Boolean).length > 1 && g.goalie);
+  if (g.lineup) { const lu = g.lineup; if (!lu.f.length) lu.f.push([null, null, null]); if (!lu.d.length) lu.d.push([null, null]); if (!lu.g.length) lu.g.push(null); }
+  else if (g.status !== 'final') { g._legacyRoster = []; g._legacyGoalie = null; g.lineup = emptyLineup(g.season); syncRoster(g); }  // upcoming games: build lines
   g.stars = g.stars?.length ? g.stars : [null, null, null]; while (g.stars.length < 3) g.stars.push(null);
   return g;
 }
@@ -77,7 +108,7 @@ function gameTab() {
   const gameOpts = gs.map(g => `<option value="${g.id}" ${g.id === G.id ? 'selected' : ''}>${C.fmt.date(g.date) || '(no date)'} vs ${esc(DATA.teams[g.opponent] || '?')} ${g.status === 'final' ? `· ${g.result} ${g.gf}-${g.ga}` : '· scheduled'}</option>`).join('');
   // candidate players: season roster + everyone already in this game
   const cand = [...new Set([...(s.roster || []).map(e => e.player), ...f.roster])];
-  const others = DATA.players.filter(p => !cand.includes(p.id)).sort((a, b) => a.name.localeCompare(b.name));
+  const others = DATA.players.filter(p => !cand.includes(p.id) && !(f._extra || []).includes(p.id)).sort((a, b) => a.name.localeCompare(b.name));
   const inGame = f.roster.filter(p => p !== f.goalie);
   const popts = (sel, list = inGame, blank = '—') => `<option value="">${blank}</option>` + list.map(p => `<option value="${p}" ${p === sel ? 'selected' : ''}>${esc(pname(p))}</option>`).join('');
   const goalieCand = [...new Set([...cand.filter(p => IX.players[p]?.goalie), ...DATA.players.filter(p => p.goalie).map(p => p.id)])];
@@ -105,10 +136,13 @@ function gameTab() {
     <label>Shots for<input type="number" min="0" style="width:5rem" data-b="shots_for" data-num value="${f.shots_for ?? ''}"></label>
     <label>Shots against<input type="number" min="0" style="width:5rem" data-b="shots_against" data-num value="${f.shots_against ?? ''}"></label>
   </div>
-  <h3 style="margin-top:1rem">Lineup</h3>
-  <div class="row"><label>Goalie<select data-b="goalie"><option value="">—</option>${goalieCand.map(p => `<option value="${p}" ${p === f.goalie ? 'selected' : ''}>${esc(pname(p))}</option>`).join('')}</select></label>
+  <h3 style="margin-top:1rem">Lineup ${info('Put each player in their spot. Leave any slot blank. Everyone in the lineup is counted as having played.')}</h3>
+  ${f.lineup ? lineBuilder(f, s) : `<div class="lb-legacy">Lines weren't recorded for this game. Who played: ${f.roster.filter(p => p !== f.goalie).map(p => esc(pname(p))).join(', ') || 'nobody listed'}${f.goalie ? ` · Goalie: ${esc(pname(f.goalie))}` : ''}.
+    <br><button class="btn" id="g-buildlu" style="margin-top:.5rem">Build lines for this game</button> <span class="small muted">Once you place players, the lines replace this list.</span></div>`}
+  <div class="row">
+    ${!f.lineup ? `<label>Goalie<select data-b="goalie"><option value="">—</option>${goalieCand.map(p => `<option value="${p}" ${p === f.goalie ? 'selected' : ''}>${esc(pname(p))}</option>`).join('')}</select></label>` : ''}
+    ${f.lineup && f.lineup.g.filter(Boolean).length > 1 ? `<label>Goalie of record ${info('Gets the win or loss, goals against and shutout for this game. The other goalie is listed in the lineup only.')}<select data-b="goalie"><option value="">— pick one —</option>${f.lineup.g.filter(Boolean).map(p => `<option value="${p}" ${p === f.goalie ? 'selected' : ''}>${esc(pname(p))}</option>`).join('')}</select></label>` : ''}
     <label>Add a player not on the season roster<select id="g-addp"><option value="">—</option>${others.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></label></div>
-  <div class="chk">${cand.filter(p => p !== f.goalie).map(p => `<label><input type="checkbox" data-roster="${p}" ${f.roster.includes(p) ? 'checked' : ''}> ${esc(pname(p))}</label>`).join('')}</div>
   <h3 style="margin-top:1rem">Goals <span class="muted small">(${f.goals.length}${f.gf != null ? ' of ' + f.gf : ''})</span></h3>
   <div class="goalrow muted small"><span>#</span><span>Scorer</span><span>Assist 1</span><span>Assist 2</span><span>Video link (optional)</span><span></span></div>
   ${f.goals.map((x, i) => `<div class="goalrow"><span>${i + 1}</span>
@@ -162,6 +196,11 @@ function gameFromForm() {
   f.ot = f.ot || null;
   f.goals = f.goals.map(x => ({ scorer: x.scorer || null, a1: x.a1 || null, a2: x.a2 || null, video: x.video?.trim() || null, verified: !!x.video?.trim() }));
   f.stars = f.stars.map(x => x || null);
+  if (f.lineup) {
+    const lu = { f: f.lineup.f.filter(l => l.some(Boolean)), d: f.lineup.d.filter(l => l.some(Boolean)), g: f.lineup.g.filter(Boolean) };
+    if (C.lineupPlayers(lu).length) { f.lineup = lu; f.roster = [...new Set(C.lineupPlayers(lu))]; }
+    else { delete f.lineup; f.roster = [...(f._legacyRoster || [])]; f.goalie = f._legacyGoalie ?? null; }
+  }
   if (f.goalie && !f.roster.includes(f.goalie)) f.roster.unshift(f.goalie);
   f.penalties = f.penalties.filter(p => p.player);
   if (!f.notes) delete f.notes;
@@ -169,7 +208,7 @@ function gameFromForm() {
   if (!f.forfeit) delete f.forfeit;
   if (f.ot !== 'SO') delete f.shootout;
   else if (f.shootout) { f.shootout.goals = (f.shootout.goals || []).filter(Boolean); f.shootout.misses = (f.shootout.misses || []).filter(Boolean); if (!f.shootout.misses.length) delete f.shootout.misses; if (!f.shootout.goals.length && !f.shootout.misses && f.shootout.saves == null && f.shootout.ga == null && !f.shootout.goalie) delete f.shootout; }
-  delete f._new; delete f._manualResult;
+  delete f._new; delete f._manualResult; delete f._extra; delete f._legacyRoster; delete f._legacyGoalie; delete f._recPicked;
   return f;
 }
 const pane = () => $('#pane');
@@ -185,12 +224,13 @@ document.addEventListener('change', e => {
   const t = e.target; const f = G.f;
   if (t.id === 'g-season') { if (!leaveOK()) { t.value = G.season; return; } G.season = t.value; G.f = null; G.id = null; G.msgs = null; return render(); }
   if (t.id === 'g-pick') { if (!leaveOK()) { t.value = G.id || ''; return; } G.id = t.value || null; G.f = G.id ? loadGame(G.id) : newGame(G.season); G.msgs = null; return render(); }
-  if (t.id === 'g-addp' && t.value) { f.roster.push(t.value); return render(); }
+  if (t.id === 'g-addp' && t.value) { if (f.lineup) (f._extra ||= []).push(t.value); else f.roster.push(t.value); return render(); }
+  if (t.dataset.lu) { const [k, r, c] = t.dataset.lu.split(':'); if (k === 'g') f.lineup.g[+r] = t.value || null; else f.lineup[k][+r][+c] = t.value || null; syncRoster(f); return render(); }
   if (t.dataset.b) {
     if (t.type === 'checkbox') f[t.dataset.b] = t.checked;
     else if (t.tagName === 'SELECT') {
       if (t.dataset.b === 'result') { f._manualResult = !!t.value; f.result = t.value || null; }
-      else f[t.dataset.b] = t.value || null;
+      else { f[t.dataset.b] = t.value || null; if (t.dataset.b === 'goalie') f._recPicked = !!t.value; }
     } else f[t.dataset.b] = t.dataset.num !== undefined ? (t.value === '' ? null : +t.value) : t.value;
     if (['gf', 'ga', 'ot', 'status', 'goalie', 'forfeit'].includes(t.dataset.b)) {
       if (t.dataset.b === 'gf' && f.gf != null && f.goals.length < f.gf && f.status === 'final') while (f.goals.length < f.gf) f.goals.push({ scorer: null, a1: null, a2: null, video: null });
@@ -209,13 +249,16 @@ document.addEventListener('change', e => {
 function leaveOK() {
   if (!G.f) return true;
   const base = G.id ? (() => { const b = loadGame(G.id); delete b._new; return b; })() : null;
-  const same = base ? JSON.stringify(gameFromForm().goals) === JSON.stringify(base.goals) && G.f.gf === base.gf && G.f.ga === base.ga && G.f.status === base.status && JSON.stringify(G.f.roster) === JSON.stringify(base.roster) : !G.f.opponent && !G.f.date && !G.f.goals.length;
+  const same = base ? JSON.stringify(gameFromForm().goals) === JSON.stringify(base.goals) && G.f.gf === base.gf && G.f.ga === base.ga && G.f.status === base.status && JSON.stringify(G.f.roster) === JSON.stringify(base.roster) && JSON.stringify(G.f.lineup || null) === JSON.stringify(base.lineup || null) : !G.f.opponent && !G.f.date && !G.f.goals.length;
   return same || confirm('Discard the edits to this game?');
 }
 document.addEventListener('click', e => {
   if (TAB !== 'game' || !G.f) return;
   const t = e.target; const f = G.f;
-  if (t.id === 'g-addgoal') { f.goals.push({ scorer: null, a1: null, a2: null, video: null }); render(); }
+  if (t.dataset.addlu) { const k = t.dataset.addlu; if (f.lineup[k].length < C.LINEUP_MAX[k]) f.lineup[k].push(k === 'f' ? [null, null, null] : k === 'd' ? [null, null] : null); render(); }
+  else if (t.dataset.dellu) { const [k, i] = t.dataset.dellu.split(':'); f.lineup[k].splice(+i, 1); syncRoster(f); render(); }
+  else if (t.id === 'g-buildlu') { f.lineup = { f: [[null, null, null]], d: [[null, null]], g: [f.goalie || null] }; syncRoster(f); render(); }
+  else if (t.id === 'g-addgoal') { f.goals.push({ scorer: null, a1: null, a2: null, video: null }); render(); }
   else if (t.dataset.delgoal !== undefined) { f.goals.splice(+t.dataset.delgoal, 1); render(); }
   else if (t.id === 'g-addsog') { const so = f.shootout ||= { goals: [], misses: [], goalie: f.goalie || null, saves: null, ga: null }; so.goals.push(null); render(); }
   else if (t.dataset.delsog !== undefined) { f.shootout.goals.splice(+t.dataset.delsog, 1); render(); }
@@ -238,8 +281,9 @@ function saveGame() {
   if (g.status === 'final') {
     if (g.gf == null || g.ga == null) pre.push('Enter both scores.');
     if (g.goals.some(x => !x.scorer)) pre.push('Every goal needs a scorer (remove empty goal rows).');
-    if (!g.roster.length && !g.forfeit) pre.push('Tick who played.');
+    if (!g.roster.length && !g.forfeit) pre.push('Add the lineup.');
   }
+  if (g.lineup && g.lineup.g.length > 1 && !g.goalie) pre.push('Pick the goalie of record.');
   if (pre.length) { G.msgs = pre.map(m => `<p class="err">✕ ${esc(m)}</p>`).join(''); return render(); }
   const trial = clone(DATA);
   const i = trial.games.findIndex(x => x.id === g.id);

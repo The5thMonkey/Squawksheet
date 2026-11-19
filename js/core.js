@@ -43,7 +43,7 @@ export function skaterSeasonLine(ix, season, pid) {
   const line = { season: s.id, gp: 0, g: 0, a: 0, pts: 0, cup: 0, pen: 0, pim: 0, vg: 0, gwg: 0, verified: true, number: entry?.number, pos: entry?.pos, tags: entry?.tags || [] };
   const sp = starPoints(ix.data, s.id);
   for (const g of gs) {
-    if (!g.roster.includes(pid) || g.goalie === pid) continue;
+    if (!g.roster.includes(pid) || g.goalie === pid || isBackupGoalie(g, pid)) continue;
     line.gp++;
     const goals = g.goals.filter(x => x.scorer === pid);
     line.g += goals.length; line.vg += goals.filter(x => x.video).length;
@@ -56,6 +56,14 @@ export function skaterSeasonLine(ix, season, pid) {
   if (!line.gp && entry?.pos === 'G') return null;
   return line;
 }
+
+// ---------- lineups ----------
+// g.lineup = { f: [[LW, C, RW], ...] (up to 4), d: [[LD, RD], ...] (up to 3), g: [G1, G2] (up to 2) }; empty slots are null.
+// When a game has a lineup, its roster is exactly the players in it. g.goalie is the goalie of record.
+export const LINEUP_MAX = { f: 4, d: 3, g: 2 };
+export const lineupPlayers = lu => lu ? [...(lu.g || []), ...(lu.f || []).flat(), ...(lu.d || []).flat()].filter(Boolean) : [];
+// a goalie who dressed but isn't the goalie of record: no skater or goalie stats for that game
+export const isBackupGoalie = (g, p) => p !== g.goalie && !!g.lineup && (g.lineup.g || []).includes(p);
 
 export function goalieSeasonLine(ix, season, pid) {
   const s = season;
@@ -173,6 +181,19 @@ export function validate(data) {
     if (g.en_against != null && (!Number.isInteger(g.en_against) || g.en_against < 0 || g.en_against > g.ga)) errs.push(`${w}: empty-net goals against must be between 0 and ${g.ga}`);
     for (const p of g.roster || []) if (!P.has(p)) errs.push(`${w}: roster has unknown player "${p}"`);
     if (g.goalie && !P.has(g.goalie)) errs.push(`${w}: unknown goalie "${g.goalie}"`);
+    if (g.lineup) {
+      const lu = g.lineup, lp = lineupPlayers(lu);
+      for (const [k, n, w2] of [['f', 4, 3], ['d', 3, 2]]) {
+        if (!Array.isArray(lu[k]) || lu[k].length > n || lu[k].some(r => !Array.isArray(r) || r.length !== w2)) errs.push(`${w}: lineup ${k === 'f' ? 'forwards' : 'defense'} must be up to ${n} lines of ${w2}`);
+      }
+      if (!Array.isArray(lu.g) || lu.g.length > 2) errs.push(`${w}: lineup can have at most 2 goalies`);
+      for (const p of lp) if (!P.has(p)) errs.push(`${w}: lineup has unknown player "${p}"`);
+      const dup = lp.filter((p, i) => lp.indexOf(p) !== i); if (dup.length) errs.push(`${w}: ${[...new Set(dup)].join(', ')} is in the lineup more than once`);
+      const rs = new Set(g.roster || []);
+      if (lp.length !== rs.size || lp.some(p => !rs.has(p))) errs.push(`${w}: roster doesn't match the lineup`);
+      const gs = (lu.g || []).filter(Boolean);
+      if (gs.length && !gs.includes(g.goalie)) errs.push(`${w}: goalie of record must be one of the lineup's goalies`);
+    }
     const ros = new Set(g.roster || []);
     for (const x of g.goals || []) {
       for (const k of ['scorer', 'a1', 'a2']) {
@@ -225,6 +246,7 @@ function gameSplit(ix, pick) {
     team.g += g.gf || 0; team.a += gameAssists(g).length; if (g.result === 'W') team.w++;
     for (const p of g.roster) {
       if (p === g.goalie) { const x = gk[p] ||= { gp: 0, w: 0 }; x.gp++; if (g.result === 'W') x.w++; continue; }
+      if (isBackupGoalie(g, p)) continue;
       const x = sk[p] ||= { gp: 0, g: 0, a: 0, pts: 0, pen: 0 };
       x.gp++; const G = g.goals.filter(y => y.scorer === p).length, A = gameAssists(g).filter(y => y === p).length;
       x.g += G; x.a += A; x.pts += G + A;
