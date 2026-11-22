@@ -534,13 +534,14 @@ function squawkCupSVG() {
   const rainbow = ['#ff4d4d', '#ff9f1c', '#ffd23f', '#3ecf6e', '#3aa0ff', '#8b5cf6', '#ff5fa2'];
   const sq = [...'SQUAWKS'].map((c, i) => `<tspan fill="${rainbow[i]}">${c}</tspan>`).join('');
   // tape bands: y, height, colour, writing, x shift of the writing (it runs round the cup, so it's cut off at the edges)
-  const tape = [[128, 17, '#cbb68c', 'SQUAWKS', -10], [145, 16, '#d6c49d', 'CHAMPIONS', 12], [160, 17, '#c9b48a', 'CHAMPIONS', -14], [176, 17, '#e4dccb', 'CHAMPIONS', 9], [192, 22, '#ebe6da', 'CHAMPIONS', 0]];
+  // the top half of the tape has SQUAWKS written right round the cup, so only part of it faces us; CHAMPIONS below
+  const tape = [[128, 17, '#cbb68c', '', 0], [145, 16, '#d6c49d', '', 0], [160, 17, '#c9b48a', 'CHAMPIONS', -14], [176, 17, '#e4dccb', 'CHAMPIONS', 9], [192, 22, '#ebe6da', 'CHAMPIONS', 0]];
   const band = ([y, h, c, txt, dx], i) => {
     const jag = Array.from({ length: 12 }, (_, k) => `L${(8 + k * 9.5).toFixed(1)} ${(y + (k % 2 ? 1.2 : -.6) + (i % 2 ? .8 : 0)).toFixed(1)}`).join(' ');
     return `<path d="M4 ${y} ${jag} L116 ${y} L116 ${y + h} Q60 ${y + h + 5} 4 ${y + h} Z" fill="${c}"/>
       <path d="M4 ${y + h} Q60 ${y + h + 5} 116 ${y + h}" stroke="#8d7a55" stroke-width=".9" fill="none" opacity=".8"/>
       <path d="M4 ${y + 3} Q60 ${y + 7} 116 ${y + 3}" stroke="#fff" stroke-width="1" fill="none" opacity=".35"/>
-      <text x="${60 + dx}" y="${y + h * .78}" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="${h * .82}" fill="#1b1b1b" opacity=".82" letter-spacing="1">${txt}</text>`;
+      ${txt ? `<text x="${60 + dx}" y="${y + h * .78}" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="${h * .82}" fill="#1b1b1b" opacity=".82" letter-spacing="1">${txt}</text>` : ''}`;
   };
   return `<svg viewBox="0 0 120 226" class="sc-svg" role="img" aria-label="The Squawk Cup">
   <defs><clipPath id="${id}c"><path d="${body}"/></clipPath>
@@ -565,7 +566,8 @@ function squawkCupSVG() {
     <g transform="translate(97 44)"><path d="M-7 -6 H7 V4 H0 L-4 8 V4 H-7 Z" fill="#fff"/><path d="M0 1.5 L-2.4 -1 A1.4 1.4 0 0 1 0 -2.6 A1.4 1.4 0 0 1 2.4 -1 Z" fill="#e0303c"/></g>
     <g transform="translate(32 114) rotate(-7)"><rect x="-12" y="-6" width="24" height="11" rx="1.5" fill="#9a4a24" stroke="#5a2a10" stroke-width=".8"/><text y="2.6" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="6.6" fill="#f3d9b5">SPORT</text></g>
     <!-- the tape -->
-    ${tape.map(band).join('')}${specks}
+    ${tape.map(band).join('')}
+    <text x="62" y="156" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="29" fill="#1b1b1b" opacity=".82" letter-spacing="2">SQUAWKS</text>${specks}
     <rect x="0" y="0" width="120" height="226" fill="url(#${id}sh)"/>
   </g>
   <path d="${body}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
