@@ -1,4 +1,4 @@
-import * as C from './core.js?v=fbe86b20d7';
+import * as C from './core.js?v=00d5667a5a';
 
 // Working copy of the data. Nothing leaves the browser until you download it.
 let DATA = null, ORIGINAL = '', IX = null;

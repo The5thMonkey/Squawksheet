@@ -20,27 +20,38 @@ function chrome(id, dark = '#56616b') {
 // or 'minis' (little paper-wrapped bitters bottles). Plain, unbranded designs.
 function iceFill(cx, cy, rx, ry, kind) {
   const ice = (x, y, s, r) => `<rect x="${x - s / 2}" y="${y - s / 2}" width="${s}" height="${s}" rx="${s * .22}" transform="rotate(${r} ${x} ${y})" fill="#eaf6fc" stroke="#7fa8bd" stroke-width=".9"/><path d="M${x - s * .3} ${y - s * .15} l${s * .25} -${s * .15}" stroke="#fff" stroke-width="${s * .12}" stroke-linecap="round" transform="rotate(${r} ${x} ${y})"/>`;
-  const moose = `<g fill="#efe3c0"><ellipse cx="0" cy="0" rx="3.4" ry="1.7"/><path d="M-2.9 .8 v2.4 h.7 v-2.2 M-1.6 1 v2.2 h.7 v-2.2 M1.4 1 v2.2 h.7 v-2.2 M2.5 .7 v2.5 h.7 v-2.4" stroke="#efe3c0" stroke-width=".5"/>
-      <path d="M2.4 -1 L4.4 -2.2 L5.9 -1.5 L5.6 -.5 L4.1 -.3 Z"/><path d="M3.9 -2.3 l-.9 -1.5 l.7 .2 l.1 -.9 l.6 .9 l.6 -.8 l.3 1 l.9 -.5 l-.7 1.5 Z"/></g>`;
+  // a gold moose head, face on, with wide flat antlers
+  const moose = `<g fill="#d9b25a" stroke="#6b5222" stroke-width=".25">
+      <path d="M-1.4 -3.1 C-2.6 -3.6 -4.4 -3.8 -5.6 -5.6 L-5 -6 L-5 -7.3 L-4.3 -6.6 L-3.8 -7.8 L-3.2 -6.6 L-2.5 -7.3 L-2.3 -5.7 C-2 -4.9 -1.6 -4.2 -1.2 -3.6 Z"/>
+      <path d="M1.4 -3.1 C2.6 -3.6 4.4 -3.8 5.6 -5.6 L5 -6 L5 -7.3 L4.3 -6.6 L3.8 -7.8 L3.2 -6.6 L2.5 -7.3 L2.3 -5.7 C2 -4.9 1.6 -4.2 1.2 -3.6 Z"/>
+      <ellipse cx="-2.3" cy="-2.6" rx="1.1" ry=".55" transform="rotate(-20 -2.3 -2.6)"/><ellipse cx="2.3" cy="-2.6" rx="1.1" ry=".55" transform="rotate(20 2.3 -2.6)"/>
+      <path d="M-1.6 -3.5 C-1.9 -1.4 -1.7 1 -1.3 2.7 C-1.1 4.1 1.1 4.1 1.3 2.7 C1.7 1 1.9 -1.4 1.6 -3.5 C1 -4.1 -1 -4.1 -1.6 -3.5 Z"/></g>
+      <circle cx="-.8" cy="-1.7" r=".3" fill="#1a2a1c"/><circle cx=".8" cy="-1.7" r=".3" fill="#1a2a1c"/><path d="M-.6 3 h.4 M.2 3 h.4" stroke="#6b5222" stroke-width=".35"/>`;
   const leaf = 'M0 -4.6 L.9 -2.8 L2 -3.3 L1.6 -1.1 L3.3 -2 L2.9 -.7 L4.2 -.5 L2.9 .7 L3.3 1.3 L.9 1.1 L.45 1.3 L.45 3 L-.45 3 L-.45 1.3 L-.9 1.1 L-3.3 1.3 L-2.9 .7 L-4.2 -.5 L-2.9 -.7 L-3.3 -2 L-1.6 -1.1 L-2 -3.3 L-.9 -2.8 Z';
   const can = (x, y, r, h = 26) => `<g transform="translate(${x} ${y}) rotate(${r})">
-      <rect x="-7" y="${-h}" width="14" height="${h}" rx="2" fill="#1e4d2e" stroke="${INK}" stroke-width="1.6"/>
-      <path d="M-7 ${-h + 3.5} H7 M-7 -3.5 H7" stroke="#c9a94e" stroke-width="1.2"/>
-      <g transform="translate(-.6 ${-h * .52}) scale(1.05)">${moose}</g>
-      <rect x="-4.8" y="${-h + 3}" width="2.2" height="${h - 6}" rx="1.1" fill="#fff" opacity=".22"/>
+      <rect x="-7" y="${-h}" width="14" height="${h}" rx="2" fill="#1c4a2b" stroke="${INK}" stroke-width="1.6"/>
+      <rect x="-7" y="${-h}" width="5" height="${h}" fill="#2e6b40" opacity=".45"/>
+      <path d="M-7 ${-h + 2.6} H7 M-7 -2.6 H7" stroke="#c9a94e" stroke-width="1"/>
+      <g transform="translate(0 ${-h * .58}) scale(1.05)">${moose}</g>
+      <path d="M-4.5 ${-h * .28} H4.5 M-3.4 ${-h * .2} H3.4" stroke="#d9b25a" stroke-width=".9" opacity=".8"/>
+      <rect x="-5.2" y="${-h + 3}" width="1.6" height="${h - 6}" rx=".8" fill="#fff" opacity=".2"/>
       <ellipse cx="0" cy="${-h}" rx="7" ry="2.2" fill="#d7dee3" stroke="${INK}" stroke-width="1.3"/></g>`;
   const bottle = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})">
-      <path d="M-6 0 V-17 Q-6 -21 -2.5 -23 V-31 H2.5 V-23 Q6 -21 6 -17 V0 Z" fill="#7a3f10" stroke="${INK}" stroke-width="1.5"/>
-      <rect x="-6" y="-15" width="12" height="10" fill="#f6f1e4"/><g transform="translate(0 -10) scale(.95)"><path d="${leaf}" fill="#d0202a"/></g>
-      <rect x="-3" y="-34" width="6" height="3.5" rx="1" fill="#c9a227" stroke="${INK}" stroke-width="1"/>
-      <rect x="-4.4" y="-21" width="1.5" height="5" rx=".7" fill="#fff" opacity=".35"/></g>`;
-  // little bitters bottle wrapped in brown paper that runs up over the cap and is twisted shut; white label with green stripes under the neck
+      <path d="M-6 0 V-17 Q-6 -21 -2.5 -23 V-31 H2.5 V-23 Q6 -21 6 -17 V0 Z" fill="#9a5418" stroke="${INK}" stroke-width="1.5"/>
+      <rect x="-6" y="-15" width="12" height="11" fill="#1d3a6e"/>
+      <g transform="translate(0 -12.2) scale(.42)"><path d="${leaf}" fill="#d0202a"/></g>
+      <path d="M-3.6 -8.8 H3.6" stroke="#fff" stroke-width="1.8"/><path d="M-3 -6.2 H3" stroke="#9fb6dd" stroke-width=".7"/>
+      <path d="M-2.5 -29 H2.5 V-25 L0 -23.6 L-2.5 -25 Z" fill="#1d3a6e"/><path d="M-1.4 -27 H1.4" stroke="#fff" stroke-width=".7"/>
+      <rect x="-2.9" y="-33.6" width="5.8" height="3" rx="1" fill="#1b2433" stroke="${INK}" stroke-width=".9"/>
+      <rect x="-4.6" y="-21" width="1.5" height="5" rx=".7" fill="#fff" opacity=".35"/></g>`;
+  // little bitters bottle: label round the body (white with a diagonal green band), the rest wrapped in crinkled
+  // yellow paper twisted to a point over the cap
   const mini = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(1.45)">
-      <path d="M-4.2 0 V-11 Q-4.2 -14 -1.8 -15 V-21 L-2.7 -23.6 L-1.3 -22.8 L0 -24.2 L1.3 -22.8 L2.7 -23.6 L1.8 -21 V-15 Q4.2 -14 4.2 -11 V0 Z" fill="#a9824f" stroke="${INK}" stroke-width="1.1"/>
-      <path d="M-1.8 -21 Q0 -20.2 1.8 -21 M-.8 -20.6 L-.5 -23 M.7 -20.6 L.6 -23.2" stroke="#7d5a2e" stroke-width=".55" fill="none"/>
-      <path d="M-4.2 -3 L4.2 -4.6 M-4.2 -6.4 L4.2 -7.4 M-1.4 -17 L-1.2 -20" stroke="#7d5a2e" stroke-width=".6"/>
-      <path d="M-3.9 -13.6 Q0 -15 3.9 -13.6 L4.2 -10.4 Q0 -9.4 -4.2 -10.4 Z" fill="#fbfaf4" stroke="#8d8a7c" stroke-width=".4"/>
-      <path d="M-4 -12.6 Q0 -13.7 4 -12.6 M-4.1 -11.2 Q0 -10.4 4.1 -11.2" stroke="#2f7a3a" stroke-width=".7" fill="none"/></g>`;
+      <path d="M-3.9 -8.6 C-3.9 -13 -2.6 -18 -1.5 -21 L-2 -23.4 L-.6 -22.6 L.3 -24.2 L1.3 -22.6 L1.9 -23.6 L1.5 -20.6 C2.7 -17.4 3.9 -13 3.9 -8.6 Z" fill="#e6c46e" stroke="${INK}" stroke-width=".9" stroke-linejoin="round"/>
+      <path d="M-2.6 -11 L1.2 -19.5 M-.8 -9.4 L2.6 -16 M1.6 -9.6 L3.2 -12.6 M-3.2 -14 L-1.4 -17" stroke="#b48d3a" stroke-width=".5" fill="none"/>
+      <path d="M-3.9 -8.6 H3.9 V-.8 Q3.9 0 3.1 0 H-3.1 Q-3.9 0 -3.9 -.8 Z" fill="#f8f6ee" stroke="${INK}" stroke-width=".9"/>
+      <path d="M-3.9 -2.4 L3.9 -7.6 L3.9 -5.6 L-3.9 -.4 Z" fill="#1f7a4c"/>
+      <path d="M-3.9 -1.1 H3.9" stroke="#e6c46e" stroke-width="1.1"/></g>`;
   const k = rx / 74;   // scale positions to the bowl
   const X = f => cx + f * rx, Y = f => cy + f * ry;
   const mound = `<path d="M${cx - rx * .92} ${cy + ry * .2} Q${cx - rx * .5} ${cy - ry * 1.6} ${cx} ${cy - ry * 1.5} Q${cx + rx * .5} ${cy - ry * 1.6} ${cx + rx * .92} ${cy + ry * .2} Z" fill="#d7ecf6"/>`;
@@ -108,11 +119,11 @@ export function kegSVG({ wins, stickers }) {
 // Glass bowl, crossed sticks, three chrome posts, black base; the plaque carries the team, season and record.
 export function presidentsSVG({ season, record }) {
   const id = 'p' + (++uid);
-  return `<svg viewBox="0 0 170 300" class="tc-svg" role="img" aria-label="President's Trophy, ${svgText(season)}">
+  return `<svg viewBox="0 0 170 290" class="tc-svg" role="img" aria-label="President's Trophy, ${svgText(season)}">
   <defs>${chrome(id + 'g')}
     <linearGradient id="${id}glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#8fd3e8" stop-opacity=".55"/></linearGradient>
     <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b3"/><stop offset=".5" stop-color="#e3b44e"/><stop offset="1" stop-color="#a8781d"/></linearGradient></defs>
-  <ellipse cx="85" cy="292" rx="66" ry="6" fill="#000" opacity=".28"/>
+  <ellipse cx="85" cy="289" rx="66" ry="3" fill="#000" opacity=".28"/>
   <!-- crossed sticks -->
   <g stroke="${INK}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M44 50 L124 100" stroke-width="7" stroke="${INK}"/><path d="M44 50 L124 100" stroke-width="4" stroke="url(#${id}gold)"/>
@@ -387,11 +398,11 @@ export function rocketSVG(winners = []) {
   base += `<path d="M${cx - 116} ${y} L${cx - 116} ${y + 24} C${cx - 70} ${y + 36} ${cx + 70} ${y + 36} ${cx + 116} ${y + 24} L${cx + 116} ${y} Z" fill="${B('pln')}"/>
     <ellipse cx="${cx}" cy="${y}" rx="116" ry="9" fill="#1d2126"/><ellipse cx="${cx}" cy="${y}" rx="116" ry="9" fill="none" stroke="#9aa6b0" stroke-width="1.2" opacity=".8"/>
     <path d="M${cx - 112} ${y + 17} C${cx - 70} ${y + 28} ${cx + 70} ${y + 28} ${cx + 112} ${y + 17}" stroke="#c9d2d9" stroke-width="1" opacity=".45" fill="none"/>`;
-  const H = y + 42;
+  const H = y + 31;
 
   return `<svg viewBox="0 0 ${W} ${H}" class="tc-svg rr-svg" role="img" aria-label="Maurice Rocket Richard Trophy">
   <defs>${defs}</defs>
-  <ellipse cx="${cx}" cy="${H - 8}" rx="130" ry="7" fill="#000" opacity=".35"/>
+  <ellipse cx="${cx}" cy="${H - 2}" rx="124" ry="3" fill="#000" opacity=".35"/>
   ${base}
   ${cup}
   ${collar}
@@ -473,7 +484,7 @@ export function puckPileSVG(cups, pyramid = false) {
   }
   const top = Math.max(0, minY - 14);
   const l = Math.min(0, minX), w = Math.max(600, maxX) - l;
-  return `<svg viewBox="${l} ${top} ${w} ${390 - top}" class="tc-svg pk-svg${pyramid ? ' pk-pyr' : ''}" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
+  return `<svg viewBox="${l} ${top} ${w} ${387 - top}" class="tc-svg pk-svg${pyramid ? ' pk-pyr' : ''}" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
     <defs><filter id="${id}ink" x="-5%" y="-20%" width="110%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/><feGaussianBlur stdDeviation=".18"/></filter>
       <radialGradient id="${id}rub" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2b2b2b"/><stop offset=".6" stop-color="#161616"/><stop offset="1" stop-color="#0b0b0b"/></radialGradient>
       <linearGradient id="${id}tapeS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bdb9ad"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1efe8"/><stop offset="1" stop-color="#a8a499"/></linearGradient></defs>
@@ -517,7 +528,7 @@ function pedestalSVG() {
   return `<svg viewBox="0 0 300 122" class="tc-ped" aria-hidden="true">
   <defs><linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfd6dc"/><stop offset=".18" stop-color="#ffffff"/><stop offset=".4" stop-color="#eef1f4"/><stop offset=".55" stop-color="#ffffff"/><stop offset=".8" stop-color="#e2e7eb"/><stop offset="1" stop-color="#b9c2ca"/></linearGradient>
     <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3418"/><stop offset="1" stop-color="#2e1a0a"/></linearGradient></defs>
-  <ellipse cx="150" cy="114" rx="150" ry="7" fill="#000" opacity=".3"/>
+  <ellipse cx="150" cy="113" rx="146" ry="3" fill="#000" opacity=".3"/>
   <path d="M24 92 V104 Q150 124 276 104 V92 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
   <path d="M12 24 C9 48 11 72 14 92 ${hem} C289 72 291 48 288 24 Z" fill="url(#${id}s)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
   <g fill="none" stroke="#b7c0c8" stroke-width="1.6" stroke-linecap="round">
@@ -549,10 +560,10 @@ function squawkCupSVG() {
       <path d="M4 ${y + 3} Q60 ${y + 7} 116 ${y + 3}" stroke="#fff" stroke-width="1" fill="none" opacity=".35"/>
       ${txt ? `<text x="${60 + dx}" y="${y + h * .78}" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="${h * .82}" fill="#1b1b1b" opacity=".82" letter-spacing="1">${txt}</text>` : ''}`;
   };
-  return `<svg viewBox="0 0 120 226" class="sc-svg" role="img" aria-label="The Squawk Cup">
+  return `<svg viewBox="0 0 120 218" class="sc-svg" role="img" aria-label="The Squawk Cup">
   <defs><clipPath id="${id}c"><path d="${body}"/></clipPath>
     <linearGradient id="${id}sh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".25" stop-color="#fff" stop-opacity=".05"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient></defs>
-  <ellipse cx="60" cy="216" rx="40" ry="6" fill="#000" opacity=".35"/>
+  <ellipse cx="60" cy="215" rx="40" ry="3" fill="#000" opacity=".35"/>
   <g clip-path="url(#${id}c)">
     <rect x="0" y="0" width="120" height="226" fill="#1d1f23"/>
     <rect x="0" y="14" width="120" height="16" fill="#3a3f47"/>
@@ -597,7 +608,7 @@ function baseballSVG() {
   const glints = glint(30, 26, 5) + glint(62, 52, 3.6) + glint(78, 80, 4.2) + glint(46, 40, 2.4);
   // a seam: a curve with V stitches along it
   const seam = (d, pts) => `<path d="${d}" fill="none" stroke="#b9a98a" stroke-width="1.2"/>` + pts.map(([x, y, a]) => `<path d="M-3 -2 L0 0 L-3 2" transform="translate(${x} ${y}) rotate(${a})" fill="none" stroke="#a63a2e" stroke-width="1.5" stroke-linecap="round"/>`).join('');
-  return `<svg viewBox="0 0 100 106" class="bb-svg" role="img" aria-label="A worn-out baseball with a holographic SQUAWKS sticker">
+  return `<svg viewBox="0 0 100 96" class="bb-svg" role="img" aria-label="A worn-out baseball with a holographic SQUAWKS sticker">
   <defs><radialGradient id="${id}b" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#f4efe2"/><stop offset=".55" stop-color="#ddd3bd"/><stop offset="1" stop-color="#a99a7c"/></radialGradient>
     <linearGradient id="${id}h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6ec7"/><stop offset=".16" stop-color="#ffd84d"/><stop offset=".33" stop-color="#5cf2b0"/><stop offset=".5" stop-color="#4fc3ff"/><stop offset=".66" stop-color="#a77bff"/><stop offset=".83" stop-color="#ff6ec7"/><stop offset="1" stop-color="#ffd84d"/></linearGradient>
     <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity=".85"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -606,7 +617,7 @@ function baseballSVG() {
     <filter id="${id}cut" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="d"/>
       <feFlood flood-color="#fbfbfd"/><feComposite in2="d" operator="in" result="w"/><feMorphology in="d" operator="dilate" radius=".5" result="d2"/>
       <feFlood flood-color="#8a8f9c"/><feComposite in2="d2" operator="in" result="e"/><feMerge><feMergeNode in="e"/><feMergeNode in="w"/></feMerge></filter></defs>
-  <ellipse cx="52" cy="98" rx="38" ry="5" fill="#000" opacity=".35"/>
+  <ellipse cx="52" cy="94" rx="34" ry="2.5" fill="#000" opacity=".35"/>
   <circle cx="50" cy="50" r="44" fill="url(#${id}b)" stroke="${INK}" stroke-width="2.6"/>
   <g clip-path="url(#${id}c)">${scuffs}
     ${seam('M18 14 C34 30 34 70 18 88', [[21, 20, 60], [27, 30, 75], [30, 42, 88], [30, 55, 98], [27, 67, 110], [22, 78, 122]])}
