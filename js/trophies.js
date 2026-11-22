@@ -357,7 +357,7 @@ export function rocketSVG(winners = []) {
       const ph = t.h - 12;
       base += plaque(1, y + 6, ph, 'pl', 4);
       base += ti === 1
-        ? `<g ${serif} font-size="5"><text x="${cx}" y="${y + ph / 2 - 4}">Awarded to the</text><text x="${cx}" y="${y + ph / 2 + 3.5}" font-weight="700" font-size="5.6">WinterSquawks</text><text x="${cx}" y="${y + ph / 2 + 11}">goal-scoring leader</text></g>`
+        ? `<g ${serif} font-size="5"><text x="${cx}" y="${y + ph / 2 - 4}">Awarded to the</text><text x="${cx}" y="${y + ph / 2 + 3.5}" font-weight="700" font-size="5.6">WSC Division 4</text><text x="${cx}" y="${y + ph / 2 + 11}">goal-scoring leader</text></g>`
         : `<g ${serif} font-size="4.6"><text x="${cx}" y="${y + ph / 2 - 3}">Presented in honour of</text><text x="${cx}" y="${y + ph / 2 + 4}" font-weight="700" font-size="5.2">Maurice “Rocket” Richard</text></g>`;
       // angled faces: stacks of small plaques, one winner each, read left then right, top to bottom
       const rows = ti === 1 ? rA : rB;
