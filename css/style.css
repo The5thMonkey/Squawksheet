@@ -523,3 +523,7 @@ body.kv-open{overflow:hidden}
   .tc-papers{--ph:min(230px,48vw);position:static;grid-column:1 / -1;order:-1;display:flex;justify-content:center;gap:4%;padding-top:2.4rem;pointer-events:auto}
   .tc-paper{position:relative;left:auto !important;bottom:auto !important;top:auto !important;transform:rotate(var(--tilt,0deg))}
 }
+/* the Keg stands on a draped oval pedestal */
+.tc-keg{display:flex;flex-direction:column;align-items:center}
+.tc-keg .tc-svg{position:relative;z-index:2}
+.tc-ped{display:block;position:relative;z-index:1;width:calc(min(400px,72vw) * 1.05);margin-top:calc(min(400px,72vw) * -.176)}

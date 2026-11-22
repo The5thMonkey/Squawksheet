@@ -16,6 +16,35 @@ function chrome(id, dark = '#56616b') {
 
 // ---------------------------------------------------------------- the Stanley Keg
 // A silver keg on a wooden base with a bowl on top (as in the championship photos), team-logo stickers, and a brass plaque.
+// Ice heaped in a bowl with drinks poking out. cx/cy/rx/ry: the bowl's opening. kind: 'cans' (blue beer cans and bottles)
+// or 'minis' (little paper-wrapped bitters bottles). Plain, unbranded designs.
+function iceFill(cx, cy, rx, ry, kind) {
+  const ice = (x, y, s, r) => `<rect x="${x - s / 2}" y="${y - s / 2}" width="${s}" height="${s}" rx="${s * .22}" transform="rotate(${r} ${x} ${y})" fill="#eaf6fc" stroke="#7fa8bd" stroke-width=".9"/><path d="M${x - s * .3} ${y - s * .15} l${s * .25} -${s * .15}" stroke="#fff" stroke-width="${s * .12}" stroke-linecap="round" transform="rotate(${r} ${x} ${y})"/>`;
+  const can = (x, y, r, h = 26) => `<g transform="translate(${x} ${y}) rotate(${r})">
+      <rect x="-7" y="${-h}" width="14" height="${h}" rx="2" fill="#1c55b5" stroke="${INK}" stroke-width="1.6"/>
+      <path d="M-7 ${-h * .62} L7 ${-h * .48} L7 ${-h * .36} L-7 ${-h * .5} Z" fill="#fff"/>
+      <rect x="-4.5" y="${-h + 3}" width="2.4" height="${h - 6}" rx="1.2" fill="#fff" opacity=".35"/>
+      <ellipse cx="0" cy="${-h}" rx="7" ry="2.2" fill="#d7dee3" stroke="${INK}" stroke-width="1.3"/></g>`;
+  const bottle = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})">
+      <path d="M-6 0 V-17 Q-6 -21 -2.5 -23 V-31 H2.5 V-23 Q6 -21 6 -17 V0 Z" fill="#7a3f10" stroke="${INK}" stroke-width="1.5"/>
+      <rect x="-6" y="-14" width="12" height="9" fill="#1c55b5"/><path d="M-6 -11 H6" stroke="#fff" stroke-width="1.6"/>
+      <rect x="-3" y="-34" width="6" height="3.5" rx="1" fill="#c9a227" stroke="${INK}" stroke-width="1"/>
+      <rect x="-4" y="-21" width="1.6" height="16" rx=".8" fill="#fff" opacity=".35"/></g>`;
+  const mini = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(1.45)">
+      <path d="M-4.2 0 V-11 Q-4.2 -14 -1.8 -15 V-20 H1.8 V-15 Q4.2 -14 4.2 -11 V0 Z" fill="#a9824f" stroke="${INK}" stroke-width="1.2"/>
+      <path d="M-4.2 -3 L4.2 -5 M-4.2 -7 L4.2 -8.6" stroke="#7d5a2e" stroke-width=".7"/>
+      <rect x="-4.2" y="-10" width="8.4" height="3.6" fill="#f1e6c8"/>
+      <rect x="-2.3" y="-22.5" width="4.6" height="2.8" rx=".6" fill="#2f6b34" stroke="${INK}" stroke-width=".8"/></g>`;
+  const k = rx / 74;   // scale positions to the bowl
+  const X = f => cx + f * rx, Y = f => cy + f * ry;
+  const mound = `<path d="M${cx - rx * .92} ${cy + ry * .2} Q${cx - rx * .5} ${cy - ry * 1.6} ${cx} ${cy - ry * 1.5} Q${cx + rx * .5} ${cy - ry * 1.6} ${cx + rx * .92} ${cy + ry * .2} Z" fill="#d7ecf6"/>`;
+  const drinks = kind === 'cans'
+    ? [bottle(X(-.55), Y(.3), -18), can(X(-.22), Y(-.1), -7, 28 * k), bottle(X(.12), Y(-.2), 9), can(X(.42), Y(.2), 16, 26 * k), can(X(-.02), Y(.6), 3, 22 * k)]
+    : [-.62, -.36, -.1, .16, .42, .66].map((f, i) => mini(X(f), Y(.35 - (i % 2) * .4), [-16, 8, -6, 12, -10, 18][i]));
+  const cubes = [[-.75, .1, 8, 12], [-.45, .35, 9, -20], [-.15, .5, 8, 30], [.18, .45, 9, -8], [.5, .35, 8, 22], [.78, .05, 7, -15],
+    [-.6, -.25, 7, 40], [-.28, .05, 7, 5], [.05, .15, 7, -30], [.32, -.05, 7, 15], [.62, -.2, 6, -40]].map(([a, b, sz, r]) => ice(X(a), Y(b), sz * Math.min(1.2, k * 1.1), r));
+  return mound + drinks.join('') + cubes.join('');
+}
 export function kegSVG({ wins, stickers }) {
   const id = 'k' + (++uid);
   const spots = [[84, 122, -14], [150, 118, 11], [104, 178, 8], [158, 186, -9], [80, 228, 12], [134, 232, -6], [118, 120, 4], [96, 150, -4], [150, 152, 14], [126, 206, -12]];
@@ -26,7 +55,6 @@ export function kegSVG({ wins, stickers }) {
       : `<circle r="11" fill="${s.bg}"/><text y="3.2" text-anchor="middle" font-size="8" font-weight="800" fill="${s.fg}" font-family="system-ui,sans-serif">${svgText(s.code)}</text>`;
     return `<g transform="translate(${x} ${y}) rotate(${r})"><circle r="13.5" fill="#fff" stroke="${INK}" stroke-width="2"/>${inner}<title>${svgText(s.name)}</title></g>`;
   }).join('');
-  const plaque = wins === 1 ? ['', 'STANLEY KEG', 'CHAMPIONS'] : [`${wins}-TIME`, 'STANLEY KEG', 'CHAMPIONS'];
   return `<svg viewBox="0 0 240 340" class="tc-svg" role="img" aria-label="The Stanley Keg">
   <defs>${chrome(id + 'g')}${chrome(id + 'r', '#3d474f')}
     <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8642c"/><stop offset="1" stop-color="#6b3815"/></linearGradient>
@@ -41,9 +69,9 @@ export function kegSVG({ wins, stickers }) {
   <rect x="62" y="270" width="116" height="40" rx="3" fill="url(#${id}b)" stroke="${INK}" stroke-width="2.5"/>
   <rect x="66" y="274" width="108" height="32" rx="2" fill="none" stroke="#8a6416" stroke-width="1"/>
   <g font-family="'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif" fill="#4a3208" text-anchor="middle">
-    ${plaque[0] ? `<text x="120" y="282" font-size="7" font-weight="700" letter-spacing="1.2">${plaque[0]}</text>` : ''}
-    <text x="120" y="${plaque[0] ? 293 : 288}" font-size="10" font-weight="800" letter-spacing=".6">${plaque[1]}</text>
-    <text x="120" y="${plaque[0] ? 303 : 300}" font-size="7" font-weight="700" letter-spacing="1.4">${plaque[2]}</text></g>
+    <text x="120" y="283" font-size="6.4" font-weight="700" textLength="100" lengthAdjust="spacingAndGlyphs">WINTERHAWKS SKATING CENTER</text>
+    <text x="120" y="295" font-size="10" font-weight="800" letter-spacing=".6">STANLEY KEG</text>
+    <text x="120" y="304" font-size="7" font-weight="700" letter-spacing="1.4">DIVISION 4</text></g>
   <!-- keg body -->
   <rect x="62" y="96" width="116" height="156" rx="6" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
   <rect x="98" y="100" width="9" height="148" rx="4" fill="#fff" opacity=".55"/>
@@ -61,6 +89,9 @@ export function kegSVG({ wins, stickers }) {
   <path d="M46 46 Q120 98 194 46 Z" fill="url(#${id}bowl)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
   <ellipse cx="120" cy="46" rx="74" ry="12" fill="#e9eef2" stroke="${INK}" stroke-width="3"/>
   <ellipse cx="120" cy="47" rx="64" ry="8" fill="#9aa6b0"/>
+  ${iceFill(120, 46, 64, 8, 'cans')}
+  <path d="M46 46 A74 12 0 0 0 194 46 A74 12 0 0 1 46 46" fill="none"/><path d="M46 46 A74 12 0 0 0 194 46" fill="none" stroke="${INK}" stroke-width="3"/>
+  <path d="M56 49 A64 8 0 0 0 184 49" fill="none" stroke="#e9eef2" stroke-width="4"/>
   <path d="M62 54 Q90 70 118 72" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
   <!-- sparkle -->
   <path d="M190 112 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3 z" fill="#fff" class="tc-sparkle"/>
@@ -140,7 +171,7 @@ const wEnd = w => w.href ? '</a>' : '</div>';
 
 export function artRossSVG() {
   const id = 'a' + (++uid);
-  return `<svg viewBox="0 0 260 120" class="tc-svg aw-top" aria-hidden="true">
+  return `<svg viewBox="0 -22 260 142" class="tc-svg aw-top" aria-hidden="true">
   <defs>${chrome(id + 'g')}
     <radialGradient id="${id}b" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#cdd6dd"/><stop offset="1" stop-color="#76838e"/></radialGradient></defs>
   <!-- foot -->
@@ -153,6 +184,8 @@ export function artRossSVG() {
   <path d="M60 52 Q66 62 76 58 Q86 66 96 58 Q108 68 118 60 M142 60 Q152 68 164 58 Q174 66 184 58 Q194 62 200 52" fill="none" stroke="#6f7c87" stroke-width="2" stroke-linecap="round"/>
   <ellipse cx="130" cy="22" rx="86" ry="12" fill="#eef3f6" stroke="${INK}" stroke-width="3"/>
   <ellipse cx="130" cy="23" rx="76" ry="7" fill="#9aa6b0"/>
+  ${iceFill(130, 22, 76, 7, 'minis')}
+  <path d="M44 22 A86 12 0 0 0 216 22" fill="none" stroke="${INK}" stroke-width="3"/><path d="M55 25 A76 7 0 0 0 205 25" fill="none" stroke="#eef3f6" stroke-width="4"/>
   <!-- lion-head handles with rings -->
   <g stroke="${INK}" stroke-width="2.5"><circle cx="40" cy="36" r="10" fill="url(#${id}g)"/><circle cx="220" cy="36" r="10" fill="url(#${id}g)"/>
     <circle cx="38" cy="54" r="7" fill="none"/><circle cx="222" cy="54" r="7" fill="none"/></g>
@@ -471,6 +504,24 @@ function paperFrame(p, i) {
       <span class="tp-cols"><span>${lines(9)}</span><span>${lines(9)}</span><span>${lines(9)}</span></span>
     </span></span></span></a>`;
 }
+// The oval pedestal the Keg stands on, draped with a white sheet
+function pedestalSVG() {
+  const id = 'pd' + (++uid);
+  const hem = 'Q28 100 42 94 Q56 104 72 97 Q90 107 108 98 Q128 108 150 99 Q172 108 192 98 Q210 107 228 97 Q244 104 258 94 Q272 100 286 92';
+  return `<svg viewBox="0 0 300 122" class="tc-ped" aria-hidden="true">
+  <defs><linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfd6dc"/><stop offset=".18" stop-color="#ffffff"/><stop offset=".4" stop-color="#eef1f4"/><stop offset=".55" stop-color="#ffffff"/><stop offset=".8" stop-color="#e2e7eb"/><stop offset="1" stop-color="#b9c2ca"/></linearGradient>
+    <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3418"/><stop offset="1" stop-color="#2e1a0a"/></linearGradient></defs>
+  <ellipse cx="150" cy="114" rx="150" ry="7" fill="#000" opacity=".3"/>
+  <path d="M24 92 V104 Q150 124 276 104 V92 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M12 24 C9 48 11 72 14 92 ${hem} C289 72 291 48 288 24 Z" fill="url(#${id}s)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <g fill="none" stroke="#b7c0c8" stroke-width="1.6" stroke-linecap="round">
+    <path d="M42 40 Q40 70 42 94"/><path d="M72 44 Q76 72 72 97"/><path d="M108 46 Q104 74 108 98"/><path d="M150 46 Q153 74 150 99"/>
+    <path d="M192 46 Q196 74 192 98"/><path d="M228 44 Q224 72 228 97"/><path d="M258 40 Q260 70 258 94"/></g>
+  <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M56 42 Q58 70 56 95"/><path d="M128 46 Q126 74 128 100"/><path d="M210 46 Q213 74 210 100"/></g>
+  <ellipse cx="150" cy="24" rx="138" ry="20" fill="#fbfcfd" stroke="${INK}" stroke-width="3"/>
+  <path d="M14 26 Q150 58 286 26" fill="none" stroke="#d3dae0" stroke-width="2"/>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -488,7 +539,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
         <button class="tc-item tc-keg" id="tc-keg" type="button" aria-label="The Stanley Keg: read the engravings">
           ${kegSVG({ wins: ctx.wsqWins, stickers: ctx.stickers })}
-          <div class="tc-card">The Stanley Keg<br><b>${ctx.champions.filter(c => c.team === 'WSQ').map(c => c.short).join(' · ') || 'Not yet…'}</b></div></button>
+          ${pedestalSVG()}</button>
         ${ctx.rocket.length ? `<button class="tc-item tc-mini" type="button" data-trophy="rocket" aria-label="Rocket Richard Trophy: see the winners">
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
