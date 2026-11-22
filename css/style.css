@@ -493,3 +493,31 @@ body.kv-open{overflow:hidden}
 .ar-grid{column-gap:.6rem;row-gap:.8rem}
 .ar-name{font-size:.56rem}
 .kv-names .kv-note{flex-basis:100%;font-style:italic;letter-spacing:.02em}
+/* framed championship front pages hung on the back wall of the top shelf; 3/4 the height of the Keg */
+.tc-papers{--ph:min(425px,76.5vw);position:absolute;inset:0 0 3.2rem;z-index:0;pointer-events:none}
+.tc-paper{position:absolute;bottom:0;height:var(--ph);width:calc(var(--ph) * .7);font-size:calc(var(--ph) / 42);transform:translateX(-50%) rotate(var(--tilt,0deg));
+  pointer-events:auto;text-decoration:none;filter:brightness(.9) saturate(.9);transition:filter .2s}
+.tc-paper:hover,.tc-paper:focus-visible{filter:none}
+.tc-paper::before{content:"";position:absolute;left:50%;top:-2.2em;width:60%;height:2.6em;transform:translateX(-50%);
+  background:linear-gradient(to bottom right,transparent 49%,#2b2b2b 50%,transparent 53%) left/50% 100% no-repeat,linear-gradient(to bottom left,transparent 49%,#2b2b2b 50%,transparent 53%) right/50% 100% no-repeat}
+.tc-paper::after{content:"";position:absolute;left:50%;top:-2.6em;width:.9em;height:.9em;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle at 35% 35%,#f1f1f1,#7d7d7d 60%,#3a3a3a)}
+.tc-papers .p0{left:16%;--tilt:-1.2deg;bottom:.4rem}.tc-papers .p1{left:34%;--tilt:1deg;bottom:2.4rem}.tc-papers .p2{left:75%;--tilt:-.8deg;bottom:1.2rem}.tc-papers .p3{left:88%;--tilt:1deg}
+.tc-papers.n1 .p0{left:31%}.tc-papers.n2 .p0{left:30%}.tc-papers.n2 .p1{left:72%;bottom:1.2rem}
+.tp-frame{display:block;height:100%;padding:.9em;background:linear-gradient(135deg,#7a4e26,#3e230e 45%,#6b421f 70%,#2e1a09);border-radius:.2em;
+  box-shadow:0 .6em 1.4em #000a,inset 0 0 0 .15em #a87a42,inset 0 0 0 .5em #3b220c}
+.tp-mat{display:block;height:100%;padding:.9em;background:#ece4cf;box-shadow:inset 0 0 0 .12em #b8955a,inset .2em .3em .6em #0004}
+.tp-page{display:flex;flex-direction:column;gap:.35em;height:100%;padding:.8em .9em;background:linear-gradient(#f4ecd6,#e9dcbb);color:#1d1a16;
+  font-family:Georgia,'Times New Roman',serif;overflow:hidden;box-shadow:.15em .2em .5em #0003}
+.tp-top{display:flex;justify-content:space-between;font-size:.62em;text-transform:uppercase;letter-spacing:.06em;border-bottom:.1em solid #1d1a16;padding-bottom:.25em}
+.tp-mh{font-family:'UnifrakturCook','Old English Text MT','Engravers MT',Georgia,serif;font-weight:700;font-size:1.55em;text-align:center;line-height:1;white-space:nowrap}
+.tp-date{font-size:.6em;text-align:center;border-top:.1em solid #1d1a16;border-bottom:.3em double #1d1a16;padding:.2em 0;font-style:italic}
+.tp-head{font-family:'Arial Narrow','Helvetica Neue',Impact,sans-serif;font-weight:900;font-size:2.05em;line-height:.95;text-align:center;letter-spacing:-.01em}
+.tp-deck{font-size:.78em;text-align:center;font-style:italic;line-height:1.2}
+.tp-photo{display:block;flex:1 1 40%;min-height:4em;background:center/cover no-repeat;filter:grayscale(1) contrast(1.15) sepia(.25);border:.1em solid #1d1a16}
+.tp-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:.6em;flex:0 0 auto}
+.tp-cols>span{display:flex;flex-direction:column;gap:.32em}
+.tp-cols i{display:block;height:.28em;background:#1d1a16;opacity:.35;border-radius:.1em}
+@media (max-width:1000px){
+  .tc-papers{--ph:min(230px,48vw);position:static;grid-column:1 / -1;order:-1;display:flex;justify-content:center;gap:4%;padding-top:2.4rem;pointer-events:auto}
+  .tc-paper{position:relative;left:auto !important;bottom:auto !important;transform:rotate(var(--tilt,0deg))}
+}

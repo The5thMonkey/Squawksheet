@@ -444,6 +444,24 @@ export function puckPileSVG(cups, pyramid = false) {
 
 // ---------------------------------------------------------------- the case
 // ctx: { champions, wsqWins, presidents: [{id,name,record}], runnerUps: [{id,name}], stickers }
+// A framed front page of the Beer League Telegraph for one Stanley Keg title, hung on the case's back wall
+const pEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function paperFrame(p, i) {
+  const d = p.date ? new Date(p.date + 'T12:00:00') : null;
+  const when = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : '';
+  const extra = p.ot === 'SO' ? ' in a shootout' : p.ot ? ' in overtime' : '';
+  const lines = n => Array.from({ length: n }, (_, k) => `<i style="width:${[100, 96, 100, 88, 100, 93, 70][k % 7]}%"></i>`).join('');
+  return `<a class="tc-paper p${i}" href="#/game/${pEsc(p.id)}" aria-label="${pEsc(p.season)} Stanley Keg final: front page">
+    <span class="tp-frame"><span class="tp-mat"><span class="tp-page">
+      <span class="tp-top"><span>${pEsc(p.season)}</span><span>Championship Extra</span><span>25¢</span></span>
+      <span class="tp-mh">The Beer League Telegraph</span>
+      <span class="tp-date">${pEsc(when)}</span>
+      <span class="tp-head">SQUAWKS WIN THE STANLEY KEG!</span>
+      <span class="tp-deck">Beat ${pEsc(p.opp)} ${p.gf}–${p.ga}${extra} in the final${p.star ? ` · ${pEsc(p.star)} first star` : ''}</span>
+      ${p.photo ? `<span class="tp-photo" style="background-image:url('${pEsc(p.photo)}')"></span>` : ''}
+      <span class="tp-cols"><span>${lines(9)}</span><span>${lines(9)}</span><span>${lines(9)}</span></span>
+    </span></span></span></a>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -456,6 +474,7 @@ export function trophyCase(ctx) {
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
       <div class="tc-shelf tc-top">
+        ${ctx.papers?.length ? `<div class="tc-papers" aria-label="Front pages">${ctx.papers.map(paperFrame).join('')}</div>` : ''}
         ${ctx.artRoss.length ? `<button class="tc-item tc-mini" type="button" data-trophy="ross" aria-label="Art Ross Trophy: see the winners">
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
         <button class="tc-item tc-keg" id="tc-keg" type="button" aria-label="The Stanley Keg: read the engravings">

@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=d04aca0960';
-import * as C from './core.js?v=d04aca0960';
+import * as TR from './trophies.js?v=14e660ce8d';
+import * as C from './core.js?v=14e660ce8d';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -518,13 +518,20 @@ function cupWinners() {
     .map(s => ({ s, t: seasonSummary(s).cup })).filter(x => x.t?.who?.length)
     .map(({ s, t }) => ({ id: s.id, name: s.name, who: t.who.map(pid => ({ pid, name: pname(pid), v: t.v })) }));
 }
+// Front pages of every Stanley Keg final the Squawks won, oldest first, for the frames on the trophy case wall
+function champPapers() {
+  return IX.data.games.filter(g => g.championship && g.status === 'final' && g.result === 'W' && (!g.team || g.team === 'WSQ'))
+    .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+    .map(g => ({ id: g.id, season: IX.seasonById[g.season]?.name || g.season, date: g.date, opp: tname(g.opponent), gf: g.gf, ga: g.ga, ot: g.ot || '',
+      photo: g.photo?.src || null, star: g.stars?.[0] ? pname(g.stars[0]) : null }));
+}
 function trophyData() {
   const champions = kegChampions();
   return {
     champions, stickers: kegStickers(champions), wsqWins: champions.filter(c => c.team === 'WSQ').length,
     presidents: IX.seasons.filter(s => s.presidents).map(s => ({ id: s.id, name: s.name, record: C.fmt.rec4(seasonSummary(s).rec.reg) })),
     runnerUps: IX.seasons.filter(s => s.runner_up).map(s => ({ id: s.id, name: s.name })),
-    artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'), cups: cupWinners(),
+    artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'), cups: cupWinners(), papers: champPapers(),
   };
 }
 document.addEventListener('click', e => {
