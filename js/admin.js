@@ -1,4 +1,4 @@
-import * as C from './core.js?v=046e34a566';
+import * as C from './core.js?v=1334eb0552';
 
 // Working copy of the data. Nothing leaves the browser until you download it.
 let DATA = null, ORIGINAL = '', IX = null;
@@ -37,7 +37,7 @@ document.getElementById('tabs').addEventListener('click', e => { const b = e.tar
 function switchTab(t) { TAB = t; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t)); render(); }
 let RENDERING = false;
 function render() { if (RENDERING) return; RENDERING = true; try { _render(); } finally { RENDERING = false; } }
-function _render() { const pane = $('#pane'); pane.innerHTML = { game: gameTab, league: leagueTab, season: seasonTab, players: playersTab, export: exportTab }[TAB](); }
+function _render() { const pane = $('#pane'); pane.innerHTML = { game: gameTab, league: leagueTab, season: seasonTab, teams: teamsTab, players: playersTab, export: exportTab }[TAB](); }
 
 // =====================================================================
 // GAME
@@ -471,8 +471,9 @@ function loadSchedule(sid, force) {
     .catch(e => { SCHED_ERR[sid] = e.message; })
     .finally(() => { SCHED_LOADING.delete(sid); if (TAB === 'league' || TAB === 'game') render(); });
 }
+const schedGames = sid => (SCHED[sid]?.games || []).map(x => x.home && x.away ? x : { ...x, home: x.home || C.teamByName(DATA, x.home_name), away: x.away || C.teamByName(DATA, x.away_name) });
 const siteGame = (sid, g) => { const sc = SCHED[sid]; if (!sc) return null;
-  return sc.games.find(x => x.id === g.source_id) || sc.games.find(x => x.date === g.date && [x.home, x.away].sort().join() === [g.home, g.away].sort().join()) || null; };
+  return schedGames(sid).find(x => x.id === g.source_id) || schedGames(sid).find(x => x.date === g.date && [x.home, x.away].sort().join() === [g.home, g.away].sort().join()) || null; };
 // the league site's score, oriented to this game's home/away
 function siteFor(sid, g) {
   const x = siteGame(sid, g); if (!x || x.status !== 'final' || x.home_score == null) return null;
@@ -514,6 +515,7 @@ function lgTable(sid, groups, sched, showHeads = true) {
   return `<div class="tw"><table class="lg-table"><thead><tr><th class="l">Time</th><th class="l">Home</th><th class="l">Away</th><th class="l">Decided in</th><th>Home<br>score</th><th>Away<br>score</th><th>Home<br>shots</th><th>Away<br>shots</th><th>Playoff</th><th class="l">Result</th><th></th></tr></thead>
     <tbody>${body || '<tr><td colspan="11" class="muted">No games yet.</td></tr>'}</tbody></table></div>`;
 }
+const unknownTeams = sid => (SCHED[sid]?.unknown_teams || []).filter(n => !C.teamByName(DATA, n));
 function syncBox(s) {
   if (!s.schedule_url) return `<p class="lb-legacy">No league schedule link for ${esc(s.name)}. Add it on the <b>Season &amp; roster</b> tab to fetch the schedule and the league site's results automatically.</p>`;
   loadSchedule(s.id);
@@ -521,7 +523,7 @@ function syncBox(s) {
   const ago = sc ? Math.round((Date.now() - Date.parse(sc.fetched_at)) / 3600000) : null;
   return `<div class="lg-sync"><div><b>League schedule</b> · <a href="${esc(s.schedule_url)}" target="_blank" rel="noopener">league site ↗</a>
     ${sc ? ` · fetched ${ago < 1 ? 'within the hour' : ago < 48 ? ago + ' h ago' : Math.round(ago / 24) + ' days ago'} · ${sc.games.length} games on ${sc.days.length} days` : SCHED_LOADING.has(s.id) ? ' · loading…' : err ? ` · <span style="color:var(--red)">couldn't load (${esc(err)})</span>` : ''}
-    ${sc?.unknown_teams?.length ? `<br><span style="color:var(--red)">Teams on the league site that aren't in the data: ${sc.unknown_teams.map(esc).join(', ')}.</span>` : ''}</div>
+    ${unknownTeams(s.id).length ? `<br><span style="color:var(--red)">Teams on the league site that aren't in the data yet: ${unknownTeams(s.id).map(n => `${esc(n)} <button class="linkbtn" data-tnew="${esc(n)}">add team</button>`).join(', ')}. Their games are skipped until they're added.</span>` : ''}</div>
     ${sc ? `<button class="btn pri" id="l-sync">Sync schedule</button>` : `<button class="btn" id="l-reload">Try again</button>`}
     ${info('A GitHub job reads the league site every morning (and right after you publish a new schedule link). <b>Sync schedule</b> adds any games that are missing and fills in dates, times and home/away. It never changes a score: the league site’s results show next to each game, and you choose whether to use them.')}</div>
     ${L.report ? `<div class="lg-report">${L.report}</div>` : ''}`;
@@ -597,6 +599,94 @@ document.addEventListener('click', e => {
 });
 
 // =====================================================================
+// TEAMS (names, colors and logos)
+// =====================================================================
+let T = { name: '', code: '', bg: '#e9edf1', fg: '#333f42', logo: null, msg: '' };
+const used = code => DATA.games.some(g => g.opponent === code) || (DATA.league_games || []).some(g => g.home === code || g.away === code)
+  || (DATA.awards || []).some(a => [a.presidents, a.stanley_keg, a.runner_up, a.art_ross?.team, a.rocket?.team].includes(code))
+  || DATA.seasons.some(s => (s.standings || []).some(r => r.team === code));
+function suggestCode(name) {
+  const w = name.toUpperCase().replace(/[^A-Z ]/g, '').split(/\s+/).filter(Boolean);
+  const tries = [w.length > 1 ? w.map(x => x[0]).join('').slice(0, 3) : '', (w[0] || '').slice(0, 3), (w.join('') || '').replace(/[AEIOU]/g, '').slice(0, 3)].filter(x => x.length >= 2);
+  for (const t of tries) if (!DATA.teams[t]) return t;
+  for (let i = 2; i < 10; i++) { const t = (tries[0] || 'TM').slice(0, 2) + i; if (!DATA.teams[t]) return t; }
+  return '';
+}
+// Shrinks an uploaded logo to at most 200 px and keeps it inside the data file, so publishing stays one upload.
+function readLogo(file) {
+  return new Promise((ok, bad) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { const k = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c.toDataURL('image/png')); };
+    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error("That file isn't an image this browser can read.")); };
+    img.src = url;
+  });
+}
+const logoImg = (src, code) => src ? `<img class="t-logo" src="${esc(src)}" alt="">` : `<span class="t-logo none" style="background:${C.teamColor(DATA, code)[0]};color:${C.teamColor(DATA, code)[1]}">${esc(code || '?')}</span>`;
+function teamsTab() {
+  const unknown = [...new Set(Object.keys(SCHED).flatMap(unknownTeams))];
+  const rows = Object.keys(DATA.teams).filter(c => c !== 'WSQ').sort((a, b) => DATA.teams[a].localeCompare(DATA.teams[b]));
+  const [bg, fg] = [T.bg, T.fg];
+  return `<div class="card">
+  <h2 style="margin-top:0">Add a team</h2>
+  ${unknown.length ? `<p class="lb-legacy">On the league site but not in the data yet: ${unknown.map(n => `<button class="btn" data-tnew="${esc(n)}">${esc(n)}</button>`).join(' ')}</p>` : ''}
+  <div class="row t-add">
+    <label style="flex:1;min-width:200px">Team name ${info('Use the name exactly as the league site writes it, so the schedule sync recognises the team.')}<input id="t-name" value="${esc(T.name)}"></label>
+    <label>Code ${info('2-4 capital letters, used inside the data (e.g. FIC). It can’t be changed later.')}<input id="t-code" style="width:5.5rem" maxlength="4" value="${esc(T.code)}"></label>
+    <label>Main color<input type="color" id="t-bg" value="${esc(bg)}"></label>
+    <label>Text color<input type="color" id="t-fg" value="${esc(fg)}"></label>
+    <label>Logo (optional)<input type="file" id="t-logo" accept="image/*"></label>
+    <div class="t-preview">${logoImg(T.logo, T.code)}<span class="team" style="background:${bg};color:${fg}">${esc(T.name || 'Team name')}</span></div>
+    <button class="btn pri" id="t-add">Add team</button>
+  </div>
+  ${T.msg ? `<p class="small" style="color:${T.msg.startsWith('✓') ? 'var(--green)' : 'var(--red)'}">${esc(T.msg)}</p>` : ''}
+  <h2>Teams</h2>
+  <div class="tw"><table><thead><tr><th class="l">Logo</th><th class="l">Code</th><th class="l">Name</th><th class="l">Main color</th><th class="l">Text color</th><th class="l">Preview</th><th class="l">Change logo</th><th></th></tr></thead><tbody>
+  ${rows.map(c => { const [b, f] = C.teamColor(DATA, c), lg = (DATA.team_logos || {})[c];
+    return `<tr><td class="l">${logoImg(lg, c)}</td><td class="l"><code>${c}</code></td>
+    <td class="l"><input data-tm="${c}" data-k="name" value="${esc(DATA.teams[c])}" style="width:13rem"></td>
+    <td class="l"><input type="color" data-tm="${c}" data-k="bg" value="${b}"></td><td class="l"><input type="color" data-tm="${c}" data-k="fg" value="${f}"></td>
+    <td class="l"><span class="team" style="background:${b};color:${f}">${esc(DATA.teams[c])}</span></td>
+    <td class="l"><input type="file" accept="image/*" data-tm="${c}" data-k="logo" style="width:12rem">${lg ? ` <button class="linkbtn" data-tlogodel="${c}">remove logo</button>` : ''}</td>
+    <td>${used(c) ? '' : `<button class="x" data-tdel="${c}" title="Delete team (it has no games)">✕</button>`}</td></tr>`; }).join('')}
+  </tbody></table></div>
+  <p class="small muted">The WinterSquawks' own colors and logos are part of the site design and aren't edited here. Logos are shrunk to 200 px and saved inside the data file, so publishing is still one upload.</p></div>`;
+}
+document.addEventListener('input', e => {
+  if (TAB !== 'teams') return; const t = e.target;
+  if (t.id === 't-name') { const auto = !T.code || T.code === suggestCode(T.name); T.name = t.value; if (auto) { T.code = suggestCode(T.name); const c = $('#t-code'); if (c) c.value = T.code; } }
+  if (t.id === 't-code') T.code = t.value.toUpperCase().replace(/[^A-Z]/g, '');
+});
+document.addEventListener('change', async e => {
+  if (TAB !== 'teams') return; const t = e.target;
+  if (t.id === 't-bg' || t.id === 't-fg') { T[t.id.slice(2)] = t.value; return render(); }
+  if (t.id === 't-name' || t.id === 't-code') return render();
+  if (t.id === 't-logo' && t.files[0]) { try { T.logo = await readLogo(t.files[0]); T.msg = ''; } catch (err) { T.msg = err.message; } return render(); }
+  if (t.dataset.tm) {
+    const c = t.dataset.tm, k = t.dataset.k;
+    if (k === 'name') { const v = t.value.trim(); const clash = C.teamByName(DATA, v); if (!v || (clash && clash !== c)) { alert(v ? `${v} is already another team's name.` : 'A team needs a name.'); return render(); } DATA.teams[c] = v; }
+    else if (k === 'bg' || k === 'fg') { const cur = [...C.teamColor(DATA, c)]; cur[k === 'bg' ? 0 : 1] = t.value; (DATA.team_colors ||= {})[c] = cur; }
+    else if (k === 'logo' && t.files[0]) { try { (DATA.team_logos ||= {})[c] = await readLogo(t.files[0]); } catch (err) { alert(err.message); } }
+    reindex(); render();
+  }
+});
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.dataset.tnew !== undefined) { T = { ...T, name: t.dataset.tnew, code: '', msg: '' }; T.code = suggestCode(T.name); if (TAB !== 'teams') switchTab('teams'); else render(); return; }
+  if (TAB !== 'teams') return;
+  if (t.id === 't-add') {
+    const name = T.name.trim(), code = T.code.trim();
+    const err = !name ? 'Enter the team name.' : !/^[A-Z]{2,4}$/.test(code) ? 'The code must be 2-4 capital letters.' : DATA.teams[code] ? `${code} is already used by ${DATA.teams[code]}.` : C.teamByName(DATA, name) ? `${name} is already a team.` : '';
+    if (err) { T.msg = err; return render(); }
+    DATA.teams[code] = name; (DATA.team_colors ||= {})[code] = [T.bg, T.fg]; if (T.logo) (DATA.team_logos ||= {})[code] = T.logo;
+    T = { name: '', code: '', bg: '#e9edf1', fg: '#333f42', logo: null, msg: `✓ ${name} (${code}) added. Sync the schedule to pick up its games.` }; reindex(); render();
+  }
+  if (t.dataset.tlogodel) { if (confirm(`Remove ${DATA.teams[t.dataset.tlogodel]}'s logo?`)) { delete DATA.team_logos[t.dataset.tlogodel]; reindex(); render(); } }
+  if (t.dataset.tdel) { const c = t.dataset.tdel; if (!used(c) && confirm(`Delete ${DATA.teams[c]}? It has no games.`)) { delete DATA.teams[c]; delete (DATA.team_colors || {})[c]; delete (DATA.team_logos || {})[c]; reindex(); render(); } }
+});
+
+// =====================================================================
 // PLAYERS
 // =====================================================================
 function playersTab() {
@@ -643,6 +733,9 @@ function changeSummary() {
     const a = ol[sid] || [], b = nl[sid] || []; if (JSON.stringify(a) === JSON.stringify(b)) continue;
     out.push(`League games ${sid}: ${b.length - a.length > 0 ? `${b.length - a.length} added` : b.length - a.length < 0 ? `${a.length - b.length} removed` : 'edited'}`);
   }
+  for (const c of Object.keys(DATA.teams)) if (!O.teams[c]) out.push(`Added team ${DATA.teams[c]} (${c})`);
+  for (const c of Object.keys(O.teams)) if (!DATA.teams[c]) out.push(`Deleted team ${O.teams[c]} (${c})`);
+  for (const c of Object.keys(DATA.teams)) if (O.teams[c] && (O.teams[c] !== DATA.teams[c] || JSON.stringify((O.team_colors || {})[c]) !== JSON.stringify((DATA.team_colors || {})[c]) || (O.team_logos || {})[c] !== (DATA.team_logos || {})[c])) out.push(`Edited team ${DATA.teams[c]}`);
   const oa = Object.fromEntries((O.awards || []).map(a => [a.season, JSON.stringify(a)]));
   for (const a of DATA.awards || []) if (oa[a.season] !== JSON.stringify(a)) out.push(`${oa[a.season] ? 'Edited' : 'Added'} Division 4 awards for ${a.season}`);
   return out;
@@ -683,4 +776,13 @@ document.addEventListener('change', e => {
   file.text().then(t => { const d = JSON.parse(t); if (!d.games || !d.players) throw new Error('Not a squawks data file'); DATA = d; G = { season: null, id: null, f: null, msgs: null }; reindex(); render(); })
     .catch(err => alert("Couldn't load that file: " + err.message));
 });
-
+// Hovering an abbreviated column header shows its full name after a second.
+function headerTips(root) {
+  for (const th of root.querySelectorAll ? root.querySelectorAll('th:not([data-tip])') : []) {
+    const tip = th.getAttribute('title') || C.HEADER_TIPS[th.textContent.trim()];
+    th.removeAttribute('title'); if (!tip) continue;
+    th.dataset.tip = tip; th.classList.add('has-tip');
+  }
+}
+new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) headerTips(n.tagName === 'TH' ? n.parentNode : n); })
+  .observe(document.body, { childList: true, subtree: true });

@@ -167,7 +167,8 @@ export function mergeSchedule(data, sid, sched, newSquawksGame) {
   const rep = { leagueAdded: [], leagueUpdated: [], squawksAdded: [], squawksUpdated: [], unknownTeams: [], notes: [] };
   const lg = data.league_games ||= [];
   const used = new Set();
-  for (const s of sched.games || []) {
+  for (const s0 of sched.games || []) {
+    const s = { ...s0, home: s0.home || teamByName(data, s0.home_name), away: s0.away || teamByName(data, s0.away_name) };
     if (!s.home || !s.away) { for (const k of ['home', 'away']) if (!s[k] && !rep.unknownTeams.includes(s[k + '_name'])) rep.unknownTeams.push(s[k + '_name']); continue; }
     if (s.home === 'WSQ' || s.away === 'WSQ') {
       const opp = s.home === 'WSQ' ? s.away : s.home;
@@ -307,6 +308,21 @@ export function validate(data) {
     for (const st of g.stars || []) if (st && !P.has(st)) warns.push(`${w}: star "${st}" is not a known player`);
     for (const p of g.penalties || []) if (!P.has(p.player)) errs.push(`${w}: penalty for unknown player "${p.player}"`);
   }
+  for (const [code, name] of Object.entries(data.teams || {})) {
+    if (!/^[A-Z]{2,4}$/.test(code)) errs.push(`Team ${code}: code must be 2-4 capital letters`);
+    if (!String(name || '').trim()) errs.push(`Team ${code}: missing name`);
+  }
+  const names = Object.values(data.teams || {}).map(normName); const dupN = names.filter((n, i) => names.indexOf(n) !== i);
+  if (dupN.length) errs.push(`Two teams have the same name (${dupN.join(', ')})`);
+  for (const [code, c] of Object.entries(data.team_colors || {})) {
+    if (!data.teams[code]) errs.push(`Team colors for unknown team ${code}`);
+    if (!Array.isArray(c) || c.length !== 2 || c.some(x => !/^#[0-9a-f]{6}$/i.test(x))) errs.push(`Team ${code}: colors must be two #rrggbb values`);
+  }
+  for (const [code, src] of Object.entries(data.team_logos || {})) {
+    if (!data.teams[code]) errs.push(`Logo for unknown team ${code}`);
+    if (!/^img\/[\w./-]+\.(png|jpe?g|webp|svg)$/i.test(src) && !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(src)) errs.push(`Team ${code}: logo must be an img/ path or an uploaded image`);
+    else if (src.length > 300000) errs.push(`Team ${code}: logo image is too large (re-upload it; it's shrunk automatically)`);
+  }
   const seenAw = new Set();
   for (const a of data.awards || []) {
     const w = `Awards ${a.season}`;
@@ -339,6 +355,23 @@ export const fmt = {
   // stored as 24-hour 'HH:MM'; shown as '10:05 PM'
   time: t => { if (!t) return ''; const [h, m] = t.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; },
 };
+
+// Full names shown when hovering over abbreviated column headers (after a 1-second pause).
+export const HEADER_TIPS = {
+  GP: 'Games played', G: 'Goals', A: 'Assists', PTS: 'Points', Pts: 'Points', 'P/GP': 'Points per game', 'G/GP': 'Goals per game',
+  PIM: 'Penalty minutes', W: 'Wins', L: 'Losses', T: 'Ties', OTL: 'Overtime and shootout losses', 'T/OTL': 'Ties and overtime/shootout losses',
+  GF: 'Goals for', GA: 'Goals against', GAA: 'Goals-against average', 'SV%': 'Save percentage', SO: 'Shutouts',
+  SF: 'Shots for', SA: 'Shots against', DIFF: 'Goal differential', Diff: 'Goal differential', 'Pt%': 'Points percentage (points ÷ points available)',
+  Pos: 'Position', 'SO%': 'Shootout scoring percentage (goals ÷ attempts)', 'SO games': 'Shootout games', 'SO wins': 'Shootout wins',
+  'Reg. W-L-T-OTL': 'Regular season: wins – losses – ties – overtime/shootout losses', 'Reg W-L-T-OTL': 'Regular season: wins – losses – ties – overtime/shootout losses',
+  'W-L-T-OTL': 'Wins – losses – ties – overtime/shootout losses', 'Reg GF-GA': 'Regular season: goals for – goals against',
+  'Playoff W-L-OTL': 'Playoffs: wins – losses – overtime/shootout losses', 'Playoff GP': 'Playoff games played', 'Playoff GF-GA': 'Playoffs: goals for – goals against',
+  '⭐': 'Times named one of the three stars', '▶ G': 'Goals with a video', 'V': 'Visitor', 'H': 'Home',
+};
+// Career points-per-game leaderboard: minimum games played (3 full seasons of 14)
+export const PPG_MIN_GP = 42;
+export const normName = s => String(s || '').toLowerCase().replace(/&amp;/g, '&').replace(/[^a-z0-9]/g, '');
+export const teamByName = (data, name) => { const n = normName(name); return n ? Object.keys(data.teams).find(k => normName(data.teams[k]) === n) || null : null; };
 
 export function teamColor(data, code) { return (data.team_colors || {})[code] || ['#e9edf1', '#333f42']; }
 

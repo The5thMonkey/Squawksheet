@@ -271,3 +271,19 @@ tr.lg-need td{background:#fffaf0}
 .lg-table select{max-width:10.8rem}
 .lg-table input[type=number]{width:3.4rem!important}
 .lg-table td:first-child{white-space:nowrap}
+/* delayed hover tips: abbreviated column headers and other short labels */
+.has-tip:not(th){position:relative}
+span.has-tip{border-bottom:1px dotted currentColor;cursor:help}
+th.has-tip{cursor:help} th.sort.has-tip{cursor:pointer}
+.has-tip::before{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:30;
+  background:#1f2a30;color:#fff;font:500 .78rem/1.35 var(--body);letter-spacing:0;text-transform:none;white-space:normal;width:max-content;max-width:16rem;text-align:left;
+  padding:.35rem .55rem;border-radius:6px;box-shadow:0 4px 14px #0004;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s ease 0s,visibility 0s linear .15s}
+.has-tip:hover::before,.has-tip:focus-visible::before{opacity:1;visibility:visible;transition:opacity .15s ease 1s,visibility 0s linear 1s}
+th.has-tip:first-child::before{left:0;transform:none}
+th.has-tip:last-child::before{left:auto;right:0;transform:none}
+/* stats entry: teams */
+.t-logo{width:40px;height:40px;object-fit:contain;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;vertical-align:middle}
+.t-logo.none{font:700 .7rem var(--head)}
+.t-add{align-items:flex-end}
+.t-add input[type=color]{width:3.2rem;height:2.2rem;padding:.1rem}
+.t-preview{display:flex;align-items:center;gap:.5rem;padding-bottom:.2rem}

@@ -1,4 +1,4 @@
-import * as C from './core.js?v=046e34a566';
+import * as C from './core.js?v=1334eb0552';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -453,7 +453,7 @@ function pageRecords() {
   const winRun = runs(g => g.result === 'W'), unbeaten = runs(g => g.result !== 'L' && g.result !== 'OTL'), loseRun = runs(g => g.result === 'L' || g.result === 'OTL');
   const losses = [...fg].filter(g => g.ga > g.gf).sort((a, b) => (b.ga - b.gf) - (a.ga - a.gf) || (b.date > a.date ? 1 : -1)).slice(0, 5).map(g => `<tr><td class="l">${glink(g, `${C.fmt.date(g.date)} vs ${tchip(g.opponent)}`)}</td><td>${g.gf}–${g.ga}</td></tr>`).join('');
   return `<h1>Records</h1>
-  <h2>Career</h2><div class="grid rec4">${lbox('Points', car.skaters, 'pts')}${lbox('Goals', car.skaters, 'g')}${lbox('Assists', car.skaters, 'a')}${lbox('Points per game (50+ GP)', car.skaters, 'ppg', v => v.toFixed(2), c => c.gp >= 50)}${lbox('Games played', car.skaters, 'gp')}${lbox('Squawk 🏆 points', car.skaters, 'cup')}${lbox('Penalty minutes', car.skaters, 'pim')}${lbox('Goalie wins', car.goalies, 'w')}</div>
+  <h2>Career</h2><div class="grid rec4">${lbox('Points', car.skaters, 'pts')}${lbox('Goals', car.skaters, 'g')}${lbox('Assists', car.skaters, 'a')}${lbox(`Points per game (<span class="has-tip" tabindex="0" data-tip="3 Full Seasons">${C.PPG_MIN_GP}+ GP</span>)`, car.skaters, 'ppg', v => v.toFixed(2), c => c.gp >= C.PPG_MIN_GP)}${lbox('Games played', car.skaters, 'gp')}${lbox('Squawk 🏆 points', car.skaters, 'cup')}${lbox('Penalty minutes', car.skaters, 'pim')}${lbox('Goalie wins', car.goalies, 'w')}</div>
   <h2>Single season</h2><div class="grid rec3">${sbox('Points', 'pts')}${sbox('Goals', 'g')}${sbox('Assists', 'a')}</div>
   <h2>Single game (F24 →)</h2><div class="grid rec3">${gbox('Points', 'PTS')}${gbox('Goals', 'G')}${gbox('Assists', 'A')}</div>
   <h2>Team (F24 →)</h2><div class="grid g2 team-rec">${box('Biggest wins', wins)}${box('Biggest losses', losses)}</div>
@@ -579,3 +579,14 @@ fetch('data/squawks.json', { cache: 'no-cache' }).then(r => r.json()).then(data 
   document.getElementById('foot-meta').textContent = `${data.games.filter(C.final).length} logged games · ${data.players.length} players · data updated ${data.meta.updated || data.meta.migrated}`;
   route();
 }).catch(err => { $app.innerHTML = `<h1>Couldn't load data</h1><p>${esc(err)}</p><p class="muted">If you opened this file straight from disk, serve the folder instead (see README).</p>`; });
+
+// Hovering an abbreviated column header shows its full name after a second (see .has-tip in style.css).
+function headerTips(root) {
+  for (const th of root.querySelectorAll ? root.querySelectorAll('th:not([data-tip])') : []) {
+    const tip = th.getAttribute('title') || C.HEADER_TIPS[th.textContent.trim()];
+    th.removeAttribute('title'); if (!tip) continue;
+    th.dataset.tip = tip; th.classList.add('has-tip');
+  }
+}
+new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) headerTips(n.tagName === 'TH' ? n.parentNode : n); })
+  .observe(document.body, { childList: true, subtree: true });

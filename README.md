@@ -46,6 +46,7 @@ The division standings are worked out from every game in the division: the Squaw
 * A GitHub job (`.github/workflows/league-schedule.yml`) then reads the league site every morning and saves the schedule and the league site's results to the `league-schedule` branch. It never changes the site's data.
 * **Each week:** on the **League games** tab, click **Sync schedule** to add any new games, dates and times. Games are grouped by date, and weeks that need results are flagged. The league site's score shows under each game: click **use** (or **Fill … from league site** for the whole night), or type the score and shots yourself. The Game tab shows the same night's other games under the Squawks game.
 * Sync never changes a score you've entered.
+* **New team in the division?** Sync lists it. Add it on the **Teams** tab (name exactly as the league site writes it, a short code, its colors and optionally a logo), then sync again. Team colors and logos can be changed there any time.
 
 ## Player photos
 
