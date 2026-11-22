@@ -581,25 +581,41 @@ function baseballSVG() {
   let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const scuffs = Array.from({ length: 26 }, () => { const a = rnd() * 6.28, r = rnd() * 40, x = 50 + Math.cos(a) * r, y = 50 + Math.sin(a) * r;
     return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(1 + rnd() * 4).toFixed(1)}" ry="${(.6 + rnd() * 1.8).toFixed(1)}" transform="rotate(${(rnd() * 180).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="#7a6a4e" opacity="${(.15 + rnd() * .3).toFixed(2)}"/>`; }).join('');
+  // mirror-ball tiles: a grid of little squares, each catching the light differently
+  let tiles = '';
+  for (let ty = 10; ty < 90; ty += 3.4) for (let tx = 10; tx < 90; tx += 3.4) {
+    const v = rnd(), c = v > .82 ? '#ffffff' : v < .14 ? '#3b2f6b' : '#ffffff';
+    tiles += `<rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="3" height="3" fill="${c}" opacity="${(v > .82 ? .75 : v < .14 ? .35 : v * .28).toFixed(2)}"/>`;
+  }
+  const glint = (x, y, r) => `<path d="M${x} ${y - r} L${x + r * .22} ${y - r * .22} L${x + r} ${y} L${x + r * .22} ${y + r * .22} L${x} ${y + r} L${x - r * .22} ${y + r * .22} L${x - r} ${y} L${x - r * .22} ${y - r * .22} Z" fill="#fff"/>`;
+  const glints = glint(30, 26, 5) + glint(62, 52, 3.6) + glint(78, 80, 4.2) + glint(46, 40, 2.4);
   // a seam: a curve with V stitches along it
   const seam = (d, pts) => `<path d="${d}" fill="none" stroke="#b9a98a" stroke-width="1.2"/>` + pts.map(([x, y, a]) => `<path d="M-3 -2 L0 0 L-3 2" transform="translate(${x} ${y}) rotate(${a})" fill="none" stroke="#a63a2e" stroke-width="1.5" stroke-linecap="round"/>`).join('');
-  return `<svg viewBox="0 0 100 106" class="bb-svg" role="img" aria-label="A worn-out baseball with a SQUAWKS sticker">
+  return `<svg viewBox="0 0 100 106" class="bb-svg" role="img" aria-label="A worn-out baseball with a holographic SQUAWKS sticker">
   <defs><radialGradient id="${id}b" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#f4efe2"/><stop offset=".55" stop-color="#ddd3bd"/><stop offset="1" stop-color="#a99a7c"/></radialGradient>
-    <linearGradient id="${id}h" x1="0" y1="0" x2="1" y2=".4"><stop offset="0" stop-color="#ff9ad5"/><stop offset=".2" stop-color="#ffe680"/><stop offset=".4" stop-color="#8ff0c4"/><stop offset=".6" stop-color="#8fd0ff"/><stop offset=".8" stop-color="#c7a0ff"/><stop offset="1" stop-color="#ff9ad5"/></linearGradient>
+    <linearGradient id="${id}h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6ec7"/><stop offset=".16" stop-color="#ffd84d"/><stop offset=".33" stop-color="#5cf2b0"/><stop offset=".5" stop-color="#4fc3ff"/><stop offset=".66" stop-color="#a77bff"/><stop offset=".83" stop-color="#ff6ec7"/><stop offset="1" stop-color="#ffd84d"/></linearGradient>
     <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity=".85"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
-    <clipPath id="${id}c"><circle cx="50" cy="50" r="44"/></clipPath></defs>
+    <clipPath id="${id}c"><circle cx="50" cy="50" r="44"/></clipPath>
+    <mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100" style="mask-type:alpha"><image href="img/logos/secondary.png" x="11" y="12" width="78" height="74"/></mask>
+    <filter id="${id}cut" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="d"/>
+      <feFlood flood-color="#fbfbfd"/><feComposite in2="d" operator="in" result="w"/><feMorphology in="d" operator="dilate" radius=".5" result="d2"/>
+      <feFlood flood-color="#8a8f9c"/><feComposite in2="d2" operator="in" result="e"/><feMerge><feMergeNode in="e"/><feMergeNode in="w"/></feMerge></filter></defs>
   <ellipse cx="52" cy="98" rx="38" ry="5" fill="#000" opacity=".35"/>
   <circle cx="50" cy="50" r="44" fill="url(#${id}b)" stroke="${INK}" stroke-width="2.6"/>
   <g clip-path="url(#${id}c)">${scuffs}
     ${seam('M18 14 C34 30 34 70 18 88', [[21, 20, 60], [27, 30, 75], [30, 42, 88], [30, 55, 98], [27, 67, 110], [22, 78, 122]])}
     ${seam('M84 12 C66 30 66 70 84 90', [[80, 19, 118], [74, 30, 104], [70, 42, 92], [70, 55, 82], [73, 67, 70], [79, 79, 58]])}
-    <!-- the sticker, curving round the ball -->
-    <g transform="rotate(-14 50 50)">
-      <path d="M8 40 Q50 31 92 40 L92 60 Q50 69 8 60 Z" fill="url(#${id}h)" stroke="#6b6b7a" stroke-width=".8"/>
-      <path d="M8 40 Q50 31 92 40 L92 60 Q50 69 8 60 Z" fill="url(#${id}g)"/>
-      <path d="M20 44 l5 -2 M70 41 l6 1 M34 58 l4 1" stroke="#fff" stroke-width="1" opacity=".6"/>
-      <text x="50" y="55.5" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="13.5" fill="#1f2340" letter-spacing=".5" textLength="70" lengthAdjust="spacingAndGlyphs">SQUAWKS</text>
-      <path d="M8 40 L8 60" stroke="#fff" stroke-width="1.2" opacity=".7"/><path d="M88 43 Q91 47 92 50" stroke="#fff" stroke-width="1" opacity=".8"/></g>
+    <!-- die-cut sticker of the SQUAWKS wordmark in holographic disco foil: rainbow foil broken into mirror-ball tiles -->
+    <g transform="rotate(4 50 50)">
+      <image href="img/logos/secondary.png" x="11" y="12" width="78" height="74" filter="url(#${id}cut)"/>
+      <g mask="url(#${id}m)">
+        <rect x="8" y="8" width="84" height="84" fill="url(#${id}h)"/>
+        ${tiles}
+        <image href="img/logos/secondary.png" x="11" y="12" width="78" height="74" opacity=".32" style="mix-blend-mode:multiply"/>
+        <rect x="8" y="8" width="84" height="84" fill="url(#${id}g)"/>
+      </g>
+      ${glints}
+    </g>
     <circle cx="50" cy="50" r="44" fill="none" stroke="#5a4d35" stroke-width="7" opacity=".18"/>
   </g>
   <path d="M24 24 Q32 14 44 12" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6" fill="none"/>
