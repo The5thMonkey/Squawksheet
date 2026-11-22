@@ -450,14 +450,23 @@ function paperFrame(p, i) {
   const d = p.date ? new Date(p.date + 'T12:00:00') : null;
   const when = d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : '';
   const extra = p.ot === 'SO' ? ' in a shootout' : p.ot ? ' in overtime' : '';
+  const nick = { AMW: 'the Cats' }[p.oppCode] || p.opp, times = ['', '', 'two', 'three', 'four', 'five'][p.lostTo] || p.lostTo;
+  const runs = { 2: 'back to back', 3: 'a three-peat', 4: 'four straight' };
+  const head = p.streak >= 2 ? (p.streak === 2 ? 'SQUAWKS GO BACK TO BACK!' : `SQUAWKS WIN ${(runs[p.streak] || p.streak + ' straight').toUpperCase()}!`)
+    : p.lostTo >= 1 ? `SQUAWKS FINALLY BEAT ${nick.toUpperCase()}!` : 'SQUAWKS WIN THE STANLEY KEG!';
+  const score = `${p.gf}–${p.ga}${extra}`;
+  const deck = p.streak >= 2 ? `Stanley Keg champions again: beat ${p.opp} ${score} in the final`
+    : p.lostTo >= 2 ? `Beat ${p.opp} ${score} for the Stanley Keg after losing the last ${times} finals to them`
+    : p.lostTo === 1 ? `Beat ${p.opp} ${score} for the Stanley Keg, a year after losing the final to them`
+    : `Beat ${p.opp} ${score} in the final`;
   const lines = n => Array.from({ length: n }, (_, k) => `<i style="width:${[100, 96, 100, 88, 100, 93, 70][k % 7]}%"></i>`).join('');
   return `<a class="tc-paper p${i}" href="#/game/${pEsc(p.id)}" aria-label="${pEsc(p.season)} Stanley Keg final: front page">
     <span class="tp-frame"><span class="tp-mat"><span class="tp-page">
       <span class="tp-top"><span>${pEsc(p.season)}</span><span>Championship Extra</span><span>25¢</span></span>
       <span class="tp-mh">The Beer League Telegraph</span>
       <span class="tp-date">${pEsc(when)}</span>
-      <span class="tp-head">SQUAWKS WIN THE STANLEY KEG!</span>
-      <span class="tp-deck">Beat ${pEsc(p.opp)} ${p.gf}–${p.ga}${extra} in the final${p.star ? ` · ${pEsc(p.star)} first star` : ''}</span>
+      <span class="tp-head">${pEsc(head)}</span>
+      <span class="tp-deck">${pEsc(deck)}${p.star ? ` · ${pEsc(p.star)} first star` : ''}</span>
       ${p.photo ? `<span class="tp-photo" style="background-image:url('${pEsc(p.photo)}')"></span>` : ''}
       <span class="tp-cols"><span>${lines(9)}</span><span>${lines(9)}</span><span>${lines(9)}</span></span>
     </span></span></span></a>`;

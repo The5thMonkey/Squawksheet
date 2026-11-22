@@ -501,8 +501,10 @@ body.kv-open{overflow:hidden}
 .tc-paper::before{content:"";position:absolute;left:50%;top:-2.2em;width:60%;height:2.6em;transform:translateX(-50%);
   background:linear-gradient(to bottom right,transparent 49%,#2b2b2b 50%,transparent 53%) left/50% 100% no-repeat,linear-gradient(to bottom left,transparent 49%,#2b2b2b 50%,transparent 53%) right/50% 100% no-repeat}
 .tc-paper::after{content:"";position:absolute;left:50%;top:-2.6em;width:.9em;height:.9em;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle at 35% 35%,#f1f1f1,#7d7d7d 60%,#3a3a3a)}
-.tc-papers .p0{left:16%;--tilt:-1.2deg;bottom:.4rem}.tc-papers .p1{left:34%;--tilt:1deg;bottom:2.4rem}.tc-papers .p2{left:75%;--tilt:-.8deg;bottom:1.2rem}.tc-papers .p3{left:88%;--tilt:1deg}
-.tc-papers.n1 .p0{left:31%}.tc-papers.n2 .p0{left:30%}.tc-papers.n2 .p1{left:72%;bottom:1.2rem}
+.tc-papers .p0{left:16%;--tilt:-1.2deg}.tc-papers .p1{left:34%;--tilt:1deg}.tc-papers .p2{left:75%;--tilt:-.8deg}.tc-papers .p3{left:88%;--tilt:1deg}
+.tc-papers.n1 .p0{left:31%}.tc-papers.n2 .p0{left:30%}.tc-papers.n2 .p1{left:72%}
+/* hung high: the nail sits just under the medals' ribbons rail area */
+@media (min-width:1001px){ .tc-papers{inset:0} .tc-paper{bottom:auto;top:calc(2.6em - 1.6rem)} }
 .tp-frame{display:block;height:100%;padding:.9em;background:linear-gradient(135deg,#7a4e26,#3e230e 45%,#6b421f 70%,#2e1a09);border-radius:.2em;
   box-shadow:0 .6em 1.4em #000a,inset 0 0 0 .15em #a87a42,inset 0 0 0 .5em #3b220c}
 .tp-mat{display:block;height:100%;padding:.9em;background:#ece4cf;box-shadow:inset 0 0 0 .12em #b8955a,inset .2em .3em .6em #0004}
@@ -519,5 +521,5 @@ body.kv-open{overflow:hidden}
 .tp-cols i{display:block;height:.28em;background:#1d1a16;opacity:.35;border-radius:.1em}
 @media (max-width:1000px){
   .tc-papers{--ph:min(230px,48vw);position:static;grid-column:1 / -1;order:-1;display:flex;justify-content:center;gap:4%;padding-top:2.4rem;pointer-events:auto}
-  .tc-paper{position:relative;left:auto !important;bottom:auto !important;transform:rotate(var(--tilt,0deg))}
+  .tc-paper{position:relative;left:auto !important;bottom:auto !important;top:auto !important;transform:rotate(var(--tilt,0deg))}
 }
