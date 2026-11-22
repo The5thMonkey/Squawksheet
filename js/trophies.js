@@ -123,16 +123,82 @@ export function medalSVG({ season }) {
   <circle cx="40" cy="108" r="23" fill="none" stroke="#8592a0" stroke-width="1.5"/>
   <path d="M24 96 a18 18 0 0 1 12 -10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>
   <g font-family="'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif" text-anchor="middle" fill="#3b4652">
-    <text x="40" y="100" font-size="6.5" font-weight="800" letter-spacing=".8">RUNNER-UP</text>
-    <text x="40" y="111" font-size="8.5" font-weight="800">${svgText((term || '').toUpperCase())}</text>
-    <text x="40" y="122" font-size="9" font-weight="800">${svgText(year || '')}</text></g>
+    <text x="40" y="106" font-size="9.5" font-weight="800">${svgText((term || '').toUpperCase())}</text>
+    <text x="40" y="119" font-size="11" font-weight="800">${svgText(year || '')}</text></g>
   </svg>`;
+}
+
+// ---------------------------------------------------------------- Art Ross and "Rocket" Richard
+// winners: oldest → newest, each { season, short, name, value, team, teamName, photo, href, wsq }
+function winnerFace(w, unit) {
+  return w.photo ? `<img src="${svgText(w.photo)}" alt="">`
+    : `<span class="aw-eng"><small>${svgText(w.short)}</small><b>${svgText(w.value ?? '')}</b><small>${unit}</small></span>`;
+}
+const wTitle = (w, unit) => `${w.name}, ${w.teamName}: ${w.value ?? '?'} ${unit === 'PTS' ? 'points' : 'goals'} (${w.seasonName})`;
+const wTag = (w, inner) => w.href ? `<a class="${inner[0]}" href="${w.href}" title="${svgText(inner[1])}">` : `<div class="${inner[0]}" title="${svgText(inner[1])}">`;
+const wEnd = w => w.href ? '</a>' : '</div>';
+
+export function artRossSVG() {
+  const id = 'a' + (++uid);
+  return `<svg viewBox="0 0 260 120" class="tc-svg aw-top" aria-hidden="true">
+  <defs>${chrome(id + 'g')}
+    <radialGradient id="${id}b" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#cdd6dd"/><stop offset="1" stop-color="#76838e"/></radialGradient></defs>
+  <!-- foot -->
+  <path d="M92 106 H168 L176 118 H84 Z" fill="#2a2d31" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M100 92 H160 L166 106 H94 Z" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="112" y="80" width="36" height="14" fill="url(#${id}g)" stroke="${INK}" stroke-width="2.5"/>
+  <!-- bowl -->
+  <path d="M46 22 Q48 74 130 84 Q212 74 214 22 Z" fill="url(#${id}b)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M58 44 Q130 58 202 44" fill="none" stroke="#8c99a4" stroke-width="2"/>
+  <path d="M60 52 Q66 62 76 58 Q86 66 96 58 Q108 68 118 60 M142 60 Q152 68 164 58 Q174 66 184 58 Q194 62 200 52" fill="none" stroke="#6f7c87" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="130" cy="22" rx="86" ry="12" fill="#eef3f6" stroke="${INK}" stroke-width="3"/>
+  <ellipse cx="130" cy="23" rx="76" ry="7" fill="#9aa6b0"/>
+  <!-- lion-head handles with rings -->
+  <g stroke="${INK}" stroke-width="2.5"><circle cx="40" cy="36" r="10" fill="url(#${id}g)"/><circle cx="220" cy="36" r="10" fill="url(#${id}g)"/>
+    <circle cx="38" cy="54" r="7" fill="none"/><circle cx="222" cy="54" r="7" fill="none"/></g>
+  <circle cx="37" cy="34" r="2" fill="${INK}"/><circle cx="43" cy="34" r="2" fill="${INK}"/><circle cx="217" cy="34" r="2" fill="${INK}"/><circle cx="223" cy="34" r="2" fill="${INK}"/>
+  <path d="M70 34 Q96 60 128 66" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+  <text x="130" y="40" text-anchor="middle" font-family="'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif" font-size="7.5" font-weight="800" fill="#4f5b66" letter-spacing="1">ART ROSS TROPHY</text>
+  </svg>`;
+}
+export function rocketSVG() {
+  const id = 'r' + (++uid);
+  return `<svg viewBox="0 0 260 150" class="tc-svg aw-top" aria-hidden="true">
+  <defs>${chrome(id + 'g')}
+    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#8f611a"/></linearGradient>
+    <linearGradient id="${id}w" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7d8994"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#b8c3cb"/><stop offset="1" stop-color="#5c6772"/></linearGradient></defs>
+  <!-- the split, flared cup -->
+  <path d="M22 10 L64 4 L118 128 L104 132 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M238 10 L196 4 L142 128 L156 132 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M30 12 L106 126 M230 12 L154 126" stroke="#fff" stroke-width="2.5" opacity=".8"/>
+  <!-- the skater -->
+  <g fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M122 46 Q140 38 152 52 L148 78 Q136 84 124 78 Z"/>
+    <circle cx="140" cy="34" r="9"/>
+    <path d="M124 54 L108 70 L116 76 L130 64"/><path d="M150 56 L160 72 L150 80"/>
+    <path d="M128 78 L114 108 L124 112 L138 84"/><path d="M144 80 L156 104 L168 104 L152 76"/>
+    <path d="M152 80 L132 126 L122 126" fill="none" stroke-width="4"/><path d="M152 80 L132 126 L122 126" fill="none" stroke="url(#${id}gold)" stroke-width="2"/></g>
+  <!-- collar -->
+  <ellipse cx="130" cy="132" rx="58" ry="9" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
+  <path d="M74 132 V142 Q130 156 186 142 V132" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  </svg>`;
+}
+function artRoss(winners) {
+  const pucks = winners.map(w => `${wTag(w, ['ar-puck' + (w.wsq ? ' wsq' : ''), wTitle(w, 'PTS')])}<span class="ar-face">${winnerFace(w, 'PTS')}</span>
+      <span class="ar-name">${svgText(w.name)}</span><span class="ar-sub">${svgText(w.short)} · ${w.value ?? '?'} pts</span>${wEnd(w)}`).join('');
+  return `<div class="aw-trophy aw-ross">${artRossSVG()}<div class="ar-base"><div class="ar-grid">${pucks}</div></div>
+    <div class="tc-card">Art Ross Trophy<br><b>Division points leaders</b></div></div>`;
+}
+function rocket(winners) {
+  const plaques = winners.map(w => `${wTag(w, ['rr-plaque' + (w.wsq ? ' wsq' : ''), wTitle(w, 'G')])}${w.photo ? `<img src="${svgText(w.photo)}" alt="">` : ''}
+      <span class="rr-txt"><span class="rr-name">${svgText(w.name)}</span><span class="rr-sub">${svgText(w.short)} · ${w.value ?? '?'} goals</span></span>${wEnd(w)}`).join('');
+  return `<div class="aw-trophy aw-rocket">${rocketSVG()}<div class="rr-base"><div class="rr-grid">${plaques}</div></div>
+    <div class="tc-card">"Rocket" Richard Trophy<br><b>Division goal leaders</b></div></div>`;
 }
 
 // ---------------------------------------------------------------- the case
 // ctx: { champions, wsqWins, presidents: [{id,name,record}], runnerUps: [{id,name}], stickers }
 export function trophyCase(ctx) {
-  const ghost = label => `<div class="tc-item tc-ghost" aria-hidden="true"><div class="tc-ghost-spot"></div><div class="tc-card muted">${label}</div></div>`;
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
   const medals = ctx.runnerUps.map(r => `<a class="tc-medal" href="#/season/${r.id}" title="Runner-up, ${svgText(r.name)}">
@@ -148,9 +214,11 @@ export function trophyCase(ctx) {
           <span class="tc-hint">Click to read the engravings</span></button>
       </div>
       <div class="tc-glass-shelf"></div>
-      <div class="tc-shelf">${pres}${ghost('Next President’s Trophy')}</div>
+      <div class="tc-shelf">${pres}</div>
+      ${ctx.artRoss.length || ctx.rocket.length ? `<div class="tc-glass-shelf"></div>
+      <div class="tc-shelf tc-awards">${ctx.artRoss.length ? artRoss(ctx.artRoss) : ''}${ctx.rocket.length ? rocket(ctx.rocket) : ''}</div>` : ''}
       <div class="tc-glass-shelf"></div>
-      <div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}<div class="tc-medal tc-ghost-medal" aria-hidden="true"><span class="tc-hook"></span></div></div>
+      <div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         <div class="tc-card tc-rail-card">Runner-up finishes · ${ctx.runnerUps.length}</div></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
@@ -166,7 +234,8 @@ export function openKeg(champions, stickers) {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let k = 0; const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const panel = (c, i) => `<div class="kv-panel${c.team === 'WSQ' ? ' wsq' : ''}" data-i="${i}">
-      <div class="kv-team">${esc(c.teamName)} <span>${esc(c.name)}</span></div>
+      <div class="kv-head"><div class="kv-team">${esc(c.teamName)} <span>${esc(c.name)}</span></div>
+        ${c.captain ? `<div class="kv-capt">Captain: ${c.captain.href ? `<a href="${c.captain.href}">${esc(c.captain.text)}</a>` : esc(c.captain.text)}</div>` : ''}</div>
       <div class="kv-names">${c.names.length ? c.names.map(n => n.href ? `<a href="${n.href}">${esc(n.text)}</a>` : `<span>${esc(n.text)}</span>`).join('')
         : '<span class="kv-blank"></span><span class="kv-blank"></span><span class="kv-blank short"></span><span class="kv-blank"></span><span class="kv-blank short"></span>'}</div></div>`;
   let idx = 0;

@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=3b602148de';
-import * as C from './core.js?v=3b602148de';
+import * as TR from './trophies.js?v=577655a337';
+import * as C from './core.js?v=577655a337';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -485,14 +485,26 @@ function kegChampions() {
   return [...(IX.data.awards || [])].filter(a => a.stanley_keg).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
     const s = IX.seasonById[a.season], team = a.stanley_keg;
     // names: an engraving list saved with the award, otherwise (for the Squawks) the season roster, captain marked like the real Cup
-    let names = (a.keg_roster || []).map(t => ({ text: t }));
-    if (!names.length && team === 'WSQ') names = (s?.roster || []).map(e => ({ text: pname(e.player) + ((e.tags || []).includes('C') ? ' Capt.' : ''), href: `#/player/${e.player}` }));
-    return { season: a.season, name: s?.name || a.season, short: shortSeason(a.season), team, teamName: tname(team), names };
+    let names = (a.keg_roster || []).map(t => ({ text: t })), captain = a.keg_captain ? { text: a.keg_captain } : null;
+    if (!names.length && team === 'WSQ') {
+      const ros = s?.roster || [], cap = ros.find(e => (e.tags || []).includes('C'));
+      if (cap) captain = { text: pname(cap.player), href: `#/player/${cap.player}` };
+      names = ros.filter(e => e !== cap).map(e => ({ text: pname(e.player), href: `#/player/${e.player}` }));
+    }
+    return { season: a.season, name: s?.name || a.season, short: shortSeason(a.season), team, teamName: tname(team), captain, names };
   });
 }
 function kegStickers(champs) {
   const seen = []; for (const c of champs) if (!seen.includes(c.team)) seen.push(c.team);
   return seen.map(code => { const [bg, fg] = C.teamColor(IX.data, code); return { code, name: tname(code), bg, fg, logo: code === 'WSQ' ? 'img/logos/primary.png' : (IX.data.team_logos || {})[code] || null }; });
+}
+// Art Ross / "Rocket" Richard winners, oldest to newest; a Squawks winner links to their page and shows their photo
+function awardWinners(k) {
+  return [...(IX.data.awards || [])].filter(a => a[k]?.name).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
+    const x = a[k], p = IX.data.players.find(pl => pl.name.toLowerCase() === x.name.toLowerCase() && (x.team === 'WSQ' || !x.team));
+    return { season: a.season, seasonName: IX.seasonById[a.season]?.name || a.season, short: shortSeason(a.season), name: x.name, value: x.value,
+      team: x.team, teamName: tname(x.team), wsq: x.team === 'WSQ', photo: p?.photos?.[0] || null, href: p ? `#/player/${p.id}` : null };
+  });
 }
 function trophyData() {
   const champions = kegChampions();
@@ -500,6 +512,7 @@ function trophyData() {
     champions, stickers: kegStickers(champions), wsqWins: champions.filter(c => c.team === 'WSQ').length,
     presidents: IX.seasons.filter(s => s.presidents).map(s => ({ id: s.id, name: s.name, record: C.fmt.rec4(seasonSummary(s).rec.reg) })),
     runnerUps: IX.seasons.filter(s => s.runner_up).map(s => ({ id: s.id, name: s.name })),
+    artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'),
   };
 }
 document.addEventListener('click', e => { if (e.target.closest('#tc-keg')) { const ch = kegChampions(); TR.openKeg(ch, kegStickers(ch)); } });

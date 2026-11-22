@@ -353,7 +353,10 @@ body.kv-open{overflow:hidden}
 .kv-panel.on{background:#ffffff40}
 .kv-team,.kv-names{font-family:'Copperplate','Copperplate Gothic Light','Engravers MT','Cinzel',Georgia,serif;text-transform:uppercase;color:#4d565e;
   text-shadow:0 1px 0 #ffffffd0,0 -1px 0 #00000040}
-.kv-team{font-size:1.02rem;letter-spacing:.06em;font-weight:700;line-height:1.15;border-bottom:1.5px solid #8a959f;padding-bottom:.3rem;margin-bottom:.4rem}
+.kv-head{border-bottom:1.5px solid #8a959f;box-shadow:0 1px 0 #ffffffaa;padding-bottom:.35rem;margin-bottom:.45rem}
+.kv-team{font-size:1.02rem;letter-spacing:.06em;font-weight:700;line-height:1.15}
+.kv-capt{font-family:'Copperplate','Copperplate Gothic Light','Engravers MT','Cinzel',Georgia,serif;text-transform:uppercase;color:#4d565e;text-shadow:0 1px 0 #ffffffd0,0 -1px 0 #00000040;font-size:.86rem;letter-spacing:.04em;margin-top:.3rem}
+.kv-capt a{color:inherit;text-decoration:none} .kv-capt a:hover{color:#912522;text-decoration:underline}
 .kv-team span{display:block;font-size:.8rem;letter-spacing:.12em;font-weight:400}
 .kv-names{display:flex;flex-wrap:wrap;gap:.18rem .6rem;font-size:.86rem;letter-spacing:.03em;line-height:1.25}
 .kv-names a{color:inherit;text-decoration:none} .kv-names a:hover{color:#912522;text-decoration:underline}
@@ -377,3 +380,35 @@ body.kv-open{overflow:hidden}
 .tc-keg:focus:not(:focus-visible){outline:none}
 .tc-item:focus-visible{outline:3px solid #ffd970;outline-offset:6px;border-radius:8px}
 @media (max-width:760px){ .tc-medal,.tc-medal .tc-svg{width:74px} }
+/* trophy case: Art Ross and "Rocket" Richard */
+.tc-awards{gap:1.6rem 2rem;align-items:flex-end}
+.aw-trophy{display:flex;flex-direction:column;align-items:center;width:min(460px,100%)}
+.aw-top{width:min(300px,78%);margin-bottom:-2px;position:relative;z-index:1}
+.aw-rocket .aw-top{width:min(290px,76%)}
+.ar-base,.rr-base{width:100%;background:var(--ink);padding:3px 3px 4px}
+.ar-base{clip-path:polygon(9% 0,91% 0,100% 100%,0 100%)}
+.ar-grid{clip-path:polygon(9% 0,91% 0,100% 100%,0 100%);display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem .2rem;padding:1rem 11% 1.1rem;
+  background:linear-gradient(90deg,#7a4419,#b8732f 12%,#d48e47 30%,#b8732f 55%,#d48e47 80%,#7a4419);box-shadow:inset 0 3px 0 #ffffff30}
+.ar-puck,.rr-plaque{text-decoration:none!important;color:inherit;min-width:0}
+.ar-puck{display:flex;flex-direction:column;align-items:center;gap:.15rem}
+.ar-face{display:flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:50%;border:6px solid #121417;overflow:hidden;
+  background:radial-gradient(circle at 35% 30%,#ffffff,#d3dbe1 45%,#8693a0);box-shadow:0 0 0 2px var(--ink),0 3px 0 2px var(--ink)}
+.ar-face img{width:100%;height:100%;object-fit:cover}
+.aw-eng{display:flex;flex-direction:column;align-items:center;line-height:1;font-family:'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif;color:#4a5560;text-shadow:0 1px 0 #ffffffcc}
+.aw-eng b{font-size:1rem} .aw-eng small{font-size:.5rem;letter-spacing:.06em;font-weight:700}
+.ar-name,.rr-name{font:800 .6rem/1.1 var(--body);text-transform:uppercase;letter-spacing:.03em;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ar-name{color:#fff6dd;text-shadow:0 1px 0 #0008} .ar-sub{font:600 .55rem var(--body);color:#ffe2b0;text-transform:uppercase}
+.ar-puck.wsq .ar-face{border-color:#912522}
+.ar-puck:hover .ar-face,.rr-plaque:hover{filter:brightness(1.12)}
+.rr-base{clip-path:polygon(5% 0,95% 0,100% 100%,0 100%)}
+.rr-grid{clip-path:polygon(5% 0,95% 0,100% 100%,0 100%);display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:.9rem 7% 1rem;
+  background:linear-gradient(90deg,#0f1a26,#2a3d52 20%,#1b2a3a 50%,#2a3d52 80%,#0f1a26);box-shadow:inset 0 3px 0 #ffffff22}
+.rr-plaque{display:flex;align-items:center;gap:.35rem;padding:.3rem .4rem;border:2px solid var(--ink);border-radius:3px;
+  background:linear-gradient(90deg,#8d99a3,#e9eef2 25%,#ffffff 45%,#c7d0d7 75%,#8d99a3);color:#3b4652}
+.rr-plaque img{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid #912522;flex:none}
+.rr-plaque.wsq{box-shadow:inset 0 0 0 2px #912522}
+.rr-txt{display:flex;flex-direction:column;min-width:0}
+.rr-name{text-align:left} .rr-sub{font:600 .55rem var(--body);text-transform:uppercase;color:#56616c}
+.aw-trophy .tc-card{margin-top:.5rem}
+@media (max-width:560px){ .ar-grid{grid-template-columns:repeat(4,1fr)} .rr-grid{grid-template-columns:repeat(2,1fr)} }
+.ar-name{white-space:normal;overflow:visible;line-height:1.05;min-height:2.1em;display:flex;align-items:flex-start;justify-content:center;word-break:normal}
