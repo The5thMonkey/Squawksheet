@@ -331,6 +331,8 @@ export function validate(data) {
     for (const k of ['presidents', 'stanley_keg', 'runner_up']) if (a[k] && !data.teams[a[k]]) errs.push(`${w}: unknown team "${a[k]}" for ${k}`);
     for (const k of ['art_ross', 'rocket']) { const x = a[k]; if (x?.team && !data.teams[x.team]) errs.push(`${w}: unknown team "${x.team}" for ${k}`); if (x?.value != null && !(Number.isInteger(x.value) && x.value >= 0)) errs.push(`${w}: ${k} total must be a whole number`); }
     if (a.stanley_keg && a.stanley_keg === a.runner_up) errs.push(`${w}: the Stanley Keg winner can't also be the runner-up`);
+    if (a.keg_roster != null && (!Array.isArray(a.keg_roster) || a.keg_roster.some(n => typeof n !== 'string' || !n.trim()))) errs.push(`${w}: keg_roster must be a list of names`);
+    if (a.keg_captain != null && (typeof a.keg_captain !== 'string' || !a.keg_captain.trim())) errs.push(`${w}: keg_captain must be a name`);
   }
   for (const [i, g] of (data.league_games || []).entries()) {
     const w = `League game ${g.season} #${i + 1}${g.home && g.away ? ` (${g.home} v ${g.away})` : ''}`;

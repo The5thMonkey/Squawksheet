@@ -460,3 +460,10 @@ body.kv-open{overflow:hidden}
 @media (max-width:1000px){ .tc-top{grid-template-columns:1fr 1fr} .tc-top .tc-keg{grid-column:1 / -1;grid-row:1} .tc-top .tc-hint{position:static;transform:none;margin-top:.4rem} }
 @media (max-width:520px){ .tc-mini-ross{zoom:.32} }
 .ar-face .aw-eng{text-shadow:none}
+/* keg viewer: each champion's sticker sits on its own engraving */
+.kv-slot.kv-on-panel{position:absolute;top:auto;bottom:14px;right:12px;transform:rotate(var(--rot));z-index:1}
+.kv-on-panel .kv-sticker{width:58px;height:58px}
+.kv-on-panel .kv-sticker img{width:48px;height:48px}
+.kv-band{height:30px}
+.kv-panel{padding-bottom:84px}
+.kv-on-panel .kv-sticker img{width:70%;height:70%}

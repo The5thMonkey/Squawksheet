@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=00d6f435a4';
-import * as C from './core.js?v=00d6f435a4';
+import * as TR from './trophies.js?v=18f9e6d159';
+import * as C from './core.js?v=18f9e6d159';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -481,7 +481,10 @@ function pageOpponents() {
 
 // ---------- trophy case data ----------
 const shortSeason = id => ({ W: 'W', S: 'S', F: 'F' }[id[0]] || '') + id.slice(1);
+// every logo a team has; the Squawks have three, so their engravings take turns with them
+const teamLogos = code => code === 'WSQ' ? ['img/logos/primary.png', 'img/logos/alternate.png', 'img/logos/secondary.png'] : [].concat((IX.data.team_logos || {})[code] || []);
 function kegChampions() {
+  const seenWins = {};
   return [...(IX.data.awards || [])].filter(a => a.stanley_keg).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
     const s = IX.seasonById[a.season], team = a.stanley_keg;
     // names: an engraving list saved with the award, otherwise (for the Squawks) the season roster, captain marked like the real Cup
@@ -491,7 +494,9 @@ function kegChampions() {
       if (cap) captain = { text: pname(cap.player), href: `#/player/${cap.player}` };
       names = ros.filter(e => e !== cap).map(e => ({ text: pname(e.player), href: `#/player/${e.player}` }));
     }
-    return { season: a.season, name: s?.name || a.season, short: shortSeason(a.season), team, teamName: tname(team), captain, names };
+    const logos = teamLogos(team), turn = (seenWins[team] = (seenWins[team] ?? -1) + 1), [bg, fg] = C.teamColor(IX.data, team);
+    return { season: a.season, name: s?.name || a.season, short: shortSeason(a.season), team, teamName: tname(team), captain, names,
+      sticker: { code: team, name: tname(team), bg, fg, logo: logos.length ? logos[turn % logos.length] : null } };
   });
 }
 function kegStickers(champs) {

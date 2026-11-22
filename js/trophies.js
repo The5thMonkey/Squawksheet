@@ -298,8 +298,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
         <button class="tc-item tc-keg" id="tc-keg" type="button" aria-label="The Stanley Keg: read the engravings">
           ${kegSVG({ wins: ctx.wsqWins, stickers: ctx.stickers })}
-          <div class="tc-card">The Stanley Keg<br><b>${ctx.champions.filter(c => c.team === 'WSQ').map(c => c.short).join(' · ') || 'Not yet…'}</b></div>
-          <span class="tc-hint">Click a trophy to look closer</span></button>
+          <div class="tc-card">The Stanley Keg<br><b>${ctx.champions.filter(c => c.team === 'WSQ').map(c => c.short).join(' · ') || 'Not yet…'}</b></div></button>
         ${ctx.rocket.length ? `<button class="tc-item tc-mini" type="button" data-trophy="rocket" aria-label="Rocket Richard Trophy: see the winners">
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
@@ -321,6 +320,7 @@ export function openKeg(champions, stickers) {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let k = 0; const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const panel = (c, i) => `<div class="kv-panel${c.team === 'WSQ' ? ' wsq' : ''}" data-i="${i}">
+      ${c.sticker ? `<span class="kv-slot kv-on-panel" style="--rot:${(i * 37) % 26 - 13}deg">${sticker(c.sticker)}</span>` : ''}
       <div class="kv-head"><div class="kv-team">${esc(c.teamName)} <span>${esc(c.name)}</span></div>
         ${c.captain ? `<div class="kv-capt">Captain: ${c.captain.href ? `<a href="${c.captain.href}">${esc(c.captain.text)}</a>` : esc(c.captain.text)}</div>` : ''}</div>
       <div class="kv-names">${c.names.length ? c.names.map(n => n.href ? `<a href="${n.href}">${esc(n.text)}</a>` : `<span>${esc(n.text)}</span>`).join('')
@@ -328,8 +328,8 @@ export function openKeg(champions, stickers) {
   let idx = 0;
   const sticker = s => s.logo ? `<span class="kv-sticker" title="${esc(s.name)}"><img src="${esc(s.logo)}" alt=""></span>`
     : `<span class="kv-sticker" title="${esc(s.name)}" style="background:${s.bg};color:${s.fg}">${esc(s.code)}</span>`;
-  const band = r => `<div class="kv-band">${[0, 1, 2].map(j => { const s = stickers[(r * 3 + j) % stickers.length]; return s ? `<span class="kv-slot" style="left:${12 + j * 33 + ((r * 7 + j * 11) % 9)}%;--rot:${((r * 13 + j * 29) % 30) - 15}deg">${sticker(s)}</span>` : ''; }).join('')}</div>`;
-  const surface = `<div class="kv-surface">${band(-1 + 1)}${rings.map((ring, r) => `<div class="kv-ring">${ring.map(c => panel(c, idx++)).join('')}${'<div class="kv-panel empty"></div>'.repeat(6 - ring.length)}</div>${band(r + 1)}`).join('')}</div>`;
+  const band = () => '<div class="kv-band"></div>';
+  const surface = `<div class="kv-surface">${band()}${rings.map((ring, r) => `<div class="kv-ring">${ring.map(c => panel(c, idx++)).join('')}${'<div class="kv-panel empty"></div>'.repeat(6 - ring.length)}</div>${band()}`).join('')}</div>`;
   const ov = document.createElement('div'); ov.className = 'kv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Stanley Keg engravings');
   ov.innerHTML = `<div class="kv-stage">${surface}</div>
     <div class="kv-bar"><button class="kv-btn" data-kv="prev" aria-label="Previous champion">◀</button>

@@ -16080,7 +16080,26 @@
     "name": "Mark Hilzenrath",
     "value": 17,
     "team": "AMW"
-   }
+   },
+   "keg_captain": "Matt Giardina",
+   "keg_roster": [
+    "William Elam",
+    "Matt Kedzie",
+    "Andy Zirkle",
+    "Patrick Garguiolo",
+    "Grant Peterson",
+    "Daniel Morena",
+    "Shawn Przybilla",
+    "Sheridan Zalewski",
+    "Matthew Galbraith",
+    "Charles Schmid",
+    "Tim Goodman",
+    "Mark Hilzenrath",
+    "Paul Focke",
+    "Kirk Erickson",
+    "David Orlando",
+    "Jim Myers"
+   ]
   },
   {
    "season": "F25",
@@ -16096,7 +16115,28 @@
     "name": "Mark Hilzenrath",
     "value": 28,
     "team": "AMW"
-   }
+   },
+   "keg_captain": "Matt Giardina",
+   "keg_roster": [
+    "Rob Elam",
+    "Matt Kedzie",
+    "Andy Zirkle",
+    "Calvin Berkebile",
+    "Derek Dolechek",
+    "Patrick Garguiolo",
+    "Grant Peterson",
+    "Daniel Morena",
+    "Shawn Przybilla",
+    "Sheridan Zalewski",
+    "Matthew Galbraith",
+    "Chas Schmid",
+    "Tim Goodman",
+    "Mark Hilzenrath",
+    "Paul Focke",
+    "Kirk Erickson",
+    "David Orlando",
+    "Jim Myers"
+   ]
   },
   {
    "season": "W26",
@@ -16112,7 +16152,25 @@
     "name": "Mark Hilzenrath",
     "value": 18,
     "team": "AMW"
-   }
+   },
+   "keg_captain": "Matt Giardina",
+   "keg_roster": [
+    "Rob Elam",
+    "Andy Zirkle",
+    "Calvin Berkebile",
+    "Patrick Garguiolo",
+    "Grant Peterson",
+    "Daniel Morena",
+    "Shawn Przybilla",
+    "Sheridan Zalewski",
+    "Matthew Galbraith",
+    "Tim Goodman",
+    "Mark Hilzenrath",
+    "Paul Focke",
+    "Kirk Erickson",
+    "David Orlando",
+    "Jim Myers"
+   ]
   },
   {
    "season": "S26",
