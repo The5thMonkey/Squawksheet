@@ -332,6 +332,52 @@ function rocket(winners) {
   return `<div class="aw-trophy aw-rocket">${rocketSVG(winners)}</div>`;
 }
 
+// ---------------------------------------------------------------- Squawk 🏆 puck pile
+// One puck per Squawk Cup winner, wrapped in white stick tape with marker writing. A tie is two pucks stacked:
+// the top one's writing is on its face, the bottom one's on the tape around its edge. Newest winners sit on top.
+// cups: oldest → newest, each { name (season), who: [{ name, v }] }
+export function puckPileSVG(cups) {
+  const id = 'pk' + (++uid), hand = `font-family="'Marker Felt','Bradley Hand','Segoe Print','Comic Sans MS',cursive" fill="#1d1d1d"`;
+  const RX = 66, RY = 30, T = 26;
+  const puck = (key, top, edge, rot) => `<g transform="rotate(${rot})">
+      <path d="M${-RX} 0 V${T} A${RX} ${RY} 0 0 0 ${RX} ${T} V0 Z" fill="#111" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M${-RX} 4 V${T - 4} A${RX} ${RY} 0 0 0 ${RX} ${T - 4} V4 A${RX} ${RY} 0 0 1 ${-RX} 4 Z" fill="url(#${id}tapeS)" stroke="#9c998f" stroke-width=".8"/>
+      <path d="M-40 ${T + 20} v-12 M-6 ${T + 26} v-14 M30 ${T + 21} v-13" stroke="#c9c5b9" stroke-width=".8"/>
+      ${edge ? `<text x="0" y="${T + 12}" text-anchor="middle" font-size="9" ${hand} textLength="${Math.min(2 * RX - 16, edge.length * 4.6)}" lengthAdjust="spacingAndGlyphs">${svgText(edge)}</text>` : ''}
+      <ellipse cx="0" cy="0" rx="${RX}" ry="${RY}" fill="#151515" stroke="${INK}" stroke-width="2.5"/>
+      <clipPath id="${id}c${key}"><ellipse cx="0" cy="0" rx="${RX - 4}" ry="${RY - 3}"/></clipPath>
+      <g clip-path="url(#${id}c${key})" transform="rotate(-9)">
+        ${[-26, -12, 2, 16].map((y, k) => `<rect x="-90" y="${y}" width="180" height="15" fill="${k % 2 ? '#f3f1ea' : '#fbfaf5'}" stroke="#cfcbbf" stroke-width=".6"/>`).join('')}</g>
+      ${top ? `<g transform="scale(1 .82) rotate(-5)" text-anchor="middle" ${hand}>
+        <text x="0" y="-12" font-size="10">${svgText(top[0])}</text>
+        <text x="0" y="3" font-size="13" font-weight="700">${svgText(top[1])}</text>
+        <text x="0" y="17" font-size="10.5">${svgText(top[2])}</text></g>` : ''}
+    </g>`;
+  let body = '', minY = 999;
+  // a loose zig-zag pile: pucks alternate back (higher) and front (lower) so every face and taped edge stays readable;
+  // more than 6 winners start another line further back. Drawn back to front so nearer pucks overlap farther ones.
+  const per = 6, lines = Math.ceil(cups.length / per);
+  const placed = cups.map((c, k) => {
+    const line = Math.floor(k / per), j = k % per, inLine = Math.min(per, cups.length - line * per), depth = lines - 1 - line;
+    const x = 300 + (j - (inLine - 1) / 2) * 86 + ((k * 29) % 11) - 5;
+    const y = 318 - depth * 150 - (j % 2 ? 0 : 72) + ((k * 13) % 9) - 4;
+    return { c, x, y, rot: ((k * 37) % 13) - 6, k };
+  }).sort((p, q) => p.y - q.y);
+  for (const { c, x, y, rot, k } of placed) {
+    const [a, b] = c.who;
+    if (!b) body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)}, ${a.v} pts</title>${puck(k + 'a', [c.name, a.name, `${a.v} pts`], null, rot)}</g>`;
+    else body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)} and ${svgText(b.name)}, ${a.v} pts each (tie)</title>
+        ${puck(k + 'a', null, `${c.name} · ${a.name} · ${a.v} pts`, rot)}
+        <g transform="translate(${((k * 7) % 9) - 4} ${-T - 2})">${puck(k + 'b', [c.name, b.name, `${b.v} pts`], null, rot + 3)}</g></g>`;
+    minY = Math.min(minY, y - (b ? T + 2 : 0) - RY);
+  }
+  const top = Math.max(0, minY - 14);
+  return `<svg viewBox="0 ${top} 600 ${390 - top}" class="tc-svg pk-svg" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
+    <defs><linearGradient id="${id}tapeS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bdb9ad"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1efe8"/><stop offset="1" stop-color="#a8a499"/></linearGradient></defs>
+    <ellipse cx="300" cy="376" rx="280" ry="14" fill="#000" opacity=".3"/>
+    ${body}</svg>`;
+}
+
 // ---------------------------------------------------------------- the case
 // ctx: { champions, wsqWins, presidents: [{id,name,record}], runnerUps: [{id,name}], stickers }
 export function trophyCase(ctx) {
@@ -343,6 +389,8 @@ export function trophyCase(ctx) {
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
     <div class="tc-frame"><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
+      ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
+        </div>` : ''}
       <div class="tc-shelf tc-top">
         ${ctx.artRoss.length ? `<button class="tc-item tc-mini" type="button" data-trophy="ross" aria-label="Art Ross Trophy: see the winners">
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
@@ -353,9 +401,8 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
-      ${pres ? `<div class="tc-shelf">${pres}</div><div class="tc-board"></div>` : ''}
-      <div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
-        <div class="tc-card tc-rail-card">Runner-up finishes · ${ctx.runnerUps.length}</div></div>
+      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
   </section>`;
@@ -419,7 +466,7 @@ export function openKeg(champions, stickers) {
 // ---------------------------------------------------------------- trophy viewer (Art Ross, Rocket Richard)
 // Opens the trophy large, zooming in from the shelf. Click (or tap) to zoom closer at that spot, drag to look around.
 export function openTrophy(kind, winners, title) {
-  const html = kind === 'ross' ? artRoss(winners, true) : rocketSVG(winners);
+  const html = kind === 'ross' ? artRoss(winners, true) : kind === 'pucks' ? puckPileSVG(winners) : rocketSVG(winners);
   const ov = document.createElement('div'); ov.className = 'kv tv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', title);
   ov.innerHTML = `<div class="kv-stage"><div class="tv-piece tv-${kind}">${html}</div></div>
     <div class="kv-bar"><div class="kv-cap"><b>${title}</b><span>Click to zoom in · drag to look around</span></div>

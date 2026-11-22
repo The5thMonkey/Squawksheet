@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=d573db2553';
-import * as C from './core.js?v=d573db2553';
+import * as TR from './trophies.js?v=264f2041c2';
+import * as C from './core.js?v=264f2041c2';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -512,19 +512,28 @@ function awardWinners(k) {
       ...(([bg, fg]) => ({ bg, fg, rim: bg.toLowerCase() === '#ffffff' ? fg : '#121417' }))(C.teamColor(IX.data, x.team)) };
   });
 }
+// Squawk 🏆 winners of finished seasons, oldest to newest; a tie lists every player who shares it
+function cupWinners() {
+  return IX.seasons.filter(s => s.tracking === 'game-log' && (IX.gamesBySeason[s.id] || []).length && (IX.gamesBySeason[s.id] || []).every(C.final))
+    .map(s => ({ s, t: seasonSummary(s).cup })).filter(x => x.t?.who?.length)
+    .map(({ s, t }) => ({ id: s.id, name: s.name, who: t.who.map(pid => ({ pid, name: pname(pid), v: t.v })) }));
+}
 function trophyData() {
   const champions = kegChampions();
   return {
     champions, stickers: kegStickers(champions), wsqWins: champions.filter(c => c.team === 'WSQ').length,
     presidents: IX.seasons.filter(s => s.presidents).map(s => ({ id: s.id, name: s.name, record: C.fmt.rec4(seasonSummary(s).rec.reg) })),
     runnerUps: IX.seasons.filter(s => s.runner_up).map(s => ({ id: s.id, name: s.name })),
-    artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'),
+    artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'), cups: cupWinners(),
   };
 }
 document.addEventListener('click', e => {
   if (e.target.closest('#tc-keg')) { const ch = kegChampions(); TR.openKeg(ch, kegStickers(ch)); }
   const t = e.target.closest('[data-trophy]');
-  if (t) t.dataset.trophy === 'ross' ? TR.openTrophy('ross', awardWinners('art_ross'), 'Art Ross Trophy · points leaders') : TR.openTrophy('rocket', awardWinners('rocket'), '"Rocket" Richard Trophy · goal leaders');
+  if (!t) return;
+  if (t.dataset.trophy === 'ross') TR.openTrophy('ross', awardWinners('art_ross'), 'Art Ross Trophy · points leaders');
+  else if (t.dataset.trophy === 'pucks') TR.openTrophy('pucks', cupWinners(), 'Squawk 🏆 winners · three-stars points');
+  else TR.openTrophy('rocket', awardWinners('rocket'), '"Rocket" Richard Trophy · goal leaders');
 });
 
 function pageTrophies() {

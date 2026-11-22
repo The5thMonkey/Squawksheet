@@ -467,3 +467,11 @@ body.kv-open{overflow:hidden}
 .kv-band{height:30px}
 .kv-panel{padding-bottom:84px}
 .kv-on-panel .kv-sticker img{width:70%;height:70%}
+/* trophy case v4: two levels; runner-up medals hang above the top-level trophies */
+.tc-rail-wrap{padding:.4rem 0 1.4rem}
+.tc-inner{padding-top:2.2rem}
+.tc-level2{align-items:flex-end;gap:1.4rem 2.4rem}
+.tc-pucks .pk-svg{width:min(300px,70vw)}
+.tc-pucks:hover .pk-svg,.tc-pucks:focus-visible .pk-svg{transform:translateY(-4px) scale(1.03);filter:drop-shadow(0 0 12px #ffe9a0aa)}
+.tv-pucks{width:640px}
+.pk-svg .pk{transition:transform .2s}
