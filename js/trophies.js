@@ -163,115 +163,165 @@ export function artRossSVG() {
 }
 export function rocketSVG(winners = []) {
   const id = 'r' + (++uid), W = 340, cx = W / 2;
-  const g = `url(#${id}gold)`, gd = `url(#${id}goldD)`;
-  // two-pass strokes give the cartoon outline: dark wide stroke, then the coloured stroke
-  const limb = (d, w, paint = g) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${paint}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  const wing = 'M158 182 L78 118 L84 113 L62 86 L68 81 L46 52 L52 47 L32 16 L120 4 L166 174 Z';
-  // ---- base: title tier, then winners tiers (4 then 5 plaques per row), filled left→right, top→bottom
+  const B = n => `url(#${id}${n})`;   // gradient reference
+  const ink = (w = 2.4) => `stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
+
+  // ---------------- the cup: a flared cone split down the middle and opened out ----------------
+  // left half; the right half is its mirror image
+  const outer = 'M150 188 L112 150 L118 147 L92 118 L98 114 L66 78 L72 74 L30 26 Q66 6 128 4 Z';   // outside of the half, stepped outer edge
+  const inner = 'M150 188 L128 4 Q150 4 162 8 L164 184 Z';                                           // the concave inside, seen on the inner side
+  const rimTop = 'M30 26 Q66 6 128 4 Q150 4 162 8 L160 13 Q148 9 128 10 Q70 12 35 31 Z';             // rolled top rim
+  // reflections run along the cone, converging toward its base
+  const streaks = [[40, .8, '#ffffff', 5], [58, .55, '#5d6a76', 3], [72, .9, '#ffffff', 3], [88, .5, '#7f8c97', 6], [104, .85, '#ffffff', 2.5], [116, .45, '#4f5b66', 3]]
+    .map(([x, o, c, w]) => `<path d="M${x} ${26 - (x - 30) * .17} L150 186" stroke="${c}" stroke-width="${w}" opacity="${o}"/>`).join('');
+  const half = `<g>
+      <path d="${outer}" fill="${B('wo')}" ${ink(3)}/>
+      <g clip-path="url(#${id}co)">${streaks}<path d="M30 26 L66 78 L150 188" stroke="#fff" stroke-width="10" opacity=".25" fill="none"/></g>
+      <path d="${inner}" fill="${B('wi')}" ${ink(2.5)}/>
+      <g clip-path="url(#${id}ci)"><path d="M138 6 L156 186 M150 6 L160 184" stroke="#fff" stroke-width="2" opacity=".45"/><path d="M132 6 L152 186" stroke="#2c353e" stroke-width="4" opacity=".35"/></g>
+      <path d="${rimTop}" fill="${B('rim')}" ${ink(2)}/>
+      <path d="M112 150 L118 147 M92 118 L98 114 M66 78 L72 74" stroke="#fff" stroke-width="2.2"/>
+      <path d="M118 147 L150 182 M98 114 L148 176 M72 74 L146 170" stroke="#2c353e" stroke-width="1" opacity=".35"/>
+    </g>`;
+
+  // ---------------- the skater: bronze, sculpted, in stride with the stick down ----------------
+  const fill = (d, f = B('br'), w = 2.4) => `<path d="${d}" fill="${f}" ${ink(w)}/>`;
+  const shade = d => `<path d="${d}" fill="${B('brD')}" opacity=".85"/>`;
+  const shine = (d, w = 2.2, o = .9) => `<path d="${d}" fill="none" stroke="#fff4d2" stroke-width="${w}" stroke-linecap="round" opacity="${o}"/>`;
+  const skater = `<g>
+    <!-- back leg (pushing off to the left) -->
+    ${fill('M150 134 Q162 136 170 142 L154 170 Q146 168 138 158 Z')}
+    ${fill('M138 158 L154 170 L128 190 Q120 188 116 180 Z')}
+    ${shade('M154 170 L128 190 Q124 189 122 187 L146 166 Z')}
+    <path d="M135 172 L144 179 M130 176 L139 183" stroke="#5a3a10" stroke-width="2.4"/>
+    ${fill('M114 177 L128 184 L127 197 L98 199 Q92 198 93 193 Q95 190 102 189 L110 187 Z', B('br'), 2.2)}
+    ${shade('M127 186 L127 197 L118 198 L120 188 Z')}
+    <path d="M100 192 Q106 190 112 190" stroke="#fff4d2" stroke-width="1.5" fill="none" opacity=".8"/>
+    <path d="M112 182 L120 186" stroke="#5a3a10" stroke-width="1.4"/>
+    <path d="M90 204 L130 202" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M90 204 L130 202" stroke="#e9eef2" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M100 199 v4 M120 198 v4" stroke="${INK}" stroke-width="1.6"/>
+    <!-- front leg (bent, carrying the weight) -->
+    ${fill('M174 132 Q192 132 200 138 L210 166 Q202 172 192 170 Z')}
+    ${fill('M192 168 L210 166 L206 192 L188 192 Z')}
+    ${shade('M200 138 L210 166 L206 192 L200 192 L203 164 Z')}
+    <path d="M190 178 L207 176 M189 183 L206 181" stroke="#5a3a10" stroke-width="2.4"/>
+    ${fill('M184 190 L206 190 Q212 194 212 200 L182 200 Z', B('br'), 2.2)}
+    <path d="M176 206 L218 206" stroke="${INK}" stroke-width="4.5" stroke-linecap="round"/><path d="M176 206 L218 206" stroke="#e9eef2" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- pants -->
+    ${fill('M150 112 L196 112 Q204 124 204 140 Q194 146 182 142 L174 130 L166 142 Q154 146 144 140 Q144 124 150 112 Z', B('brD'))}
+    <path d="M151 118 L195 118" stroke="${INK}" stroke-width="1.6"/>
+    <path d="M152 124 Q150 132 150 140 M198 124 Q200 132 200 140" stroke="#f0c77a" stroke-width="2" opacity=".7" fill="none"/>
+    ${shine('M156 128 Q160 124 166 124', 2, .6)}
+    <!-- jersey -->
+    ${fill('M146 70 Q172 58 200 72 L198 94 Q196 108 194 118 L152 118 Q148 106 148 94 Z')}
+    ${shade('M186 64 Q200 70 198 94 Q196 108 194 118 L182 118 Q190 94 186 64 Z')}
+    <path d="M150 104 Q172 110 196 104 L195 111 Q172 117 151 111 Z" fill="#6e4410" ${ink(1.5)}/>
+    <path d="M164 64 L173 76 L182 64" fill="none" stroke="${INK}" stroke-width="2"/>
+    <path d="M158 80 Q164 92 160 104 M182 82 Q178 94 184 104" stroke="#8a5a1c" stroke-width="1.5" fill="none"/>
+    ${shine('M152 76 Q160 70 168 70', 3)}
+    <!-- arms: top hand by the hip, bottom hand low by the knee -->
+    ${fill('M148 70 Q136 76 130 96 L142 102 Q148 86 160 78 Z')}
+    ${fill('M130 96 L142 102 L156 116 L146 124 Z')}
+    <path d="M140 111 L150 103" stroke="#6e4410" stroke-width="3.5"/>
+    ${fill('M196 72 Q210 78 214 100 L202 106 Q198 90 188 82 Z')}
+    ${shade('M206 78 Q212 86 214 100 L208 103 Q206 90 200 82 Z')}
+    ${fill('M214 100 L202 106 L194 164 L206 166 Z')}
+    <path d="M196 148 L209 150" stroke="#6e4410" stroke-width="3.5"/>
+    ${shine('M134 92 Q138 82 146 76', 2.2)}
+    <!-- stick, then the gloves over it -->
+    <path d="M136 106 L232 198" stroke="${INK}" stroke-width="7.5" stroke-linecap="round"/><path d="M136 106 L232 198" stroke="${B('br')}" stroke-width="4" stroke-linecap="round"/>
+    <path d="M221 187 L229 195" stroke="#3b2507" stroke-width="4.2"/>
+    ${fill('M228 196 Q244 202 266 202 Q268 208 262 210 Q240 210 226 203 Z', B('br'), 2.2)}
+    ${fill('M140 112 Q146 106 154 110 Q160 116 156 124 Q148 128 142 122 Q138 118 140 112 Z', B('brD'), 2.2)}
+    ${fill('M192 160 Q200 156 208 162 Q212 170 204 174 Q196 176 192 170 Q189 164 192 160 Z', B('brD'), 2.2)}
+    <!-- head -->
+    ${fill('M166 55 L180 55 L182 66 L164 66 Z', B('brD'), 2)}
+    ${fill('M161 40 Q160 26 172 24 Q186 25 185 40 Q185 52 177 58 Q171 60 166 57 Q160 52 161 40 Z')}
+    ${shade('M178 26 Q187 30 185 42 Q184 52 177 58 Q174 59 172 59 Q181 50 178 26 Z')}
+    <path d="M159 38 Q157 21 172 20 Q188 20 186 37 Q183 28 174 27 Q165 27 159 38 Z" fill="#5a3a10" ${ink(1.8)}/>
+    <path d="M164 28 Q170 23 178 24" stroke="#c48d2e" stroke-width="1.6" fill="none"/>
+    <ellipse cx="185.5" cy="42" rx="2.6" ry="4" fill="${B('br')}" ${ink(1.5)}/>
+    <path d="M164 36 Q167 34 170 36 M175 36 Q178 34 181 36" stroke="${INK}" stroke-width="1.6" fill="none"/>
+    <path d="M165 39.5 h4 M176 39.5 h4" stroke="${INK}" stroke-width="2"/>
+    <path d="M172.5 39 L171 46 L174 46.5" stroke="${INK}" stroke-width="1.3" fill="none"/>
+    <path d="M168 51 Q173 52 178 50" stroke="${INK}" stroke-width="1.6" fill="none"/>
+    ${shine('M164 30 Q166 27 170 26', 1.8)}
+  </g>`;
+
+  // ---------------- base: title tier, then winners tiers, filled left→right, top→bottom ----------------
   const n = winners.length, r2 = Math.max(1, Math.ceil(n / 9)), r3 = Math.max(1, Math.ceil(Math.max(0, n - 4 * r2) / 5));
   const tiers = [{ w: 112, h: 46, cols: 0, rows: 0 }, { w: 176, h: 16 + r2 * 30, cols: 4, rows: r2 }, { w: 224, h: 16 + r3 * 30, cols: 5, rows: r3 }];
-  let y = 204, k = 0, base = '';
+  let y = 226, k = 0, base = '';
+  const screws = (x, yy, w, h) => [[x + 2.2, yy + 2.2], [x + w - 2.2, yy + 2.2], [x + 2.2, yy + h - 2.2], [x + w - 2.2, yy + h - 2.2]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r=".9" fill="#6b7681"/>`).join('');
   tiers.forEach((t, ti) => {
     const x0 = cx - t.w / 2, side = 22;
-    base += `<rect x="${x0 - side - 6}" y="${y - 6}" width="${t.w + 2 * side + 12}" height="7" rx="2" fill="url(#${id}g)" stroke="${INK}" stroke-width="2"/>`;   // silver trim
-    base += `<path d="M${x0 - side} ${y + 4} L${x0} ${y} V${y + t.h} L${x0 - side} ${y + t.h + 3} Z" fill="#191c20" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
-    base += `<path d="M${x0 + t.w + side} ${y + 4} L${x0 + t.w} ${y} V${y + t.h} L${x0 + t.w + side} ${y + t.h + 3} Z" fill="#14171a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
-    base += `<rect x="${x0}" y="${y}" width="${t.w}" height="${t.h}" fill="url(#${id}blk)" stroke="${INK}" stroke-width="2.5"/>`;
-    // decorative blank plaques on the receding side faces
-    for (let r = 0; r < Math.max(1, t.rows || 1); r++) for (const sx of [x0 - side + 5, x0 + t.w + 4]) base += `<rect x="${sx}" y="${y + 8 + r * 30}" width="13" height="${t.rows ? 22 : t.h - 16}" rx="1.5" fill="url(#${id}pl)" opacity=".55" stroke="${INK}" stroke-width="1"/>`;
+    base += `<path d="M${x0 - side - 4} ${y - 2} L${x0 - 2} ${y - 7} H${x0 + t.w + 2} L${x0 + t.w + side + 4} ${y - 2} Z" fill="#3a4048" ${ink(2)}/>`;   // top of the tier
+    base += `<rect x="${x0 - side - 6}" y="${y - 3}" width="${t.w + 2 * side + 12}" height="6" rx="2" fill="${B('g')}" ${ink(2)}/>`;                // silver trim
+    base += `<path d="M${x0 - side} ${y + 4} L${x0} ${y + 2} V${y + t.h} L${x0 - side} ${y + t.h + 3} Z" fill="${B('sideL')}" ${ink(2.5)}/>`;
+    base += `<path d="M${x0 + t.w + side} ${y + 4} L${x0 + t.w} ${y + 2} V${y + t.h} L${x0 + t.w + side} ${y + t.h + 3} Z" fill="${B('sideR')}" ${ink(2.5)}/>`;
+    base += `<rect x="${x0}" y="${y + 2}" width="${t.w}" height="${t.h - 2}" fill="${B('blk')}" ${ink(2.5)}/>`;
+    base += `<rect x="${x0 + t.w * .12}" y="${y + 3}" width="${t.w * .07}" height="${t.h - 4}" fill="#fff" opacity=".07"/><rect x="${x0 + t.w * .22}" y="${y + 3}" width="${t.w * .02}" height="${t.h - 4}" fill="#fff" opacity=".1"/>`;
+    for (let r = 0; r < Math.max(1, t.rows || 1); r++) for (const [sx, sk] of [[x0 - side + 5, -1], [x0 + t.w + 4, 1]]) {
+      const ph = t.rows ? 22 : t.h - 18, py = y + 10 + r * 30;
+      base += `<rect x="${sx}" y="${py}" width="13" height="${ph}" rx="1" fill="${B('pl')}" opacity=".5" transform="skewY(${sk * 6})" transform-origin="${sx + 6.5} ${py}" stroke="${INK}" stroke-width=".8"/>`;
+    }
     if (ti === 0) {
-      base += `<rect x="${cx - 46}" y="${y + 6}" width="92" height="${t.h - 12}" rx="2" fill="url(#${id}pl)" stroke="${INK}" stroke-width="1.8"/>
+      base += `<rect x="${cx - 46}" y="${y + 8}" width="92" height="${t.h - 14}" rx="2" fill="${B('pl')}" ${ink(1.8)}/>${screws(cx - 46, y + 8, 92, t.h - 14)}
         <g font-family="'Copperplate','Copperplate Gothic Bold','Times New Roman',serif" text-anchor="middle" fill="#2c3540">
-        <text x="${cx}" y="${y + 17}" font-size="5" letter-spacing=".8">TROPHY</text>
-        <text x="${cx}" y="${y + 27}" font-size="8.5" font-weight="800">“Rocket”</text>
-        <text x="${cx}" y="${y + 37}" font-size="8.5" font-weight="800">Richard</text></g>`;
+        <text x="${cx}" y="${y + 18}" font-size="4.6" letter-spacing="1">MAURICE</text>
+        <text x="${cx}" y="${y + 27.5}" font-size="8.5" font-weight="800">“Rocket”</text>
+        <text x="${cx}" y="${y + 36.5}" font-size="8.5" font-weight="800">Richard</text></g>`;
     } else {
       const pw = (t.w - 10 - (t.cols - 1) * 4) / t.cols;
       for (let r = 0; r < t.rows; r++) for (let c = 0; c < t.cols; c++) {
-        const px = x0 + 5 + c * (pw + 4), py = y + 8 + r * 30, w = winners[k++];
-        base += `<rect x="${px}" y="${py}" width="${pw}" height="24" rx="1.5" fill="url(#${id}pl)" stroke="${w?.wsq ? '#912522' : INK}" stroke-width="${w?.wsq ? 1.8 : 1}"/>`;
-        if (w) base += `<g font-family="'Copperplate','Copperplate Gothic Bold','Arial Narrow',sans-serif" text-anchor="middle" fill="#2c3540"><title>${svgText(w.name)}, ${svgText(w.teamName)}: ${w.value ?? '?'} goals (${svgText(w.seasonName)})</title>
-          ${w.name.split(' ').length > 1 ? `<text x="${px + pw / 2}" y="${py + 7.5}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 4, w.name.split(' ')[0].length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(w.name.split(' ')[0].toUpperCase())}</text>
-          <text x="${px + pw / 2}" y="${py + 13.5}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 4, w.name.split(' ').slice(1).join(' ').length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(w.name.split(' ').slice(1).join(' ').toUpperCase())}</text>`
-            : `<text x="${px + pw / 2}" y="${py + 11}" font-size="4.6" font-weight="800">${svgText(w.name.toUpperCase())}</text>`}
-          <text x="${px + pw / 2}" y="${py + 20.5}" font-size="4" letter-spacing=".2">${svgText(w.short)} · ${w.value ?? '?'} G</text></g>`;
+        const px = x0 + 5 + c * (pw + 4), py = y + 10 + r * 30, w = winners[k++];
+        base += `<rect x="${px}" y="${py}" width="${pw}" height="24" rx="1.5" fill="${B('pl')}" stroke="${w?.wsq ? '#912522' : INK}" stroke-width="${w?.wsq ? 1.8 : 1}"/>${screws(px, py, pw, 24)}`;
+        if (w) {
+          const parts = w.name.split(' '), first = parts[0], rest = parts.slice(1).join(' ');
+          base += `<g font-family="'Copperplate','Copperplate Gothic Bold','Arial Narrow',sans-serif" text-anchor="middle" fill="#2c3540"><title>${svgText(w.name)}, ${svgText(w.teamName)}: ${w.value ?? '?'} goals (${svgText(w.seasonName)})</title>
+            ${rest ? `<text x="${px + pw / 2}" y="${py + 8}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 5, first.length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(first.toUpperCase())}</text>
+            <text x="${px + pw / 2}" y="${py + 14}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 5, rest.length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(rest.toUpperCase())}</text>`
+              : `<text x="${px + pw / 2}" y="${py + 11.5}" font-size="4.6" font-weight="800">${svgText(first.toUpperCase())}</text>`}
+            <text x="${px + pw / 2}" y="${py + 20.5}" font-size="4" letter-spacing=".2">${svgText(w.short)} · ${w.value ?? '?'} G</text></g>`;
+        }
       }
     }
-    y += t.h + 8;
+    y += t.h + 9;
   });
-  const H = y + 22;
-  base += `<path d="M${cx - 150} ${y - 2} H${cx + 150} L${cx + 158} ${y + 12} H${cx - 158} Z" fill="#202429" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-    <rect x="${cx - 150}" y="${y - 6}" width="300" height="6" rx="2" fill="url(#${id}g)" stroke="${INK}" stroke-width="2"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" class="tc-svg rr-svg" role="img" aria-label="Rocket Richard Trophy">
+  // round black plinth with a silver band
+  base += `<rect x="${cx - 152}" y="${y - 6}" width="304" height="6" rx="2" fill="${B('g')}" ${ink(2)}/>
+    <path d="M${cx - 150} ${y} H${cx + 150} V${y + 12} Q${cx} ${y + 26} ${cx - 150} ${y + 12} Z" fill="${B('blk')}" ${ink(3)}/>
+    <path d="M${cx - 140} ${y + 9} Q${cx} ${y + 21} ${cx + 140} ${y + 9}" stroke="#fff" stroke-width="1.2" opacity=".25" fill="none"/>`;
+  const H = y + 34;
+
+  return `<svg viewBox="0 0 ${W} ${H}" class="tc-svg rr-svg" role="img" aria-label="Maurice Rocket Richard Trophy">
   <defs>${chrome(id + 'g')}
-    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".3" stop-color="#ecc15e"/><stop offset=".65" stop-color="#c48d2e"/><stop offset="1" stop-color="#8a5c17"/></linearGradient>
-    <linearGradient id="${id}goldD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c48d2e"/><stop offset="1" stop-color="#6b440e"/></linearGradient>
-    <linearGradient id="${id}wf" x1="0" y1="0" x2="1" y2=".45">
-      <stop offset="0" stop-color="#f4f7fa"/><stop offset=".12" stop-color="#ffffff"/><stop offset=".2" stop-color="#aeb9c2"/><stop offset=".34" stop-color="#eef2f5"/>
-      <stop offset=".46" stop-color="#7d8a95"/><stop offset=".58" stop-color="#dfe6eb"/><stop offset=".72" stop-color="#9aa6b0"/><stop offset=".86" stop-color="#ffffff"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
-    <linearGradient id="${id}wi" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f4a54"/><stop offset=".6" stop-color="#7d8994"/><stop offset="1" stop-color="#b9c3cb"/></linearGradient>
-    <linearGradient id="${id}blk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#15181c"/><stop offset=".45" stop-color="#2f343b"/><stop offset="1" stop-color="#15181c"/></linearGradient>
+    <linearGradient id="${id}br" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3a6"/><stop offset=".3" stop-color="#e6b35a"/><stop offset=".65" stop-color="#b87d2c"/><stop offset="1" stop-color="#7a4c12"/></linearGradient>
+    <linearGradient id="${id}brD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b37a2c"/><stop offset="1" stop-color="#5a3a10"/></linearGradient>
+    <linearGradient id="${id}wo" x1="0" y1="0" x2="1" y2=".6"><stop offset="0" stop-color="#9aa6b0"/><stop offset=".25" stop-color="#eef3f6"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".75" stop-color="#b6c1c9"/><stop offset="1" stop-color="#7d8994"/></linearGradient>
+    <linearGradient id="${id}wi" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4b5661"/><stop offset=".5" stop-color="#8996a1"/><stop offset="1" stop-color="#c3ccd3"/></linearGradient>
+    <linearGradient id="${id}rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e3e9ee"/><stop offset="1" stop-color="#9aa6b0"/></linearGradient>
+    <linearGradient id="${id}blk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#121519"/><stop offset=".35" stop-color="#2e333a"/><stop offset=".55" stop-color="#22262c"/><stop offset="1" stop-color="#101317"/></linearGradient>
+    <linearGradient id="${id}sideL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c0e11"/><stop offset="1" stop-color="#1d2126"/></linearGradient>
+    <linearGradient id="${id}sideR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#08090b"/><stop offset="1" stop-color="#171a1e"/></linearGradient>
     <linearGradient id="${id}pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d2dae0"/><stop offset="1" stop-color="#97a3ad"/></linearGradient>
-    <clipPath id="${id}clip"><path d="${wing}"/></clipPath></defs>
-  <ellipse cx="${cx}" cy="${H - 6}" rx="160" ry="7" fill="#000" opacity=".3"/>
+    <radialGradient id="${id}dish" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#c9d2d9"/><stop offset="1" stop-color="#6f7c87"/></radialGradient>
+    <clipPath id="${id}co"><path d="${outer}"/></clipPath><clipPath id="${id}ci"><path d="${inner}"/></clipPath></defs>
+  <ellipse cx="${cx}" cy="${H - 5}" rx="162" ry="7" fill="#000" opacity=".3"/>
   ${base}
-  <!-- the split cup: two stepped silver wings, each with its inner face and top edge showing -->
-  <g transform="translate(20 0)">
-    ${[0, 1].map(m => `<g ${m ? `transform="translate(300 0) scale(-1 1)"` : ''}>
-      <path d="${wing}" fill="url(#${id}wf)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-      <g clip-path="url(#${id}clip)" opacity=".55"><path d="M20 40 L150 10 L160 22 L30 54 Z M40 96 L160 70 L166 80 L46 108 Z" fill="#fff"/><path d="M30 70 L156 40 L160 46 L34 76 Z" fill="#6f7c88"/></g>
-      <path d="M120 4 L166 174 L158 182 L112 12 Z" fill="url(#${id}wi)" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
-      <path d="M32 16 L120 4 L116 10 L38 21 Z" fill="#ffffff" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M52 47 L46 52 M68 81 L62 86 M84 113 L78 118" stroke="#fff" stroke-width="2"/></g>`).join('')}
-  </g>
-  <!-- collar the skater stands on -->
-  <path d="M${cx - 74} 186 V198 Q${cx} 214 ${cx + 74} 198 V186" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <ellipse cx="${cx}" cy="186" rx="74" ry="12" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
-  <ellipse cx="${cx}" cy="186" rx="60" ry="7" fill="#56626d"/><ellipse cx="${cx}" cy="185" rx="60" ry="6" fill="none" stroke="#c7d0d7" stroke-width="1"/>
-  ${Array.from({ length: 15 }, (_, i) => { const t = (i + .5) / 15 * Math.PI; return `<circle cx="${(cx - 72 * Math.cos(t)).toFixed(1)}" cy="${(199 + 8 * Math.sin(t)).toFixed(1)}" r="1.6" fill="#fff" stroke="${INK}" stroke-width=".6"/>`; }).join('')}
-  <!-- the skater -->
-  <g transform="translate(20 4)" stroke-linejoin="round" stroke-linecap="round">
-    <!-- back leg, pushing off -->
-    ${limb('M136 122 L120 140 L104 154', 15)}
-    ${limb('M126 136 L117 146', 15, gd)}
-    <path d="M112 146 l10 6 M108 150 l9 6" stroke="${INK}" stroke-width="2"/>
-    <path d="M96 150 L112 152 L113 161 L93 163 Q88 158 96 150 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
-    <path d="M88 168 L118 165" stroke="${INK}" stroke-width="4"/><path d="M88 168 L118 165" stroke="#eef3f6" stroke-width="1.6"/>
-    <!-- front leg, bent -->
-    ${limb('M162 122 L174 142 L166 160', 16)}
-    ${limb('M172 140 L168 152', 16, gd)}
-    <path d="M162 148 h12 M161 153 h12" stroke="${INK}" stroke-width="2"/>
-    <path d="M158 156 L176 156 L179 168 L155 168 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
-    <path d="M150 174 L184 174" stroke="${INK}" stroke-width="4"/><path d="M150 174 L184 174" stroke="#eef3f6" stroke-width="1.6"/>
-    <!-- pants -->
-    <path d="M132 100 Q150 94 170 102 L176 126 Q166 132 156 124 L150 114 L145 124 Q133 132 128 124 Z" fill="${gd}" stroke="${INK}" stroke-width="3"/>
-    <path d="M136 104 Q140 116 134 126" fill="none" stroke="#e8bb5a" stroke-width="2" opacity=".8"/>
-    <!-- jersey -->
-    <path d="M126 54 Q150 40 176 56 L172 104 Q150 112 130 104 Z" fill="${g}" stroke="${INK}" stroke-width="3"/>
-    <path d="M160 52 Q176 58 172 104 Q162 108 156 106 Q164 80 160 52 Z" fill="${gd}" opacity=".7"/>
-    <path d="M130 92 Q150 100 173 92" fill="none" stroke="${INK}" stroke-width="7"/><path d="M130 92 Q150 100 173 92" fill="none" stroke="#9a6a1e" stroke-width="4"/>
-    <path d="M131 99 Q150 106 172 99" fill="none" stroke="${INK}" stroke-width="1.5"/>
-    <path d="M140 50 Q150 58 160 50" fill="none" stroke="${INK}" stroke-width="2"/>
-    <path d="M132 60 Q138 56 146 57" fill="none" stroke="#fff6d6" stroke-width="3" opacity=".9"/>
-    <!-- arms -->
-    ${limb('M130 60 L112 82 L122 98', 13)}
-    ${limb('M172 62 L184 88 L170 114', 13)}
-    <path d="M114 88 l8 -3 M178 100 l8 3" stroke="${INK}" stroke-width="5"/><path d="M114 88 l8 -3 M178 100 l8 3" stroke="#9a6a1e" stroke-width="2.5"/>
-    <!-- stick, then the gloves holding it -->
-    <path d="M114 84 L200 170" stroke="${INK}" stroke-width="7"/><path d="M114 84 L200 170" stroke="${g}" stroke-width="3.5"/>
-    <path d="M196 166 L222 172 L220 179 L194 173 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
-    <rect x="116" y="92" width="14" height="12" rx="4" fill="${g}" stroke="${INK}" stroke-width="2.5" transform="rotate(40 123 98)"/>
-    <rect x="162" y="110" width="14" height="12" rx="4" fill="${g}" stroke="${INK}" stroke-width="2.5" transform="rotate(40 169 116)"/>
-    <!-- head -->
-    <path d="M145 44 h10 v8 h-10 z" fill="${gd}" stroke="${INK}" stroke-width="2"/>
-    <ellipse cx="150" cy="32" rx="11.5" ry="13" fill="${g}" stroke="${INK}" stroke-width="3"/>
-    <path d="M154 22 Q163 28 160 40 Q156 44 152 44 Q158 34 154 22 Z" fill="${gd}" opacity=".6"/>
-    <path d="M138.5 31 Q139 16 152 18 Q163 20 161.5 31 Q157 24 149 25 Q142 26 138.5 31 Z" fill="#7d5414" stroke="${INK}" stroke-width="2"/>
-    <path d="M144 34 h4 M153 34 h4" stroke="${INK}" stroke-width="1.8"/><path d="M150 35 l-1 5 h2" fill="none" stroke="${INK}" stroke-width="1.2"/>
-    <path d="M146 41 q4 2 8 0" fill="none" stroke="${INK}" stroke-width="1.4"/>
-    <path d="M141 26 Q144 22 149 22" fill="none" stroke="#fff6d6" stroke-width="2"/></g>
+  <!-- cup halves (behind the skater) -->
+  <g transform="translate(6 0) scale(1 1.065)">${half}</g>
+  <g transform="translate(334 0) scale(-1 1.065)">${half}</g>
+  <!-- the dish the skater stands on -->
+  <path d="M${cx - 76} 204 V216 Q${cx} 232 ${cx + 76} 216 V204" fill="${B('g')}" ${ink(3)}/>
+  <ellipse cx="${cx}" cy="204" rx="76" ry="13" fill="${B('dish')}" ${ink(3)}/>
+  <ellipse cx="${cx}" cy="203" rx="62" ry="8" fill="#5b6772"/><ellipse cx="${cx}" cy="202" rx="62" ry="7" fill="none" stroke="#c7d0d7" stroke-width="1.2"/>
+  ${Array.from({ length: 17 }, (_, i) => { const t = (i + .5) / 17 * Math.PI; return `<circle cx="${(cx - 74 * Math.cos(t)).toFixed(1)}" cy="${(217 + 9 * Math.sin(t)).toFixed(1)}" r="1.5" fill="#fff" stroke="${INK}" stroke-width=".6"/>`; }).join('')}
+  <path d="M${cx - 6} 217 h12 v6 q-6 5 -12 0 z" fill="#fff" ${ink(1.2)}/><path d="M${cx} 219 l1 2 l2.2 .3 l-1.6 1.5 l.4 2.2 l-2 -1 l-2 1 l.4 -2.2 l-1.6 -1.5 l2.2 -.3 z" fill="#912522"/>
+  <ellipse cx="${cx + 10}" cy="205" rx="40" ry="4" fill="#000" opacity=".25"/>
+  ${skater}
   </svg>`;
 }
+
 function artRoss(winners, links = true) {
   if (!links) winners = winners.map(w => ({ ...w, href: null }));
   const pucks = winners.map(w => `${wTag(w, ['ar-puck' + (w.wsq ? ' wsq' : ''), wTitle(w, 'PTS')])}<span class="ar-face" style="${w.photo ? '' : `background:${w.bg};border-color:${w.rim}`}">${winnerFace(w, 'PTS')}</span>
