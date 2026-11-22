@@ -1,4 +1,4 @@
-import * as C from './core.js?v=c6a4a56e10';
+import * as C from './core.js?v=ed5f4744cb';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -103,7 +103,7 @@ function pageHome() {
   </div>
   <div class="grid g2">
     <div class="card"><h2 style="margin-top:0">${esc(cur.name)} ${seasonBadge(cur)}</h2>
-      <div class="kv"><dt>Record</dt><dd>${C.fmt.rec4(cs.rec.reg)} (W-L-T-OTL) · ${C.points(IX.data, cs.rec.reg)} pts${C.place(cur) ? ' · ' + ordinal(C.place(cur)) + ' place' : ''}</dd>
+      <div class="kv"><dt>Record</dt><dd>${C.fmt.rec4(cs.rec.reg)} (W-L-T-OTL) · ${C.points(IX.data, cs.rec.reg)} pts${C.place(cur, IX.data) ? ' · ' + ordinal(C.place(cur, IX.data)) + ' place' : ''}</dd>
       <dt>Last game</dt><dd>${last ? `${glink(last, `${C.fmt.date(last.date)} vs ${tchip(last.opponent)}`)} ${resPill(last)} ${score(last)}` : '–'}</dd>
       <dt><span class="hovertip" tabindex="0">Next game ⓘ<span class="tip wide">${milestoneHtml()}</span></span></dt><dd>${next ? `${C.fmt.date(next.date)} ${C.fmt.time(next.time)} vs ${tchip(next.opponent)}` : '–'}</dd>
       <dt>Points leader</dt><dd>${whoList(cs.pl)}</dd><dt>Squawk 🏆 leader</dt><dd>${whoList(cs.cup)}</dd></div>
@@ -149,7 +149,7 @@ function seasonsTable(id) {
   const rows = [...IX.seasons].reverse().map(seasonSummary);
   return table(id, [
     { k: 'season', h: 'Season', l: 1, f: x => slink(x.s.id), v: x => x.s.year * 10 + C.TERM_ORDER[x.s.id[0]] },
-    { k: 'place', h: 'Place', f: x => C.place(x.s) ?? '', v: x => C.place(x.s) },
+    { k: 'place', h: 'Place', f: x => C.place(x.s, IX.data) ?? '', v: x => C.place(x.s, IX.data) },
     { k: 'gp', h: 'GP', f: x => x.rec.reg.gp + x.rec.po.gp, v: x => x.rec.reg.gp + x.rec.po.gp, title: 'Regular season + playoffs' },
     { k: 'rec', h: 'Reg. W-L-T-OTL', f: x => C.fmt.rec4(x.rec.reg), nosort: 1 },
     { k: 'pts', h: 'Pts', f: x => C.points(IX.data, x.rec.reg), v: x => C.points(IX.data, x.rec.reg), title: '2 per win, 1 per tie/OTL' },
@@ -170,8 +170,9 @@ function winnersBand(s) {
   const a = (IX.data.awards || []).find(x => x.season === s.id);
   if (!a || !(a.stanley_keg || a.presidents)) return '';
   const [bg, fg] = C.teamColor(IX.data, a.stanley_keg || a.presidents);
-  const rec = c => { const r = (s.standings || []).find(x => x.team === c); if (!r) return '';
-    const pos = (s.standings || []).indexOf(r) + 1;
+  const sst = C.seasonStandings(IX.data, s);
+  const rec = c => { const r = sst.find(x => x.team === c); if (!r) return '';
+    const pos = sst.indexOf(r) + 1;
     return `${r.w != null ? `${r.w}-${r.l}-${r.t_otl ?? 0} · ` : ''}${r.pts} pts · ${ordinal(pos)} in standings`; };
   const logo = c => c === 'WSQ' ? '<img class="tlogo lg wsq" src="img/logos/secondary.png" alt="WinterSquawks logo">' : tlogo(c, 'tlogo lg');
   const side = (c, trophy, label, extra, right) => c ? `<div class="wb-side${right ? ' r' : ''}">${logo(c)}<div>
@@ -212,20 +213,24 @@ function pageSeason(id) {
     { k: 'gs', h: 'Goals', l: 1, f: g => g.goals.map(x => `${esc(initials(x.scorer, g.season))}${x.video ? '<span class="vid">▶</span>' : ''}`).join(' ') },
     { k: 'st', h: '⭐ Stars', l: 1, f: g => g.stars.filter(Boolean).map(p => esc(pname(p).split(' ').pop())).join(', ') },
   ];
-  const st = s.standings || [];
-  const stCols = [{ k: 'team', h: 'Team', l: 1, f: r => tchip(r.team) },
+  const st = C.seasonStandings(IX.data, s), live = !!s.standings_from_games;
+  const stCols = live ? [{ k: 'rk', h: '#', f: r => st.indexOf(r) + 1, v: r => st.indexOf(r) }, { k: 'team', h: 'Team', l: 1, f: r => r.team === 'WSQ' ? tchip(r.team) : `<a class="tl" href="#/team/${esc(r.team)}">${tchip(r.team)}</a>`, v: r => tname(r.team) },
+      { k: 'gp', h: 'GP' }, { k: 'w', h: 'W' }, { k: 'l', h: 'L' }, { k: 't', h: 'T' }, { k: 'otl', h: 'OTL', title: 'Overtime and shootout losses' }, { k: 'pts', h: 'PTS' },
+      { k: 'gf', h: 'GF' }, { k: 'ga', h: 'GA' }, { k: 'diff', h: 'DIFF', f: r => (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga), v: r => r.gf - r.ga },
+      ...(st.some(r => r.shots) ? [{ k: 'sf', h: 'SF', title: 'Shots for' }, { k: 'sa', h: 'SA', title: 'Shots against' }] : [])]
+    : [{ k: 'team', h: 'Team', l: 1, f: r => tchip(r.team) },
     ...['w', 'l', 't_otl', 'pts', 'gp', 'gf', 'ga'].filter(k => st.some(r => r[k] != null)).map(k => ({ k, h: { w: 'W', l: 'L', t_otl: 'T/OTL', pts: 'PTS', gp: 'GP', gf: 'GF', ga: 'GA' }[k], f: r => r[k] ?? '' }))];
   return `
   <p class="small">${prev ? `<a href="#/season/${prev.id}">← ${esc(prev.name)}</a>` : ''} ${next ? ` · <a href="#/season/${next.id}">${esc(next.name)} →</a>` : ''}</p>
   <section class="hero"><div class="hero-id"><img class="hero-logo" src="img/logos/alternate.png" alt=""><div><h1>${esc(s.name)}</h1><div class="sub">${esc(s.team_name)} · ${esc(s.division)} ${seasonBadge(s)} ${tracked ? info(`${ver.video_linked} of ${ver.goals} goals have a video link (▶). The links are kept for reference; the video tracking site is no longer online.`) : info("Season totals scraped by hand from the old league site, which no longer exists. They can't be checked game by game.")}</div>
   ${s.story_title ? `<div class="sub" style="margin-top:.4rem"><i>${esc(s.story_title)}</i></div>` : ''}</div></div>
-  <div style="text-align:right"><div class="big">${C.fmt.rec4(x.rec.reg)}</div><div class="sub">W-L-T-OTL · ${C.points(IX.data, x.rec.reg)} pts${C.place(s) ? ' · ' + ordinal(C.place(s)) : ''}</div>
+  <div style="text-align:right"><div class="big">${C.fmt.rec4(x.rec.reg)}</div><div class="sub">W-L-T-OTL · ${C.points(IX.data, x.rec.reg)} pts${C.place(s, IX.data) ? ' · ' + ordinal(C.place(s, IX.data)) : ''}</div>
   <div class="sub">${s.champion ? '🏆 STANLEY KEG CHAMPIONS' : esc(s.result || '')}${s.presidents ? ' · 🥇 President\'s Trophy' : ''}</div></div></section>
   ${winnersBand(s)}
   <h2>Skaters</h2>${table('sk-' + id, skCols, sk, { k: 'pts', asc: false }, { total: tot })}
   <h2>Goalies</h2>${table('gk-' + id, gkCols, gk, { k: 'gp', asc: false })}
   ${gs.length ? `<h2>Games</h2>${table('gm-' + id, gameCols, gs, null)}` : ''}
-  ${st.length ? `<h2>Division standings ${info('Snapshot copied from the season tab.')}</h2>${table('st-' + id, stCols, st, null)}` : ''}
+  ${st.length ? `<h2>Division standings ${info(live ? 'Worked out from every game in the division: the Squawks\' games from the game log, the rest from the league games entered on the stats page. 2 points for a win, 1 for a tie or an overtime/shootout loss.' : 'Snapshot copied from the season tab.')}</h2>${table('st-' + id, stCols, st, null)}` : ''}
   ${leadersBlock(s)}
   ${storyBlock(s)}`;
 }
@@ -483,7 +488,7 @@ function pageTrophies() {
   <div class="stat"><div class="k">Runner-up finishes</div><div class="v">${IX.seasons.filter(s => s.runner_up).length}</div><div class="s">${IX.seasons.filter(s => s.runner_up).map(s => slink(s.id)).join(', ')}</div></div></div>
   <h2>Squawk 🏆 (three-stars points) winners</h2>${table('cupw', [{ k: 's', h: 'Season', l: 1, f: r => slink(r.s.id) }, { k: 'w', h: 'Winner', l: 1, f: r => whoList(r.x.cup) }], cupWinners.reverse(), null)}
   <h2>Division 4 awards</h2>${table('aw', [{ k: 'season', h: 'Season', l: 1 }, { k: 'p', h: "President's", l: 1, f: r => hl(r.presidents) }, { k: 'k', h: 'Stanley Keg', l: 1, f: r => hl(r.stanley_keg) }, { k: 'r', h: 'Runner-up', l: 1, f: r => hl(r.runner_up) },
-    { k: 'ar', h: 'Art Ross (pts)', l: 1, f: r => `${esc(r.art_ross.name)} <span class="muted">${r.art_ross.value ?? ''}</span> ${tchip(r.art_ross.team, true)}` }, { k: 'rr', h: '"Rocket" Richard (goals)', l: 1, f: r => `${esc(r.rocket.name)} <span class="muted">${r.rocket.value ?? ''}</span> ${tchip(r.rocket.team, true)}` }], A, null)}`;
+    { k: 'ar', h: 'Art Ross (pts)', l: 1, f: r => `${esc(r.art_ross?.name || '')} <span class="muted">${r.art_ross?.value ?? ''}</span> ${tchip(r.art_ross?.team, true)}` }, { k: 'rr', h: '"Rocket" Richard (goals)', l: 1, f: r => `${esc(r.rocket?.name || '')} <span class="muted">${r.rocket?.value ?? ''}</span> ${tchip(r.rocket?.team, true)}` }], A, null)}`;
 }
 
 function pageAbout() {

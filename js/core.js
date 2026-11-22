@@ -112,7 +112,51 @@ export function teamRecord(ix, s) {
 export function points(data, r) {
   const p = data.meta.points_rule; return r.w * p.win + r.t * p.tie + r.otl * p.otl;
 }
-export function place(s) { return s.place ?? s.overview?.place ?? s.sheet_record?.place ?? null; }
+// Final place if one was set; otherwise, for seasons whose standings come from games, the Squawks' current spot.
+export function place(s, data) {
+  if (s.place != null) return s.place;
+  if (!data || !s.standings_from_games) return s.overview?.place ?? s.sheet_record?.place ?? null;
+  const i = computeStandings(data, s.id).findIndex(r => r.team === 'WSQ'); return i < 0 ? null : i + 1;
+}
+
+// ---------- standings from games ----------
+// Seasons with standings_from_games: true work their standings out from the games instead of a copied snapshot:
+// the Squawks' own games come from the game log, every other game from league_games.
+// 2 points for a win, 1 for a tie or an overtime/shootout loss. Order: points, then wins, goal difference, goals for.
+export const LG_DECIDED = { null: 'Regulation', OT: 'Overtime', SO: 'Shootout' };
+export const lgOT = g => g.ot !== undefined ? g.ot : ((g.winner || '').endsWith('OT') ? 'OT' : null);
+export const lgFinal = g => g.home_score != null && g.away_score != null;
+export function lgWinner(g) { // same coding as the imported sheet: Home, Away, HomeOT, AwayOT, Tie
+  if (!lgFinal(g)) return null; if (g.home_score === g.away_score) return 'Tie';
+  return (g.home_score > g.away_score ? 'Home' : 'Away') + (lgOT(g) ? 'OT' : '');
+}
+export function computeStandings(data, sid) {
+  const rows = {};
+  const row = t => rows[t] ||= { team: t, gp: 0, w: 0, l: 0, t: 0, otl: 0, t_otl: 0, pts: 0, gf: 0, ga: 0, sf: 0, sa: 0, shots: 0 };
+  const add = (t, f, a, res, sf, sa) => {
+    const r = row(t); r.gp++; r.gf += f; r.ga += a;
+    if (sf != null && sa != null) { r.sf += sf; r.sa += sa; r.shots++; }
+    if (res === 'W') { r.w++; r.pts += 2; } else if (res === 'T') { r.t++; r.t_otl++; r.pts += 1; } else if (res === 'OTL') { r.otl++; r.t_otl++; r.pts += 1; } else r.l++;
+  };
+  const opp = { W: 'L', L: 'W', T: 'T', OTL: 'W' };
+  for (const g of data.league_games || []) {
+    if (g.season !== sid || g.playoff || g.home === 'WSQ' || g.away === 'WSQ') continue;
+    if (g.home) row(g.home); if (g.away) row(g.away);
+    if (!lgFinal(g) || !g.home || !g.away) continue;
+    const hr = g.home_score > g.away_score ? 'W' : g.home_score === g.away_score ? 'T' : lgOT(g) ? 'OTL' : 'L';
+    const ar = hr === 'W' ? (lgOT(g) ? 'OTL' : 'L') : hr === 'T' ? 'T' : 'W';
+    add(g.home, g.home_score, g.away_score, hr, g.home_shots, g.away_shots);
+    add(g.away, g.away_score, g.home_score, ar, g.away_shots, g.home_shots);
+  }
+  for (const g of data.games || []) {
+    if (g.season !== sid || g.playoff || g.status !== 'final' || !g.result || !g.opponent) continue;
+    add('WSQ', g.gf, g.ga, g.result, g.shots_for, g.shots_against);
+    add(g.opponent, g.ga, g.gf, g.result === 'W' && g.ot ? 'OTL' : opp[g.result], g.shots_against, g.shots_for);
+  }
+  row('WSQ');
+  return Object.values(rows).sort((a, b) => b.pts - a.pts || b.w - a.w || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf || a.team.localeCompare(b.team));
+}
+export const seasonStandings = (data, s) => s.standings_from_games ? computeStandings(data, s.id) : (s.standings || []);
 export function verification(ix, s) {
   const gs = (ix.gamesBySeason[s.id] || []).filter(final);
   return { goals: gs.reduce((n, g) => n + g.goals.length, 0), video_linked: gs.reduce((n, g) => n + g.goals.filter(x => x.video).length, 0) };
@@ -216,6 +260,24 @@ export function validate(data) {
     for (const a of g.assists_unpaired || []) if (!P.has(a)) errs.push(`${w}: assist "${a}" is not a known player`);
     for (const st of g.stars || []) if (st && !P.has(st)) warns.push(`${w}: star "${st}" is not a known player`);
     for (const p of g.penalties || []) if (!P.has(p.player)) errs.push(`${w}: penalty for unknown player "${p.player}"`);
+  }
+  const seenAw = new Set();
+  for (const a of data.awards || []) {
+    const w = `Awards ${a.season}`;
+    if (!S.has(a.season)) errs.push(`${w}: unknown season "${a.season}"`);
+    if (seenAw.has(a.season)) errs.push(`${w}: listed twice`); seenAw.add(a.season);
+    for (const k of ['presidents', 'stanley_keg', 'runner_up']) if (a[k] && !data.teams[a[k]]) errs.push(`${w}: unknown team "${a[k]}" for ${k}`);
+    for (const k of ['art_ross', 'rocket']) { const x = a[k]; if (x?.team && !data.teams[x.team]) errs.push(`${w}: unknown team "${x.team}" for ${k}`); if (x?.value != null && !(Number.isInteger(x.value) && x.value >= 0)) errs.push(`${w}: ${k} total must be a whole number`); }
+    if (a.stanley_keg && a.stanley_keg === a.runner_up) errs.push(`${w}: the Stanley Keg winner can't also be the runner-up`);
+  }
+  for (const [i, g] of (data.league_games || []).entries()) {
+    const w = `League game ${g.season} #${i + 1}${g.home && g.away ? ` (${g.home} v ${g.away})` : ''}`;
+    if (!S.has(g.season)) errs.push(`${w}: unknown season "${g.season}"`);
+    for (const k of ['home', 'away']) if (g[k] && !data.teams[g[k]]) errs.push(`${w}: unknown team "${g[k]}"`);
+    if (g.home && g.home === g.away) errs.push(`${w}: a team can't play itself`);
+    if ((g.home_score == null) !== (g.away_score == null)) errs.push(`${w}: enter both scores or neither`);
+    if (g.ot && lgFinal(g) && g.home_score === g.away_score) errs.push(`${w}: decided in ${g.ot === 'SO' ? 'a shootout' : 'overtime'} but the score is tied`);
+    if (g.ot && !['OT', 'SO'].includes(g.ot)) errs.push(`${w}: "decided in" must be Regulation, OT or SO`);
   }
   return { errs, warns };
 }

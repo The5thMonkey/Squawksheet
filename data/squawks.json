@@ -6148,6 +6148,7 @@
    "term": "Fall",
    "team_name": "WINTERSQUAWKS",
    "division": "Division 4",
+   "standings_from_games": true,
    "tracking": "game-log",
    "verification": {
     "goals": 41,

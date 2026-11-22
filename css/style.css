@@ -111,8 +111,8 @@ th .tip{font-weight:400}
 .rec-leader{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.5rem .8rem;background:var(--sq-primary);border-left:5px solid var(--sq-secondary);border-radius:10px;padding:.7rem;text-align:center;color:var(--sq-black)}
 .rec-leader > b{flex-basis:100%;font-family:var(--head);font-size:1.5rem;color:var(--sq-secondary);line-height:1}
 .rec-leader > .small{flex-basis:100%;margin-top:-.4rem;text-transform:uppercase;letter-spacing:.06em;color:var(--sq-black)}
-.rec-person{display:flex;flex-direction:column;align-items:center;gap:.2rem;max-width:110px}
-.rec-person .nm{font-weight:700;color:var(--sq-black);line-height:1.2}
+.rec-person{display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:0;max-width:100%}
+.rec-person .nm{font-weight:700;color:var(--sq-black);line-height:1.2;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .rec-person img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:3px solid var(--sq-white);background:var(--sq-white);display:block}
 .rec-leader.tie .rec-person img{width:64px;height:64px}
 .rec-person .muted{color:var(--navy2)}
@@ -235,3 +235,20 @@ a.tl:hover{text-decoration:none} a.tl:hover .team{box-shadow:inset 0 0 0 2px #00
 /* goalies: centered, a second goalie stacks under the first */
 .lu-slots.goalies{grid-template-columns:minmax(0,1fr);width:100%;max-width:calc((100% - 1.2rem) / 3);margin:0 auto}
 @media (max-width:700px){ .lu-slots.goalies{max-width:none} }
+.lg-table td{padding:.3rem .35rem}
+.lg-table select{max-width:11rem}
+/* stats entry: Division 4 awards */
+.aw-row{align-items:flex-end}
+.aw-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;margin:.6rem 0}
+.aw-person{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;border:1px solid var(--line);border-radius:8px;padding:.6rem .7rem;background:#fbfcfe}
+.aw-person .aw-lab{flex-basis:100%;font:700 .78rem var(--head);letter-spacing:.08em;text-transform:uppercase}
+.aw-person label{display:flex;flex-direction:column;font-size:.75rem;font-weight:700;color:var(--muted)}
+.aw-person input[list]{width:11rem}
+/* records: each row of boxes lines up (title, leader card, table) so the sections stay even */
+.rec4,.rec3{grid-auto-rows:auto}
+.rec4 > .rec-box,.rec3 > .rec-box{display:grid;grid-row:span 3;grid-template-rows:subgrid;gap:.5rem}
+.rec-box > .rec-leader{align-content:center}
+.rec-leader.tie .rec-person{max-width:calc(50% - .4rem)}
+.rec-leader.tie .rec-person .nm{font-size:.85rem}
+/* home: same gap between the stat boxes and the boxes below as between other sections */
+.grid + .grid{margin-top:1rem}

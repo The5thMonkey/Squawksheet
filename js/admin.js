@@ -1,4 +1,4 @@
-import * as C from './core.js?v=c6a4a56e10';
+import * as C from './core.js?v=ed5f4744cb';
 
 // Working copy of the data. Nothing leaves the browser until you download it.
 let DATA = null, ORIGINAL = '', IX = null;
@@ -37,7 +37,7 @@ document.getElementById('tabs').addEventListener('click', e => { const b = e.tar
 function switchTab(t) { TAB = t; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t)); render(); }
 let RENDERING = false;
 function render() { if (RENDERING) return; RENDERING = true; try { _render(); } finally { RENDERING = false; } }
-function _render() { const pane = $('#pane'); pane.innerHTML = { game: gameTab, season: seasonTab, players: playersTab, export: exportTab }[TAB](); }
+function _render() { const pane = $('#pane'); pane.innerHTML = { game: gameTab, league: leagueTab, season: seasonTab, players: playersTab, export: exportTab }[TAB](); }
 
 // =====================================================================
 // GAME
@@ -301,6 +301,32 @@ function saveGame() {
 // SEASON & ROSTER
 // =====================================================================
 let S = { id: null, msg: '' };
+// ---------- Division 4 awards (Trophy room) ----------
+// The Squawks' own 🏆 / 🥇 / runner-up flags on the season follow these, so they can't disagree.
+const awardOf = sid => (DATA.awards || []).find(a => a.season === sid);
+function syncSeasonFlags(s) { const a = awardOf(s.id); s.champion = a?.stanley_keg === 'WSQ'; s.presidents = a?.presidents === 'WSQ'; s.runner_up = a?.runner_up === 'WSQ'; }
+function awardsForm(s) {
+  const a = awardOf(s.id);
+  const head = `<h3 style="margin-top:1.2rem">Division 4 awards ${info('Shown in the Trophy room, on the season page and on team pages. Fill these in once the season is over. Picking WinterSquawks for a trophy also marks it on that WinterSquawks season.')}</h3>`;
+  if (!a) return `${head}<p class="small muted">No awards entered for ${esc(s.name)} yet. <button class="btn" id="a-add">Add ${esc(s.name)} awards</button></p>`;
+  const teams = (k, sel) => `<select data-a="${k}"><option value="">—</option>${Object.entries(DATA.teams).map(([c, n]) => `<option value="${c}" ${c === sel ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
+  const st = s.standings_from_games ? C.computeStandings(DATA, s.id) : [];
+  const lead = st[0]?.gp ? st[0].team : null;
+  const person = (k, label, unit) => `<div class="aw-person"><div class="aw-lab">${label}</div>
+    <label>Player<input data-a="${k}.name" list="aw-names" value="${esc(a[k]?.name || '')}"></label>
+    <label>${unit}<input type="number" min="0" style="width:5rem" data-a="${k}.value" value="${a[k]?.value ?? ''}"></label>
+    <label>Team${teams(k + '.team', a[k]?.team)}</label></div>`;
+  return `${head}
+  <div class="row aw-row">
+    <label>🥇 President's Trophy${teams('presidents', a.presidents)}</label>
+    <label>🏆 Stanley Keg${teams('stanley_keg', a.stanley_keg)}</label>
+    <label>Runner-up (lost the final)${teams('runner_up', a.runner_up)}</label>
+    ${lead && lead !== a.presidents ? `<button class="btn" id="a-lead" data-team="${lead}" title="First in the standings worked out from the games">Use standings leader: ${esc(DATA.teams[lead])}</button>` : ''}
+  </div>
+  <div class="aw-people">${person('art_ross', 'Art Ross (most points)', 'Points')}${person('rocket', '"Rocket" Richard (most goals)', 'Goals')}</div>
+  <datalist id="aw-names">${[...new Set([...(DATA.awards || []).flatMap(x => [x.art_ross?.name, x.rocket?.name]), ...DATA.players.map(p => p.name)].filter(Boolean))].sort().map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+  <p class="small"><button class="x" id="a-del" title="Remove">✕</button> Remove ${esc(s.name)}'s awards</p>`;
+}
 function seasonTab() {
   if (!S.id) S.id = C.latestSeason(IX).id;
   const s = IX.seasonById[S.id]; const nid = C.nextSeasonId(C.latestSeason(IX).id);
@@ -313,11 +339,9 @@ function seasonTab() {
   <div class="row">
     <label>Final place<input type="number" min="1" style="width:5rem" data-s="place" value="${C.place(s) ?? ''}"></label>
     <label style="flex:1;min-width:260px">Result text (e.g. "Championship: 2-3 OT Apuckalypse Meow")<input data-s="result" value="${esc(s.result || '')}"></label>
-    <label class="inline"><input type="checkbox" data-s="champion" ${s.champion ? 'checked' : ''}> 🏆 Stanley Keg</label>
-    <label class="inline"><input type="checkbox" data-s="presidents" ${s.presidents ? 'checked' : ''}> 🥇 President's</label>
-    <label class="inline"><input type="checkbox" data-s="runner_up" ${s.runner_up ? 'checked' : ''}> Runner-up</label>
   </div>
   <div class="row"><label style="flex:1">Story title<input data-s="story_title" value="${esc(s.story_title || '')}"></label></div>
+  ${awardsForm(s)}
   <h3>Roster</h3>
   <div class="tw"><table><thead><tr><th class="l">Player</th><th>#</th><th class="l">Pos</th><th class="l">Notes (C, LTIR - Ankle, sub…)</th><th></th></tr></thead><tbody>
   ${(s.roster || []).map((e, i) => `<tr><td class="l">${esc(pname(e.player))}</td>
@@ -341,6 +365,12 @@ document.addEventListener('change', e => {
   const t = e.target; const s = IX.seasonById[S.id];
   if (t.id === 's-pick') { S.id = t.value; S.msg = ''; return render(); }
   if (t.id === 's-addp' && t.value) { const p = IX.players[t.value]; s.roster.push({ player: p.id, pos: p.goalie ? 'G' : (p.position?.[0] === 'D' ? 'D' : 'F'), number: p.number ?? null, tags: [], initials: null }); reindex(); return render(); }
+  if (t.dataset.a) {
+    const a = awardOf(s.id); const [k, sub] = t.dataset.a.split('.');
+    if (!sub) a[k] = t.value || null;
+    else { const o = a[k] ||= { name: null, value: null, team: null }; o[sub] = sub === 'value' ? (t.value === '' ? null : Math.max(0, Math.round(+t.value))) : (t.value.trim() || null); }
+    syncSeasonFlags(s); reindex(); return render();
+  }
   if (t.dataset.s) {
     const k = t.dataset.s;
     if (t.type === 'checkbox') s[k] = t.checked; else if (k === 'place') s.place = t.value ? +t.value : null; else s[k] = t.value || null;
@@ -360,11 +390,17 @@ document.addEventListener('click', e => {
     const cur = C.latestSeason(IX); const id = C.nextSeasonId(cur.id); const y = 2000 + +id.slice(1);
     if (!confirm(`Create ${id} and copy the ${cur.name} roster into it?`)) return;
     DATA.seasons.push({ id, code: id.slice(1) + id[0], name: `${{ W: 'Winter', S: 'Summer', F: 'Fall' }[id[0]]} ${y}`, year: y, term: { W: 'Winter', S: 'Summer', F: 'Fall' }[id[0]],
-      team_name: 'WinterSquawks', division: cur.division, tracking: 'game-log', in_totals: true, verification: null, standings: [], leaders: { art_ross: [], rocket: [] },
+      team_name: 'WinterSquawks', division: cur.division, tracking: 'game-log', standings_from_games: true, in_totals: true, verification: null, standings: [], leaders: { art_ross: [], rocket: [] },
       story_title: null, story: [], roster: cur.roster.filter(r => r.pos !== 'G' || !IX.players[r.player]?.sub).map(r => ({ ...r, tags: (r.tags || []).filter(x => x === 'C'), legacy: undefined })),
       result: null, champion: false, presidents: false, runner_up: false, place: null });
     reindex(); S.id = id; S.msg = `${id} created.`; render();
   }
+  if (t.id === 'a-add') {
+    (DATA.awards ||= []).push({ season: s.id, presidents: null, stanley_keg: null, runner_up: null, art_ross: { name: null, value: null, team: null }, rocket: { name: null, value: null, team: null } });
+    DATA.awards.sort((x, y) => C.seasonSort({ id: x.season }, { id: y.season })); reindex(); render();
+  }
+  if (t.id === 'a-lead') { awardOf(s.id).presidents = t.dataset.team; syncSeasonFlags(s); reindex(); render(); }
+  if (t.id === 'a-del') { if (confirm(`Remove all Division 4 awards for ${s.name}?`)) { DATA.awards.splice(DATA.awards.indexOf(awardOf(s.id)), 1); syncSeasonFlags(s); reindex(); render(); } }
   if (t.dataset.delr !== undefined) { if (confirm(`Remove ${pname(s.roster[+t.dataset.delr].player)} from the ${s.name} roster? Their games stay.`)) { s.roster.splice(+t.dataset.delr, 1); reindex(); render(); } }
   if (t.id === 's-addsched') {
     const lines = $('#s-sched').value.split('\n').map(x => x.trim()).filter(Boolean); const bad = []; let n = 0;
@@ -383,6 +419,74 @@ document.addEventListener('click', e => {
     const row = Math.max(0, ...(s.story || []).map(l => l.row)) + 1;
     (s.story ||= []).push({ row, col: 2, text, link: $('#s-link').value.trim() || null }); reindex(); render();
   }
+});
+
+// =====================================================================
+// LEAGUE GAMES (every other game in the division, for the standings)
+// =====================================================================
+let L = { id: null };
+const lgTeams = sid => { const seen = new Set(); for (const g of DATA.league_games || []) if (g.season === sid) { if (g.home) seen.add(g.home); if (g.away) seen.add(g.away); }
+  for (const g of DATA.games) if (g.season === sid && g.opponent) seen.add(g.opponent); seen.delete('WSQ'); return seen; };
+function lgTeamOpts(sid, sel) {
+  const cur = lgTeams(sid), all = Object.keys(DATA.teams).filter(k => k !== 'WSQ');
+  const o = k => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(DATA.teams[k])}</option>`;
+  return `<option value="">—</option><optgroup label="This season">${all.filter(k => cur.has(k)).map(o).join('')}</optgroup><optgroup label="Other teams">${all.filter(k => !cur.has(k)).map(o).join('')}</optgroup>`;
+}
+function lgResult(g) {
+  if (!C.lgFinal(g) || !g.home || !g.away) return '<span class="muted">not played</span>';
+  const ot = C.lgOT(g), tag = ot === 'SO' ? ' (SO)' : ot ? ' (OT)' : '';
+  if (g.home_score === g.away_score) return ot ? `<span style="color:var(--red)">tied, but decided in ${ot}</span>` : 'Tie · 1–1 pts';
+  const [w, l] = g.home_score > g.away_score ? [g.home, g.away] : [g.away, g.home];
+  return `${esc(DATA.teams[w])} win${tag} · 2–${ot ? 1 : 0} pts`;
+}
+function leagueTab() {
+  if (!L.id) L.id = C.latestSeason(IX).id;
+  const s = IX.seasonById[L.id];
+  const rows = (DATA.league_games || []).map((g, i) => ({ g, i })).filter(x => x.g.season === L.id && x.g.home !== 'WSQ' && x.g.away !== 'WSQ').reverse();
+  const st = C.computeStandings(DATA, L.id);
+  const num = (i, k, v) => `<input type="number" min="0" style="width:4.2rem" data-lg="${i}" data-k="${k}" value="${v ?? ''}">`;
+  return `<div class="card">
+  <div class="row"><label>Season<select id="l-pick">${seasonOpts(L.id)}</select></label>
+    <p class="small muted" style="flex:1;min-width:260px;margin:0">Enter every game in the division that the Squawks <b>aren't</b> in. The Squawks' own games come from the Game tab, so they're never entered twice.</p></div>
+  ${s.standings_from_games ? '' : `<p class="lb-legacy">${esc(s.name)}'s standings on the site are a snapshot copied from the sheet. <button class="btn" id="l-live">Use these games for ${esc(s.name)}'s standings</button></p>`}
+  <h3>Standings ${info('2 points for a win, 1 for a tie or an overtime/shootout loss. Order: points, then wins, goal difference, goals for. Playoff games don\'t count.')}</h3>
+  <div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>GP</th><th>W</th><th>L</th><th>T</th><th>OTL</th><th>PTS</th><th>GF</th><th>GA</th><th>DIFF</th><th>SF</th><th>SA</th></tr></thead><tbody>
+  ${st.map((r, k) => `<tr${r.team === 'WSQ' ? ' style="font-weight:700"' : ''}><td>${k + 1}</td><td class="l">${esc(DATA.teams[r.team] || r.team)}</td><td>${r.gp}</td><td>${r.w}</td><td>${r.l}</td><td>${r.t}</td><td>${r.otl}</td><td>${r.pts}</td><td>${r.gf}</td><td>${r.ga}</td><td>${r.gf - r.ga > 0 ? '+' : ''}${r.gf - r.ga}</td><td>${r.shots ? r.sf : ''}</td><td>${r.shots ? r.sa : ''}</td></tr>`).join('')}
+  </tbody></table></div>
+  <h3 style="margin-top:1.2rem">Games <span class="small muted">(${rows.length}, newest first)</span></h3>
+  <button class="btn pri" id="l-add">+ Add game</button>
+  <div class="tw" style="margin-top:.5rem"><table class="lg-table"><thead><tr><th class="l">Home</th><th class="l">Away</th><th class="l">Decided in</th><th>Home<br>score</th><th>Away<br>score</th><th>Home<br>shots</th><th>Away<br>shots</th><th title="Playoff games don't count in the standings">Playoff</th><th class="l">Result</th><th></th></tr></thead><tbody>
+  ${rows.map(({ g, i }) => `<tr>
+    <td class="l"><select data-lg="${i}" data-k="home">${lgTeamOpts(L.id, g.home)}</select></td>
+    <td class="l"><select data-lg="${i}" data-k="away">${lgTeamOpts(L.id, g.away)}</select></td>
+    <td class="l"><select data-lg="${i}" data-k="ot">${[[null, 'Regulation'], ['OT', 'Overtime'], ['SO', 'Shootout']].map(([v, t]) => `<option value="${v ?? ''}" ${C.lgOT(g) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></td>
+    <td>${num(i, 'home_score', g.home_score)}</td><td>${num(i, 'away_score', g.away_score)}</td><td>${num(i, 'home_shots', g.home_shots)}</td><td>${num(i, 'away_shots', g.away_shots)}</td>
+    <td><input type="checkbox" data-lg="${i}" data-k="playoff" ${g.playoff ? 'checked' : ''}></td>
+    <td class="l small">${g.home && g.home === g.away ? '<span style="color:var(--red)">same team twice</span>' : lgResult(g)}</td>
+    <td><button class="x" data-dellg="${i}" title="Delete game">✕</button></td></tr>`).join('') || '<tr><td colspan="10" class="muted">No games yet.</td></tr>'}
+  </tbody></table></div>
+  <p class="small muted">In overtime or a shootout, enter the final score including the deciding goal, the way the league reports it. The winner gets 2 points and the loser 1.</p></div>`;
+}
+document.addEventListener('change', e => {
+  if (TAB !== 'league') return;
+  const t = e.target;
+  if (t.id === 'l-pick') { L.id = t.value; return render(); }
+  if (t.dataset.lg !== undefined) {
+    const g = DATA.league_games[+t.dataset.lg], k = t.dataset.k;
+    if (k === 'playoff') g.playoff = t.checked;
+    else if (k === 'ot') g.ot = t.value || null;
+    else if (k === 'home' || k === 'away') g[k] = t.value || null;
+    else g[k] = t.value === '' ? null : Math.max(0, Math.round(+t.value));
+    if (g.ot === undefined) g.ot = C.lgOT(g);
+    g.winner = C.lgWinner(g); reindex(); render();
+  }
+});
+document.addEventListener('click', e => {
+  if (TAB !== 'league') return;
+  const t = e.target;
+  if (t.id === 'l-add') { (DATA.league_games ||= []).push({ season: L.id, slot: null, home: null, away: null, home_score: null, away_score: null, home_shots: null, away_shots: null, ot: null, winner: null, playoff: false, championship: false }); reindex(); render(); }
+  if (t.dataset.dellg !== undefined) { const g = DATA.league_games[+t.dataset.dellg]; if (confirm(`Delete ${g.home ? DATA.teams[g.home] : '?'} vs ${g.away ? DATA.teams[g.away] : '?'}?`)) { DATA.league_games.splice(+t.dataset.dellg, 1); reindex(); render(); } }
+  if (t.id === 'l-live') { if (confirm(`Work out ${IX.seasonById[L.id].name}'s standings from the games instead of the sheet snapshot?`)) { IX.seasonById[L.id].standings_from_games = true; reindex(); render(); } }
 });
 
 // =====================================================================
@@ -426,6 +530,14 @@ function changeSummary() {
   const os = Object.fromEntries(O.seasons.map(s => [s.id, JSON.stringify(s)]));
   for (const s of DATA.seasons) if (!os[s.id]) out.push(`Added season ${s.id}`); else if (os[s.id] !== JSON.stringify(s)) out.push(`Edited season ${s.id} (roster, result or story)`);
   if (JSON.stringify(O.players) !== JSON.stringify(DATA.players) && !out.some(x => x.startsWith('Added player'))) out.push('Edited player details');
+  const lgBy = (arr) => arr.reduce((m, g) => ((m[g.season] ||= []).push(JSON.stringify(g)), m), {});
+  const ol = lgBy(O.league_games || []), nl = lgBy(DATA.league_games || []);
+  for (const sid of new Set([...Object.keys(ol), ...Object.keys(nl)])) {
+    const a = ol[sid] || [], b = nl[sid] || []; if (JSON.stringify(a) === JSON.stringify(b)) continue;
+    out.push(`League games ${sid}: ${b.length - a.length > 0 ? `${b.length - a.length} added` : b.length - a.length < 0 ? `${a.length - b.length} removed` : 'edited'}`);
+  }
+  const oa = Object.fromEntries((O.awards || []).map(a => [a.season, JSON.stringify(a)]));
+  for (const a of DATA.awards || []) if (oa[a.season] !== JSON.stringify(a)) out.push(`${oa[a.season] ? 'Edited' : 'Added'} Division 4 awards for ${a.season}`);
   return out;
 }
 function exportTab() {
