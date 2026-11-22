@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=577655a337';
-import * as C from './core.js?v=577655a337';
+import * as TR from './trophies.js?v=d7e173ebf9';
+import * as C from './core.js?v=d7e173ebf9';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -503,7 +503,8 @@ function awardWinners(k) {
   return [...(IX.data.awards || [])].filter(a => a[k]?.name).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
     const x = a[k], p = IX.data.players.find(pl => pl.name.toLowerCase() === x.name.toLowerCase() && (x.team === 'WSQ' || !x.team));
     return { season: a.season, seasonName: IX.seasonById[a.season]?.name || a.season, short: shortSeason(a.season), name: x.name, value: x.value,
-      team: x.team, teamName: tname(x.team), wsq: x.team === 'WSQ', photo: p?.photos?.[0] || null, href: p ? `#/player/${p.id}` : null };
+      team: x.team, teamName: tname(x.team), wsq: x.team === 'WSQ', photo: p?.photos?.[0] || null, href: p ? `#/player/${p.id}` : null,
+      ...(([bg, fg]) => ({ bg, fg, rim: bg.toLowerCase() === '#ffffff' ? fg : '#121417' }))(C.teamColor(IX.data, x.team)) };
   });
 }
 function trophyData() {

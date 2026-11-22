@@ -412,3 +412,31 @@ body.kv-open{overflow:hidden}
 .aw-trophy .tc-card{margin-top:.5rem}
 @media (max-width:560px){ .ar-grid{grid-template-columns:repeat(4,1fr)} .rr-grid{grid-template-columns:repeat(2,1fr)} }
 .ar-name{white-space:normal;overflow:visible;line-height:1.05;min-height:2.1em;display:flex;align-items:flex-start;justify-content:center;word-break:normal}
+/* trophy case v2: wooden shelves; Keg left, Art Ross and Rocket Richard right */
+.tcase{max-width:1140px}
+.tc-shelf{padding-bottom:0}
+.tc-top{display:grid;grid-template-columns:minmax(230px,280px) 1fr;align-items:end;gap:1.4rem}
+.tc-top .tc-keg{justify-self:center}
+.tc-top .tc-hint{right:auto;left:50%;top:-1.2rem;transform:translateX(-50%);white-space:nowrap}
+.tc-awards{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:end}
+.tc-awards .aw-trophy{width:100%}
+.tc-board{position:relative;height:22px;margin:0 -1.2rem 1.1rem;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);
+  background:linear-gradient(#e2a35d 0 5px,#b8732f 5px 12px,#8a4d1d 12px),repeating-linear-gradient(90deg,#0000 0 40px,#00000012 40px 42px);
+  box-shadow:0 12px 14px -6px #000a}
+.tc-board::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 90px,#ffffff10 90px 92px,transparent 92px 170px,#00000014 170px 171px)}
+.tc-inner{padding-bottom:1.4rem}
+.ar-grid{gap:.55rem .15rem;padding:.9rem 10% 1rem}
+.ar-face{width:50px;height:50px;border-width:5px}
+.aw-eng b{font-size:.9rem}
+.ar-name{font-size:.55rem}
+.rr-grid{gap:.3rem;padding:.8rem 6% .9rem}
+.rr-name{font-size:.55rem} .rr-sub{font-size:.5rem}
+.rr-plaque{padding:.25rem .3rem}
+.rr-base{clip-path:polygon(4% 0,96% 0,97% 14%,99% 14%,100% 100%,0 100%,1% 14%,3% 14%)}
+.rr-grid{clip-path:polygon(4% 0,96% 0,97% 14%,99% 14%,100% 100%,0 100%,1% 14%,3% 14%)}
+.aw-rocket .aw-top{width:min(270px,88%)}
+.aw-ross .aw-top{width:min(270px,88%)}
+@media (max-width:1000px){ .tc-top{grid-template-columns:1fr} .tc-top .tc-hint{position:static;transform:none;margin-top:.4rem} }
+@media (max-width:640px){ .tc-awards{grid-template-columns:1fr} }
+.ar-face .aw-eng{text-shadow:0 1px 0 #0000004d}
+.rr-name{white-space:normal;overflow:visible;line-height:1.05}

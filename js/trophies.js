@@ -132,7 +132,7 @@ export function medalSVG({ season }) {
 // winners: oldest → newest, each { season, short, name, value, team, teamName, photo, href, wsq }
 function winnerFace(w, unit) {
   return w.photo ? `<img src="${svgText(w.photo)}" alt="">`
-    : `<span class="aw-eng"><small>${svgText(w.short)}</small><b>${svgText(w.value ?? '')}</b><small>${unit}</small></span>`;
+    : `<span class="aw-eng" style="color:${w.fg}"><small>${svgText(w.short)}</small><b>${svgText(w.value ?? '')}</b><small>${unit}</small></span>`;
 }
 const wTitle = (w, unit) => `${w.name}, ${w.teamName}: ${w.value ?? '?'} ${unit === 'PTS' ? 'points' : 'goals'} (${w.seasonName})`;
 const wTag = (w, inner) => w.href ? `<a class="${inner[0]}" href="${w.href}" title="${svgText(inner[1])}">` : `<div class="${inner[0]}" title="${svgText(inner[1])}">`;
@@ -163,28 +163,45 @@ export function artRossSVG() {
 }
 export function rocketSVG() {
   const id = 'r' + (++uid);
-  return `<svg viewBox="0 0 260 150" class="tc-svg aw-top" aria-hidden="true">
+  const wing = 'M116 152 L40 84 L45 80 L27 56 L32 52 L12 22 L14 14 L88 4 L94 8 L128 146 Z';
+  const face = 'M118 146 L50 84 L55 80 L37 56 L42 52 L26 24 L84 14 L120 142 Z';
+  const limb = (d, w = 11) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="url(#${id}gold)" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  return `<svg viewBox="0 0 260 176" class="tc-svg aw-top rr-top" aria-hidden="true">
   <defs>${chrome(id + 'g')}
-    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#8f611a"/></linearGradient>
-    <linearGradient id="${id}w" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7d8994"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#b8c3cb"/><stop offset="1" stop-color="#5c6772"/></linearGradient></defs>
-  <!-- the split, flared cup -->
-  <path d="M22 10 L64 4 L118 128 L104 132 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M238 10 L196 4 L142 128 L156 132 Z" fill="url(#${id}w)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M30 12 L106 126 M230 12 L154 126" stroke="#fff" stroke-width="2.5" opacity=".8"/>
-  <!-- the skater -->
-  <g fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M122 46 Q140 38 152 52 L148 78 Q136 84 124 78 Z"/>
-    <circle cx="140" cy="34" r="9"/>
-    <path d="M124 54 L108 70 L116 76 L130 64"/><path d="M150 56 L160 72 L150 80"/>
-    <path d="M128 78 L114 108 L124 112 L138 84"/><path d="M144 80 L156 104 L168 104 L152 76"/>
-    <path d="M152 80 L132 126 L122 126" fill="none" stroke-width="4"/><path d="M152 80 L132 126 L122 126" fill="none" stroke="url(#${id}gold)" stroke-width="2"/></g>
+    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".35" stop-color="#e8b955"/><stop offset=".75" stop-color="#b8832a"/><stop offset="1" stop-color="#7d5414"/></linearGradient>
+    <linearGradient id="${id}wl" x1="0" y1="0" x2="1" y2=".3"><stop offset="0" stop-color="#e9eef2"/><stop offset=".25" stop-color="#ffffff"/><stop offset=".55" stop-color="#b9c4cc"/><stop offset=".8" stop-color="#7f8b96"/><stop offset="1" stop-color="#d9e1e6"/></linearGradient>
+    <linearGradient id="${id}wf" x1="1" y1="0" x2="0" y2=".4"><stop offset="0" stop-color="#5d6974"/><stop offset=".5" stop-color="#9aa6b0"/><stop offset="1" stop-color="#c9d2d9"/></linearGradient></defs>
+  <!-- flared, split cup: two stepped silver wings -->
+  <g stroke="${INK}" stroke-width="3" stroke-linejoin="round">
+    <path d="${wing}" fill="url(#${id}wl)"/><path d="${face}" fill="url(#${id}wf)" stroke-width="1.5" opacity=".75"/>
+    <g transform="translate(260 0) scale(-1 1)"><path d="${wing}" fill="url(#${id}wl)"/><path d="${face}" fill="url(#${id}wf)" stroke-width="1.5" opacity=".75"/></g></g>
+  <path d="M20 20 L82 10 M234 20 L178 10" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+  <path d="M46 70 L108 140 M214 70 L152 140" stroke="#fff" stroke-width="2" opacity=".55"/>
+  <!-- the skater, in stride, stick down -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    ${limb('M150 104 L160 124 L152 146', 12)}
+    ${limb('M128 102 L110 120 L94 132', 12)}
+    <path d="M144 146 h20 M86 128 l12 10" stroke="${INK}" stroke-width="7"/><path d="M144 146 h20 M86 128 l12 10" stroke="#e9eef2" stroke-width="3"/>
+    <path d="M124 82 Q138 76 156 84 L158 106 Q140 112 124 104 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
+    <path d="M118 46 Q138 34 160 46 L158 86 Q140 92 124 86 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
+    <path d="M126 52 Q136 48 142 54" fill="none" stroke="#fff6d6" stroke-width="3" opacity=".9"/>
+    <path d="M124 60 Q140 66 156 60" fill="none" stroke="#8f611a" stroke-width="2"/>
+    ${limb('M122 50 L106 66 L114 78', 10)}
+    ${limb('M156 52 L166 74 L152 94', 10)}
+    <path d="M108 68 L176 150" stroke="${INK}" stroke-width="7"/><path d="M108 68 L176 150" stroke="url(#${id}gold)" stroke-width="3.5"/>
+    <path d="M172 146 L192 152 L190 158 L170 153 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/>
+    <circle cx="114" cy="76" r="5.5" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/><circle cx="150" cy="96" r="5.5" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/>
+    <circle cx="140" cy="30" r="11" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
+    <path d="M130 26 Q140 14 151 25 Q142 21 130 26 Z" fill="#9a6a1e" stroke="${INK}" stroke-width="1.5"/>
+    <path d="M134 27 Q137 23 141 24" fill="none" stroke="#fff6d6" stroke-width="2"/></g>
   <!-- collar -->
-  <ellipse cx="130" cy="132" rx="58" ry="9" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
-  <path d="M74 132 V142 Q130 156 186 142 V132" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M68 156 V166 Q130 180 192 166 V156" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="130" cy="156" rx="62" ry="10" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
+  <ellipse cx="130" cy="156" rx="48" ry="5" fill="#5f6b76" opacity=".55"/>
   </svg>`;
 }
 function artRoss(winners) {
-  const pucks = winners.map(w => `${wTag(w, ['ar-puck' + (w.wsq ? ' wsq' : ''), wTitle(w, 'PTS')])}<span class="ar-face">${winnerFace(w, 'PTS')}</span>
+  const pucks = winners.map(w => `${wTag(w, ['ar-puck' + (w.wsq ? ' wsq' : ''), wTitle(w, 'PTS')])}<span class="ar-face" style="${w.photo ? '' : `background:${w.bg};border-color:${w.rim}`}">${winnerFace(w, 'PTS')}</span>
       <span class="ar-name">${svgText(w.name)}</span><span class="ar-sub">${svgText(w.short)} · ${w.value ?? '?'} pts</span>${wEnd(w)}`).join('');
   return `<div class="aw-trophy aw-ross">${artRossSVG()}<div class="ar-base"><div class="ar-grid">${pucks}</div></div>
     <div class="tc-card">Art Ross Trophy<br><b>Division points leaders</b></div></div>`;
@@ -212,12 +229,10 @@ export function trophyCase(ctx) {
           ${kegSVG({ wins: ctx.wsqWins, stickers: ctx.stickers })}
           <div class="tc-card">The Stanley Keg<br><b>${ctx.champions.filter(c => c.team === 'WSQ').map(c => c.short).join(' · ') || 'Not yet…'}</b></div>
           <span class="tc-hint">Click to read the engravings</span></button>
+        ${ctx.artRoss.length || ctx.rocket.length ? `<div class="tc-awards">${ctx.artRoss.length ? artRoss(ctx.artRoss) : ''}${ctx.rocket.length ? rocket(ctx.rocket) : ''}</div>` : ''}
       </div>
-      <div class="tc-glass-shelf"></div>
-      <div class="tc-shelf">${pres}</div>
-      ${ctx.artRoss.length || ctx.rocket.length ? `<div class="tc-glass-shelf"></div>
-      <div class="tc-shelf tc-awards">${ctx.artRoss.length ? artRoss(ctx.artRoss) : ''}${ctx.rocket.length ? rocket(ctx.rocket) : ''}</div>` : ''}
-      <div class="tc-glass-shelf"></div>
+      <div class="tc-board"></div>
+      ${pres ? `<div class="tc-shelf">${pres}</div><div class="tc-board"></div>` : ''}
       <div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         <div class="tc-card tc-rail-card">Runner-up finishes · ${ctx.runnerUps.length}</div></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
