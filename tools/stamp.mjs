@@ -7,12 +7,12 @@ import { createHash } from 'node:crypto';
 const root = new URL('../', import.meta.url);
 const read = f => readFileSync(new URL(f, root), 'utf8');
 const strip = s => s.replace(/\?v=[\w-]+/g, '');
-const code = ['css/style.css', 'js/core.js', 'js/app.js', 'js/admin.js'];
+const code = ['css/style.css', 'js/core.js', 'js/app.js', 'js/admin.js', 'js/trophies.js'];
 const v = createHash('sha1').update(code.map(f => strip(read(f))).join('\n')).digest('hex').slice(0, 10);
 const targets = {
   'index.html': [/(href="css\/style\.css)(\?v=[\w-]+)?"/g, /(src="js\/app\.js)(\?v=[\w-]+)?"/g],
   'admin.html': [/(href="css\/style\.css)(\?v=[\w-]+)?"/g, /(src="js\/admin\.js)(\?v=[\w-]+)?"/g],
-  'js/app.js': [/(from '\.\/core\.js)(\?v=[\w-]+)?'/g],
+  'js/app.js': [/(from '\.\/core\.js)(\?v=[\w-]+)?'/g, /(from '\.\/trophies\.js)(\?v=[\w-]+)?'/g],
   'js/admin.js': [/(from '\.\/core\.js)(\?v=[\w-]+)?'/g],
 };
 const stale = [];

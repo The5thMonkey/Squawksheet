@@ -1,4 +1,5 @@
-import * as C from './core.js?v=1334eb0552';
+import * as TR from './trophies.js?v=3b602148de';
+import * as C from './core.js?v=3b602148de';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -478,14 +479,37 @@ function pageOpponents() {
 `;
 }
 
+// ---------- trophy case data ----------
+const shortSeason = id => ({ W: 'W', S: 'S', F: 'F' }[id[0]] || '') + id.slice(1);
+function kegChampions() {
+  return [...(IX.data.awards || [])].filter(a => a.stanley_keg).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
+    const s = IX.seasonById[a.season], team = a.stanley_keg;
+    // names: an engraving list saved with the award, otherwise (for the Squawks) the season roster, captain marked like the real Cup
+    let names = (a.keg_roster || []).map(t => ({ text: t }));
+    if (!names.length && team === 'WSQ') names = (s?.roster || []).map(e => ({ text: pname(e.player) + ((e.tags || []).includes('C') ? ' Capt.' : ''), href: `#/player/${e.player}` }));
+    return { season: a.season, name: s?.name || a.season, short: shortSeason(a.season), team, teamName: tname(team), names };
+  });
+}
+function kegStickers(champs) {
+  const seen = []; for (const c of champs) if (!seen.includes(c.team)) seen.push(c.team);
+  return seen.map(code => { const [bg, fg] = C.teamColor(IX.data, code); return { code, name: tname(code), bg, fg, logo: code === 'WSQ' ? 'img/logos/primary.png' : (IX.data.team_logos || {})[code] || null }; });
+}
+function trophyData() {
+  const champions = kegChampions();
+  return {
+    champions, stickers: kegStickers(champions), wsqWins: champions.filter(c => c.team === 'WSQ').length,
+    presidents: IX.seasons.filter(s => s.presidents).map(s => ({ id: s.id, name: s.name, record: C.fmt.rec4(seasonSummary(s).rec.reg) })),
+    runnerUps: IX.seasons.filter(s => s.runner_up).map(s => ({ id: s.id, name: s.name })),
+  };
+}
+document.addEventListener('click', e => { if (e.target.closest('#tc-keg')) { const ch = kegChampions(); TR.openKeg(ch, kegStickers(ch)); } });
+
 function pageTrophies() {
   const A = [...IX.data.awards].sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).reverse();
   const hl = c => tchip(c);
   const cupWinners = IX.seasons.filter(s => s.tracking === 'game-log').map(s => ({ s, x: seasonSummary(s) })).filter(r => r.x.cup);
   return `<h1>Trophy Room</h1>
-  <div class="grid g3"><div class="stat"><div class="k">Stanley Kegs</div><div class="v">${'🏆'.repeat(IX.seasons.filter(s => s.champion).length)}</div><div class="s">${IX.seasons.filter(s => s.champion).map(s => slink(s.id)).join(', ')}</div></div>
-  <div class="stat"><div class="k">President's Trophies</div><div class="v">${'🥇'.repeat(IX.seasons.filter(s => s.presidents).length)}</div><div class="s">${IX.seasons.filter(s => s.presidents).map(s => slink(s.id)).join(', ')}</div></div>
-  <div class="stat"><div class="k">Runner-up finishes</div><div class="v">${IX.seasons.filter(s => s.runner_up).length}</div><div class="s">${IX.seasons.filter(s => s.runner_up).map(s => slink(s.id)).join(', ')}</div></div></div>
+  ${TR.trophyCase(trophyData())}
   <h2>Squawk 🏆 (three-stars points) winners</h2>${table('cupw', [{ k: 's', h: 'Season', l: 1, f: r => slink(r.s.id) }, { k: 'w', h: 'Winner', l: 1, f: r => whoList(r.x.cup) }], cupWinners.reverse(), null)}
   <h2>Division 4 awards</h2>${table('aw', [{ k: 'season', h: 'Season', l: 1 }, { k: 'p', h: "President's", l: 1, f: r => hl(r.presidents) }, { k: 'k', h: 'Stanley Keg', l: 1, f: r => hl(r.stanley_keg) }, { k: 'r', h: 'Runner-up', l: 1, f: r => hl(r.runner_up) },
     { k: 'ar', h: 'Art Ross (pts)', l: 1, f: r => `${esc(r.art_ross?.name || '')} <span class="muted">${r.art_ross?.value ?? ''}</span> ${tchip(r.art_ross?.team, true)}` }, { k: 'rr', h: '"Rocket" Richard (goals)', l: 1, f: r => `${esc(r.rocket?.name || '')} <span class="muted">${r.rocket?.value ?? ''}</span> ${tchip(r.rocket?.team, true)}` }], A, null)}`;
