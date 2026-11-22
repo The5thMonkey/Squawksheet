@@ -1,3 +1,4 @@
+@font-face{font-family:'Permanent Marker';src:url(../fonts/permanent-marker.woff2) format('woff2');font-display:swap}
 :root{
   /* WinterSquawks colorway */
   --sq-primary:#a6c1da; --sq-secondary:#912522; --sq-black:#333f42; --sq-white:#ffffff;

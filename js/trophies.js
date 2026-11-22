@@ -333,26 +333,29 @@ function rocket(winners) {
 }
 
 // ---------------------------------------------------------------- Squawk 🏆 puck pile
-// One puck per Squawk Cup winner, wrapped in white stick tape with marker writing. A tie is two pucks stacked:
-// the top one's writing is on its face, the bottom one's on the tape around its edge. Newest winners sit on top.
+// One puck per Squawk Cup winner: the player's name is written in Sharpie on the white stick tape wrapped around its
+// edge, and the season and points are written in white on the black rubber top. A tie is two pucks stacked: one
+// name on each puck's tape, with the shared season and points on the top puck. Newest winners sit on top.
 // cups: oldest → newest, each { name (season), who: [{ name, v }] }
 export function puckPileSVG(cups) {
-  const id = 'pk' + (++uid), hand = `font-family="'Marker Felt','Bradley Hand','Segoe Print','Comic Sans MS',cursive" fill="#1d1d1d"`;
+  const id = 'pk' + (++uid), marker = `font-family="'Permanent Marker','Marker Felt',cursive" filter="url(#${id}ink)"`;
   const RX = 66, RY = 30, T = 26;
-  const puck = (key, top, edge, rot) => `<g transform="rotate(${rot})">
+  const puck = (key, name, top, rot) => {
+    // the tape's writing follows the front of the band, so it curves around the puck like it does in real life
+    const fs = 13.5, est = name.length * fs * .62, len = 150;
+    return `<g transform="rotate(${rot})">
       <path d="M${-RX} 0 V${T} A${RX} ${RY} 0 0 0 ${RX} ${T} V0 Z" fill="#111" stroke="${INK}" stroke-width="2.5"/>
-      <path d="M${-RX} 4 V${T - 4} A${RX} ${RY} 0 0 0 ${RX} ${T - 4} V4 A${RX} ${RY} 0 0 1 ${-RX} 4 Z" fill="url(#${id}tapeS)" stroke="#9c998f" stroke-width=".8"/>
-      <path d="M-40 ${T + 20} v-12 M-6 ${T + 26} v-14 M30 ${T + 21} v-13" stroke="#c9c5b9" stroke-width=".8"/>
-      ${edge ? `<text x="0" y="${T + 12}" text-anchor="middle" font-size="9" ${hand} textLength="${Math.min(2 * RX - 16, edge.length * 4.6)}" lengthAdjust="spacingAndGlyphs">${svgText(edge)}</text>` : ''}
-      <ellipse cx="0" cy="0" rx="${RX}" ry="${RY}" fill="#151515" stroke="${INK}" stroke-width="2.5"/>
-      <clipPath id="${id}c${key}"><ellipse cx="0" cy="0" rx="${RX - 4}" ry="${RY - 3}"/></clipPath>
-      <g clip-path="url(#${id}c${key})" transform="rotate(-9)">
-        ${[-26, -12, 2, 16].map((y, k) => `<rect x="-90" y="${y}" width="180" height="15" fill="${k % 2 ? '#f3f1ea' : '#fbfaf5'}" stroke="#cfcbbf" stroke-width=".6"/>`).join('')}</g>
-      ${top ? `<g transform="scale(1 .82) rotate(-5)" text-anchor="middle" ${hand}>
-        <text x="0" y="-12" font-size="10">${svgText(top[0])}</text>
-        <text x="0" y="3" font-size="13" font-weight="700">${svgText(top[1])}</text>
-        <text x="0" y="17" font-size="10.5">${svgText(top[2])}</text></g>` : ''}
+      <path d="M${-RX} 3 V${T - 3} A${RX} ${RY} 0 0 0 ${RX} ${T - 3} V3 A${RX} ${RY} 0 0 1 ${-RX} 3 Z" fill="url(#${id}tapeS)" stroke="#9c998f" stroke-width=".8"/>
+      <path d="M-44 ${T + 17} v-13 M18 ${T + 24} v-15" stroke="#cdc9bd" stroke-width=".8"/>
+      <path id="${id}e${key}" d="M${-RX + 2} ${T / 2 + 5} A${RX - 2} ${RY} 0 0 0 ${RX - 2} ${T / 2 + 5}" fill="none"/>
+      <text font-size="${fs}" fill="#141414" ${marker} text-anchor="middle"${est > len ? ` textLength="${len}" lengthAdjust="spacingAndGlyphs"` : ''}><textPath href="#${id}e${key}" startOffset="50%">${svgText(name)}</textPath></text>
+      <ellipse cx="0" cy="0" rx="${RX}" ry="${RY}" fill="url(#${id}rub)" stroke="${INK}" stroke-width="2.5"/>
+      <ellipse cx="0" cy="0" rx="${RX - 9}" ry="${RY - 5}" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+      ${top ? `<g transform="scale(1 .8) rotate(-6)" text-anchor="middle" fill="#f7f7f2" ${marker}>
+        <text x="0" y="-6" font-size="12.5">${svgText(top[0])}</text>
+        <text x="2" y="15" font-size="15" transform="rotate(3)">${svgText(top[1])}</text></g>` : ''}
     </g>`;
+  };
   let body = '', minY = 999;
   // a loose zig-zag pile: pucks alternate back (higher) and front (lower) so every face and taped edge stays readable;
   // more than 6 winners start another line further back. Drawn back to front so nearer pucks overlap farther ones.
@@ -360,20 +363,22 @@ export function puckPileSVG(cups) {
   const placed = cups.map((c, k) => {
     const line = Math.floor(k / per), j = k % per, inLine = Math.min(per, cups.length - line * per), depth = lines - 1 - line;
     const x = 300 + (j - (inLine - 1) / 2) * 86 + ((k * 29) % 11) - 5;
-    const y = 318 - depth * 150 - (j % 2 ? 0 : 72) + ((k * 13) % 9) - 4;
+    const y = 318 - depth * 175 - (j % 2 ? 0 : 92) + ((k * 13) % 5) - 2;
     return { c, x, y, rot: ((k * 37) % 13) - 6, k };
   }).sort((p, q) => p.y - q.y);
   for (const { c, x, y, rot, k } of placed) {
-    const [a, b] = c.who;
-    if (!b) body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)}, ${a.v} pts</title>${puck(k + 'a', [c.name, a.name, `${a.v} pts`], null, rot)}</g>`;
+    const [a, b] = c.who, top = [c.name, `${a.v} pts`];
+    if (!b) body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)}, ${a.v} pts</title>${puck(k + 'a', a.name, top, rot)}</g>`;
     else body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)} and ${svgText(b.name)}, ${a.v} pts each (tie)</title>
-        ${puck(k + 'a', null, `${c.name} · ${a.name} · ${a.v} pts`, rot)}
-        <g transform="translate(${((k * 7) % 9) - 4} ${-T - 2})">${puck(k + 'b', [c.name, b.name, `${b.v} pts`], null, rot + 3)}</g></g>`;
+        ${puck(k + 'a', a.name, null, rot)}
+        <g transform="translate(${((k * 7) % 9) - 4} ${-T - 2})">${puck(k + 'b', b.name, top, rot + 3)}</g></g>`;
     minY = Math.min(minY, y - (b ? T + 2 : 0) - RY);
   }
   const top = Math.max(0, minY - 14);
   return `<svg viewBox="0 ${top} 600 ${390 - top}" class="tc-svg pk-svg" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
-    <defs><linearGradient id="${id}tapeS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bdb9ad"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1efe8"/><stop offset="1" stop-color="#a8a499"/></linearGradient></defs>
+    <defs><filter id="${id}ink" x="-5%" y="-20%" width="110%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/><feGaussianBlur stdDeviation=".18"/></filter>
+      <radialGradient id="${id}rub" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2b2b2b"/><stop offset=".6" stop-color="#161616"/><stop offset="1" stop-color="#0b0b0b"/></radialGradient>
+      <linearGradient id="${id}tapeS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bdb9ad"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1efe8"/><stop offset="1" stop-color="#a8a499"/></linearGradient></defs>
     <ellipse cx="300" cy="376" rx="280" ry="14" fill="#000" opacity=".3"/>
     ${body}</svg>`;
 }
