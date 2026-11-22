@@ -337,7 +337,9 @@ function rocket(winners) {
 // edge, and the season and points are written in white on the black rubber top. A tie is two pucks stacked: one
 // name on each puck's tape, with the shared season and points on the top puck. Newest winners sit on top.
 // cups: oldest → newest, each { name (season), who: [{ name, v }] }
-export function puckPileSVG(cups) {
+// pyramid: the trophy-case view stacks them in a loose pyramid (oldest on the bottom row, newest on top);
+// otherwise (the close-up) they're spread out in a zig-zag so every puck can be read.
+export function puckPileSVG(cups, pyramid = false) {
   const id = 'pk' + (++uid), marker = `font-family="'Permanent Marker','Marker Felt',cursive" filter="url(#${id}ink)"`;
   const RX = 66, RY = 30, T = 26;
   const puck = (key, name, top, rot) => {
@@ -357,25 +359,44 @@ export function puckPileSVG(cups) {
     </g>`;
   };
   let body = '', minY = 999;
-  // a loose zig-zag pile: pucks alternate back (higher) and front (lower) so every face and taped edge stays readable;
-  // more than 6 winners start another line further back. Drawn back to front so nearer pucks overlap farther ones.
-  const per = 6, lines = Math.ceil(cups.length / per);
-  const placed = cups.map((c, k) => {
-    const line = Math.floor(k / per), j = k % per, inLine = Math.min(per, cups.length - line * per), depth = lines - 1 - line;
-    const x = 300 + (j - (inLine - 1) / 2) * 86 + ((k * 29) % 11) - 5;
-    const y = 318 - depth * 175 - (j % 2 ? 0 : 92) + ((k * 13) % 5) - 2;
-    return { c, x, y, rot: ((k * 37) % 13) - 6, k };
-  }).sort((p, q) => p.y - q.y);
+  const jit = (k, m, n) => ((k * m) % n) - (n - 1) / 2;
+  let placed;
+  if (pyramid) {
+    // smallest bottom row that holds everyone in a triangle; each puck rests on the taller of the two stacks under it
+    let m = 1; while (m * (m + 1) / 2 < cups.length) m++;
+    const rows = []; let k = 0;
+    for (let size = m; size > 0 && k < cups.length; size--) { rows.push(cups.slice(k, k + size).map((c, j) => ({ c, k: k + j }))); k += size; }
+    const S = 124; placed = [];
+    rows.forEach((row, r) => row.forEach((it, j) => {
+      const under = r ? [rows[r - 1][j], rows[r - 1][j + 1]].filter(Boolean) : [];
+      const support = under.length ? Math.max(...under.map(u => u.top)) : 0;
+      it.top = support + it.c.who.length;
+      const x = 300 + (j - (rows[r].length - 1) / 2) * S + (r ? jit(it.k, 29, 13) : jit(it.k, 17, 9));
+      placed.push({ ...it, x, y: 330 - support * (T + 1) + jit(it.k, 13, 5), rot: jit(it.k, 37, 15) });
+    }));
+  } else {
+    // pucks alternate back (higher) and front (lower) so every face and taped edge stays readable;
+    // more than 6 winners start another line further back. Drawn back to front so nearer pucks overlap farther ones.
+    const per = 6, lines = Math.ceil(cups.length / per);
+    placed = cups.map((c, k) => {
+      const line = Math.floor(k / per), j = k % per, inLine = Math.min(per, cups.length - line * per), depth = lines - 1 - line;
+      const x = 300 + (j - (inLine - 1) / 2) * 86 + ((k * 29) % 11) - 5;
+      const y = 318 - depth * 175 - (j % 2 ? 0 : 92) + ((k * 13) % 5) - 2;
+      return { c, x, y, rot: ((k * 37) % 13) - 6, k };
+    }).sort((p, q) => p.y - q.y);
+  }
+  let minX = 999, maxX = -999;
   for (const { c, x, y, rot, k } of placed) {
     const [a, b] = c.who, top = [c.name, `${a.v} pts`];
     if (!b) body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)}, ${a.v} pts</title>${puck(k + 'a', a.name, top, rot)}</g>`;
     else body += `<g class="pk" transform="translate(${x} ${y})"><title>${svgText(c.name)}: ${svgText(a.name)} and ${svgText(b.name)}, ${a.v} pts each (tie)</title>
         ${puck(k + 'a', a.name, null, rot)}
         <g transform="translate(${((k * 7) % 9) - 4} ${-T - 2})">${puck(k + 'b', b.name, top, rot + 3)}</g></g>`;
-    minY = Math.min(minY, y - (b ? T + 2 : 0) - RY);
+    minY = Math.min(minY, y - (b ? T + 2 : 0) - RY); minX = Math.min(minX, x - RX - 10); maxX = Math.max(maxX, x + RX + 10);
   }
   const top = Math.max(0, minY - 14);
-  return `<svg viewBox="0 ${top} 600 ${390 - top}" class="tc-svg pk-svg" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
+  const l = Math.min(0, minX), w = Math.max(600, maxX) - l;
+  return `<svg viewBox="${l} ${top} ${w} ${390 - top}" class="tc-svg pk-svg${pyramid ? ' pk-pyr' : ''}" role="img" aria-label="Squawk Cup winners: a pile of taped pucks">
     <defs><filter id="${id}ink" x="-5%" y="-20%" width="110%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/><feGaussianBlur stdDeviation=".18"/></filter>
       <radialGradient id="${id}rub" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2b2b2b"/><stop offset=".6" stop-color="#161616"/><stop offset="1" stop-color="#0b0b0b"/></radialGradient>
       <linearGradient id="${id}tapeS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bdb9ad"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1efe8"/><stop offset="1" stop-color="#a8a499"/></linearGradient></defs>
@@ -406,7 +427,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
-      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
       <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
