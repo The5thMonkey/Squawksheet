@@ -161,178 +161,201 @@ export function artRossSVG() {
   <text x="130" y="40" text-anchor="middle" font-family="'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif" font-size="7.5" font-weight="800" fill="#4f5b66" letter-spacing="1">ART ROSS TROPHY</text>
   </svg>`;
 }
+// The Maurice "Rocket" Richard Trophy, drawn face-on from photos of the real one: a chrome funnel split into two
+// faceted halves, a bronze skater on the silver collar, and a tapered eight-sided black base in three tiers. The real
+// trophy's winners are engraved on stacks of small plaques on the base's angled faces, so ours are too.
 export function rocketSVG(winners = []) {
-  const id = 'r' + (++uid), W = 340, cx = W / 2;
-  const B = n => `url(#${id}${n})`;   // gradient reference
-  const ink = (w = 2.4) => `stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
-  const pts = a => a.map(p => p.join(' ')).join(' L');
+  const id = 'r' + (++uid), W = 400, cx = W / 2;
+  const B = n => `url(#${id}${n})`;
+  const P = a => 'M' + a.map(p => p.map(v => +v.toFixed(2)).join(' ')).join(' L') + ' Z';
+  const mir = a => a.map(([x, y]) => [W - x, y]);
+  const lg = (name, x1, x2, stops, y1 = 0, y2 = 0) => `<linearGradient id="${id}${name}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+  let defs = '';
 
-  // ---------------- the cup: two flat, flared chrome panels opened out like a V, the skater in the gap ----------------
-  // drawn as the left panel; the right panel is its mirror image with different reflections
-  const face = 'M18 30 L154 46 L166 198 L150 198 L118 139 L112 141 L90 112 L84 114 Z';            // front face, stepped outer edge
-  const edge = 'M154 46 L162 41 L174 196 L166 198 Z';                                                // the panel's thickness, seen in the gap
-  const lip = 'M18 30 L24 25 L162 41 L154 46 Z';                                                     // top edge
-  const half = (refl, mir) => `<g${mir ? ` transform="translate(${W} 0) scale(-1 1)"` : ''}>
-      <path d="${face}" fill="${B('cf')}" ${ink(2.6)}/>
-      <g clip-path="url(#${id}cfc)">${refl.map(([a, b, c, o]) => `<path d="M${a} 20 L${b} 20 L168 260 Z" fill="${c}" opacity="${o}"/>`).join('')}
-        <path d="M18 30 L154 46" stroke="#fff" stroke-width="5" opacity=".9"/><path d="M84 114 L90 112 L112 141 L118 139" stroke="#fff" stroke-width="3" fill="none"/></g>
-      <path d="${edge}" fill="${B('ce')}" ${ink(2)}/>
-      <path d="${lip}" fill="${B('rim')}" ${ink(1.8)}/>
-    </g>`;
-  const reflL = [[30, 44, '#ffffff', .9], [58, 74, '#56626e', .55], [80, 86, '#2f3842', .5], [100, 122, '#6b7783', .45], [126, 130, '#ffffff', .95], [138, 150, '#3b4550', .5]];
-  const reflR = [[22, 30, '#3b4550', .45], [40, 62, '#ffffff', .85], [70, 92, '#4a5561', .6], [104, 108, '#ffffff', .9], [116, 140, '#7f8b96', .45], [146, 152, '#ffffff', .7]];
+  // ---------------- cup: two halves, three flat facets each; the gap between them is a V ----------------
+  const topY = x => 10 + (x - 14) / 172 * 13;                        // the rim falls a little toward the middle
+  const neck = 226;
+  const fA = [[14, topY(14)], [74, topY(74)], [160, neck], [146, neck], [117, 158.5], [114, 159.5], [99, 135], [96, 136]];   // outer facet, stepped edge
+  const fB = [[74, topY(74)], [138, topY(138)], [180, neck], [160, neck]];
+  const fC = [[138, topY(138)], [186, topY(186)], [199, neck], [180, neck]];
+  // left half is lit, right half's outer facet turns away from the light
+  defs += lg('cA', 14, 150, [[0, '#a8b3bc'], [.12, '#f7f9fa'], [.28, '#cdd5db'], [.5, '#626e79'], [.66, '#9eaab3'], [.85, '#eef2f4'], [1, '#bcc6cd']], 20, 60);
+  defs += lg('cB', 74, 180, [[0, '#ffffff'], [.35, '#eef2f4'], [.55, '#b3bec6'], [.7, '#fafcfd'], [1, '#d5dde2']], 20, 40);
+  defs += lg('cC', 138, 199, [[0, '#7d8994'], [.35, '#2b333b'], [.7, '#56626d'], [1, '#a3aeb7']]);
+  defs += lg('cA2', W - 14, W - 150, [[0, '#56626d'], [.2, '#9aa6af'], [.45, '#e4e9ed'], [.6, '#79858f'], [.85, '#4a5560'], [1, '#8e9aa4']], 20, 60);
+  defs += lg('cB2', W - 74, W - 180, [[0, '#d7dee3'], [.3, '#ffffff'], [.5, '#9ca8b1'], [.65, '#f3f6f8'], [1, '#c2cbd2']], 20, 40);
+  defs += lg('cC2', W - 138, W - 199, [[0, '#f3f6f8'], [.4, '#ffffff'], [.7, '#c3ccd3'], [1, '#8794a0']]);
+  defs += `<linearGradient id="${id}cv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0b1015" stop-opacity=".45"/></linearGradient>`;
+  const apex = [cx, 330];
+  const streaks = (f, xs) => xs.map(([x, w, c, o]) => `<path d="${P([[x, 0], [x + w, 0], apex])}" fill="${c}" opacity="${o}" clip-path="url(#${id}${f})"/>`).join('');
+  const facet = (pts, g, key, st) => `<clipPath id="${id}${key}"><path d="${P(pts)}"/></clipPath>
+    <path d="${P(pts)}" fill="${B(g)}"/>${streaks(key, st)}<path d="${P(pts)}" fill="${B('cv')}"/>`;
+  const cup = facet(fA, 'cA', 'kA', [[44, 2, '#fff', .5]])
+    + facet(fB, 'cB', 'kB', [[118, 5, '#fff', .6]])
+    + facet(fC, 'cC', 'kC', [[156, 3, '#fff', .35]])
+    + facet(mir(fA), 'cA2', 'kA2', [[W - 52, 3, '#fff', .4]])
+    + facet(mir(fB), 'cB2', 'kB2', [[W - 122, 4, '#fff', .6]])
+    + facet(mir(fC), 'cC2', 'kC2', [])
+    // creases between facets, rim thickness, edge highlights
+    + [[74, 160], [138, 180]].map(([t, b]) => `<path d="M${t} ${topY(t)} L${b} ${neck}" stroke="#fff" stroke-width=".9" opacity=".7"/><path d="M${W - t} ${topY(t)} L${W - b} ${neck}" stroke="#4b5661" stroke-width=".9" opacity=".7"/>`).join('')
+    + `<path d="M14 ${topY(14)} L186 ${topY(186)}" stroke="#fff" stroke-width="2.6"/><path d="M14.5 ${topY(14) + 2} L186 ${topY(186) + 2}" stroke="#6b7782" stroke-width=".8"/>
+       <path d="M${W - 14} ${topY(14)} L${W - 186} ${topY(186)}" stroke="#f3f6f8" stroke-width="2.6"/><path d="M${W - 14.5} ${topY(14) + 2} L${W - 186} ${topY(186) + 2}" stroke="#4b5661" stroke-width=".8"/>
+       <path d="${'M' + fA.slice(3).concat([fA[0]]).reverse().map(p => p.join(' ')).join(' L')}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8"/>
+       <path d="${'M' + mir(fA).slice(3).concat([mir(fA)[0]]).reverse().map(p => p.join(' ')).join(' L')}" fill="none" stroke="#2b333b" stroke-width="1.2" opacity=".6"/>
+       <path d="M186 ${topY(186)} L199 ${neck}" stroke="#1c2228" stroke-width="1.2" opacity=".6"/><path d="M${W - 186} ${topY(186)} L${W - 199} ${neck}" stroke="#fff" stroke-width="1.2" opacity=".7"/>`;
 
-  // ---------------- the skater: bronze, facing out, knees bent, stick held across his body down to the dish ----------------
-  const fill = (d, f = B('br'), w = 2) => `<path d="${d}" fill="${f}" ${ink(w)}/>`;
-  const shade = (d, o = .75) => `<path d="${d}" fill="${B('brD')}" opacity="${o}"/>`;
-  const shine = (d, w = 1.8, o = .8) => `<path d="${d}" fill="none" stroke="#fff4d2" stroke-width="${w}" stroke-linecap="round" opacity="${o}"/>`;
-  const line = (d, w = 1.3, c = '#5a3a10') => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" opacity=".85"/>`;
-  const legL = 'M145 146 C140 156 133 164 133 173 C133 182 137 188 139 193 L154 193 C154 186 152 179 152 173 C153 163 158 155 161 148 Z';
-  const legR = 'M195 146 C200 156 207 164 207 173 C207 182 203 188 201 193 L186 193 C186 186 188 179 188 173 C187 163 182 155 179 148 Z';
+  // ---------------- bronze skater: smooth shapes lit by an SVG light, leaning toward us ----------------
+  defs += `<filter id="${id}bz" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.3" result="b"/>
+      <feDiffuseLighting in="b" surfaceScale="2.6" diffuseConstant="1" result="d"><feDistantLight azimuth="225" elevation="48"/></feDiffuseLighting>
+      <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.3" result="lit"/>
+      <feSpecularLighting in="b" surfaceScale="2.6" specularConstant="1" specularExponent="26" lighting-color="#fff0c2" result="s"><feDistantLight azimuth="225" elevation="48"/></feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+      <feComposite in="lit" in2="s2" operator="arithmetic" k2="1" k3=".85" result="all"/>
+      <feComposite in="all" in2="SourceAlpha" operator="in" result="body"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1"/><feOffset dx="1" dy="1.6" result="so"/>
+      <feFlood flood-color="#1c1004" flood-opacity=".7"/><feComposite in2="so" operator="in" result="sh"/>
+      <feMerge><feMergeNode in="sh"/><feMergeNode in="body"/></feMerge></filter>`;
+  defs += `<linearGradient id="${id}bzc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6a24c"/><stop offset=".55" stop-color="#a66f27"/><stop offset="1" stop-color="#7a4d15"/></linearGradient>`;
+  const part = (d, f = B('bzc')) => `<path d="${d}" fill="${f}" filter="url(#${id}bz)"/>`;
+  const dk = '#6a4312', hair = '#4f3410';
+  const det = (d, w = 1, c = '#3f2808', o = .7) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" opacity="${o}"/>`;
+  const hi = (d, w = 1.1, o = .55) => det(d, w, '#ffe9b0', o);
   const skater = `<g>
-    <!-- legs: knees bent and turned out -->
-    ${fill(legL)}${fill(legR)}
-    ${shade('M152 173 C152 179 154 186 154 193 L148 193 C148 186 146 180 146 173 C147 165 151 157 155 151 L161 148 C158 155 153 163 152 173 Z')}
-    ${shade('M207 173 C207 182 203 188 201 193 L195 193 C197 187 201 181 201 173 C201 165 196 157 192 150 L195 146 C200 156 207 164 207 173 Z')}
-    ${line('M134 176 C140 178 147 178 152.5 176 M135 181 C141 183 147 183 153 181')}${line('M188 176 C193 178 200 178 206 176 M187.5 181 C193 183 199 183 205.5 181')}
-    ${shine('M139 168 C139 160 143 155 147 151')}
-    <!-- skates, toes toward us -->
-    ${fill('M137 189 C135 196 138 201 146.5 201 C155 201 157 196 155 189 Z', B('brD'), 1.8)}
-    ${fill('M185 189 C183 196 186 201 194 201 C202.5 201 205 196 203 189 Z', B('brD'), 1.8)}
-    <path d="M140 204.5 L153 204.5 M187 204.5 L200 204.5" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M140 204.5 L153 204.5 M187 204.5 L200 204.5" stroke="#eef2f5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- back leg (pushing off) and skate -->
+    ${part('M220 154 C232 152 243 160 247 172 C249 178 248 184 246 188 C247 194 249 201 251 208 L241 210 C239 202 236 196 234 190 C228 184 220 176 214 166 Z')}
+    ${det('M241.5 190 L249 188 M242.5 194.5 L249.8 192.5', 1.6, dk, .9)}
+    ${part('M238 205 C245 203 253 203 258 207 C260 213 257 217 250 217 L236 217 C233 213 234 208 238 205 Z', dk)}
+    <path d="M233 220.5 L262 220.5" stroke="#e9eef2" stroke-width="1.8" stroke-linecap="round"/><path d="M234 222 L261 222" stroke="#59646e" stroke-width=".7"/>
+    <!-- front leg, knee bent toward us, and skate -->
+    ${part('M189 154 C202 153 210 162 207 173 C205 181 198 186 197 193 C196 200 196 206 197 212 L182 213 C180 205 179 197 180 190 C181 179 183 166 186 158 Z')}
+    ${part('M183 177 C186 171 194 170 200 173 C205 176 205 183 201 187 C196 190 187 190 183 186 C181 183 181 180 183 177 Z')}
+    ${det('M181 198 L196.5 199 M181 203 L196.5 204', 1.6, dk, .9)}${hi('M186 176 C189 173 193 172.5 197 173.5', 1.2, .7)}
+    ${part('M178 208 L197 208 C201 214 200 221 194 223 L173 223 C168 223 168 218 173 215 Z', dk)}
+    ${det('M176 213 L195 213', .8, '#2a1a05', .8)}
+    <path d="M168 226.5 L201 226.5" stroke="#e9eef2" stroke-width="2" stroke-linecap="round"/><path d="M169 228 L200 228" stroke="#59646e" stroke-width=".7"/>
     <!-- breezers -->
-    ${fill('M148 121 C162 125 178 125 192 121 C198 131 200 141 198 150 C190 154 182 152 178 146 C174 143 166 143 162 146 C158 152 150 154 142 150 C140 141 142 131 148 121 Z', B('brD'))}
-    ${line('M146 130 C162 133 178 133 194 130')}${line('M170 133 L170 143')}
-    ${shine('M146 138 C147 132 150 128 156 127', 1.6, .55)}
+    ${part('M187 130 C201 126 223 126 239 130 C244 142 244 154 240 162 C230 166 220 165 213 159 C206 165 195 167 185 162 C181 152 182 140 187 130 Z', dk)}
+    ${det('M213 140 L213 157')}${det('M194 150 C198 146 204 146 208 150', .8)}${hi('M193 137 C196 133 201 132 206 132', 1)}
     <!-- jersey -->
-    ${fill('M146 80 C152 73 161 71 170 71 C179 71 188 73 194 80 C200 87 200 97 196 108 L193 123 C178 127 162 127 147 123 L144 108 C140 97 140 87 146 80 Z')}
-    ${shade('M186 74 C192 76 196 80 198 88 C199 97 197 104 195 110 L193 123 C188 124 184 125 181 125 C188 108 190 88 186 74 Z')}
-    <path d="M145.5 110 C162 114 178 114 195 110 L194.3 116 C178 120 162 120 146.3 116 Z" fill="#6e4410" ${ink(1.2)}/>
-    <path d="M162 72 C165 78 175 78 178 72" fill="none" stroke="${INK}" stroke-width="1.6"/>
-    ${line('M158 86 C162 94 162 102 160 108')}${line('M182 86 C178 94 178 102 180 108')}
-    ${shine('M150 82 C155 76 161 74 166 74', 2.4)}
-    <!-- arms -->
-    ${fill('M150 79 C138 81 130 92 129 105 L140 109 C141 99 145 93 152 89 Z')}
-    ${fill('M129 103 C130 112 136 117 145 118 L149 109 C143 109 140 106 140 102 Z')}
-    ${line('M132 92 L143 97 M130.5 97 L141.5 101.5', 1.8, '#6e4410')}
-    ${fill('M190 79 C202 81 210 93 210 107 L200 111 C198 101 194 94 188 89 Z')}
-    ${shade('M198 82 C205 88 209 96 210 107 L205 109 C204 99 201 91 196 86 Z')}
-    ${fill('M210 105 C210 121 201 138 193 148 L183 142 C190 131 198 120 200 109 Z')}
-    ${line('M198 92 L208 97 M196.5 96.5 L207.5 101', 1.8, '#6e4410')}
-    <ellipse cx="135" cy="106" rx="6" ry="4.6" fill="${B('brD')}" ${ink(1.4)}/><ellipse cx="205" cy="109" rx="6" ry="4.6" fill="${B('brD')}" ${ink(1.4)}/>
-    <!-- the stick: top hand at his left hip, bottom hand low on his right, blade flat on the dish -->
-    <path d="M141 103 L226 189" stroke="${INK}" stroke-width="6.5" stroke-linecap="round"/><path d="M141 103 L226 189" stroke="${B('br')}" stroke-width="3.2" stroke-linecap="round"/>
-    <path d="M214 177 L221 184" stroke="#3b2507" stroke-width="3.6"/>
-    ${fill('M224 186 C232 194 244 197 256 196 C259 200 256 203 251 203 C238 204 228 200 220 192 Z', B('br'), 1.8)}
+    ${part('M186 86 C194 80 204 78 212 79 C222 78 232 80 240 86 C244 94 242 106 238 118 L236 132 C224 136 202 136 190 132 L187 118 C183 106 182 94 186 86 Z')}
+    ${part('M188 122 C202 126 224 126 237 122 L236 129 C223 133 202 133 189 129 Z', dk)}
+    ${det('M205 80 L212 88 L219 80', 1.1)}${det('M212 88 L212 92', .9)}
+    ${det('M196 96 C200 104 200 112 197 118')}${det('M228 96 C225 104 225 112 228 118')}${det('M203 109 C208 112 216 112 221 109', .8, '#3f2808', .5)}
+    ${hi('M190 90 C195 84 202 81 208 81', 1.4, .6)}
+    <!-- head -->
+    ${part('M206 69 L218 69 L219 80 L205 80 Z', dk)}
+    <g transform="rotate(-4 212 60)">
+      ${part('M202.5 59 C202.5 50 206.5 46 212 46 C217.5 46 221.5 50 221.5 59 C221.5 67 217.5 72.5 212 72.5 C206.5 72.5 202.5 67 202.5 59 Z')}
+      ${part('M201.5 57 C200.5 47 205 42.5 212 42.5 C219 42.5 223.5 47 222.5 57 C220.5 51.5 217 49 212 49.2 C207 49 203.5 51.5 201.5 57 Z', hair)}
+      ${det('M204.5 46.5 C208 44.5 215 44.5 219.5 47', .7, '#22160a', .6)}
+      <ellipse cx="201.8" cy="60" rx="1.6" ry="2.8" fill="${B('bzc')}" filter="url(#${id}bz)"/><ellipse cx="222.2" cy="60" rx="1.6" ry="2.8" fill="${B('bzc')}" filter="url(#${id}bz)"/>
+      ${det('M206 56.2 C207.4 55.2 209 55.2 210.2 56.2 M213.8 56.2 C215 55.2 216.6 55.2 218 56.2', 1.1, '#2a1a05', .9)}
+      ${det('M206.6 58.6 h3 M214.4 58.6 h3', 1, '#2a1a05', .85)}
+      ${det('M212 59 L211 64 L213 64.3', .9, '#3f2808', .8)}${hi('M212.6 59.5 L212.2 63', .8, .6)}
+      ${det('M208.8 67.4 C210.6 68.2 213.4 68.2 215.2 67.4', 1, '#2a1a05', .85)}
+    </g>
+    <!-- lower arm (his left), reaching across to the stick -->
+    ${part('M231 83 C244 85 255 96 257 110 C258 117 254 123 247 124 C244 114 238 105 227 98 Z')}
+    ${part('M257 116 C251 130 237 142 221 150 L212 142 C226 135 237 126 243 114 Z')}
+    ${det('M244 110.5 L256 114 M243 115 L255 119', 1.8, dk, .9)}
+    <!-- stick: butt by his right shoulder, across the body to the blade on the collar -->
+    <path d="M170 92 L257 212" stroke="${B('bzc')}" stroke-width="4.2" stroke-linecap="round" filter="url(#${id}bz)"/>
+    <path d="M249 201 L256 210.5" stroke="#3a2608" stroke-width="4.6" stroke-linecap="round"/>
+    ${part('M255 209 C262 216 272 219 284 218.5 C287 222 284 225 279 225 C266 226 257 222 250 215 Z')}
+    <!-- upper arm (his right), elbow out, hand high on the stick -->
+    ${part('M193 85 C180 85 166 95 158 107 C154 114 157 121 164 122 C171 114 180 106 195 100 Z')}
+    ${part('M157 114 C161 106 166 99 172 94 L182 101 C176 107 171 114 167 121 Z')}
+    ${det('M163 103 L173 110.5 M160.5 107.5 L170 114.5', 1.8, dk, .9)}
     <!-- gloves -->
-    <ellipse cx="147" cy="111" rx="7.5" ry="6.5" fill="${B('brD')}" ${ink(1.8)}/>${line('M142 108 L151 107 M141.5 112 L151.5 111')}
-    <ellipse cx="188" cy="147" rx="7.5" ry="6.5" fill="${B('brD')}" ${ink(1.8)}/>${line('M183 144 L192 143 M182.5 148 L192.5 147')}
-    <!-- head, looking straight out -->
-    ${fill('M165 64 L175 64 L176 73 L164 73 Z', B('brD'), 1.6)}
-    <ellipse cx="160" cy="57.5" rx="2.4" ry="3.6" fill="${B('br')}" ${ink(1.3)}/><ellipse cx="180" cy="57.5" rx="2.4" ry="3.6" fill="${B('br')}" ${ink(1.3)}/>
-    ${fill('M160.5 55 C160.5 45 164.5 41 170 41 C175.5 41 179.5 45 179.5 55 C179.5 63 175.5 69 170 69 C164.5 69 160.5 63 160.5 55 Z')}
-    ${shade('M174 42.5 C178 45 179.5 49 179.5 55 C179.5 63 175.5 69 170 69 C175 63 176.5 52 174 42.5 Z', .6)}
-    <path d="M159.5 53 C158.5 42 163 37 170 37 C177 37 181.5 42 180.5 53 C178.5 46 175 44 170 44.5 C165 44 161.5 46 159.5 53 Z" fill="#5a3a10" ${ink(1.5)}/>
-    ${line('M164 40.5 C168 39 173 39 176.5 41')}
-    <path d="M164 52.2 C165.5 51 167 51 168 52 M172 52 C173 51 174.5 51 176 52.2" stroke="${INK}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-    <circle cx="166" cy="55" r="1.1" fill="${INK}"/><circle cx="174" cy="55" r="1.1" fill="${INK}"/>
-    <path d="M170 56 L169 60.5 C169.5 61.3 170.5 61.3 171 60.5" stroke="#5a3a10" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-    <path d="M166.5 64 C168.5 65.2 171.5 65.2 173.5 64" stroke="${INK}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-    ${shine('M163 49 C164 45 166.5 43.5 169 43.5', 1.5)}
+    ${part('M170 96 C170 91 174 88 179 89 C184 90 186 95 184 100 C182 105 176 106 172.5 103.5 C170.5 102 170 99 170 96 Z', dk)}
+    ${det('M173 93.5 L182 95 M172.5 97.5 L181.5 99', .7, '#1e1204', .8)}
+    ${part('M207 143 C207 138 211 135 216 136 C221 137 223 142 221 147 C219 152 213 153 209.5 150.5 C207.5 149 207 146 207 143 Z', dk)}
+    ${det('M210 140.5 L219 142 M209.5 144.5 L218.5 146', .7, '#1e1204', .8)}
   </g>`;
 
-  // ---------------- base: a tapered, eight-sided black column in three tiers with silver plaques ----------------
-  // faces seen from the front: far edge, diagonal, front, diagonal, far edge. Winners fill left→right, top→bottom.
-  const n = winners.length, r2 = Math.max(1, Math.ceil(n / 9)), r3 = Math.max(1, Math.ceil(Math.max(0, n - 4 * r2) / 5));
-  const FR = [.07, .2, .46, .2, .07];
-  const tiers = [{ wt: 104, wb: 112, h: 52, cols: 0, rows: 1 }, { wt: 150, wb: 166, h: 16 + r2 * 30, cols: 2, rows: r2 }, { wt: 196, wb: 220, h: 16 + r3 * 30, cols: 3, rows: r3 }];
-  let y = 220, k = 0, base = '';
-  const screws = (x, yy, w, h) => [[x + 2.2, yy + 2.2], [x + w - 2.2, yy + 2.2], [x + 2.2, yy + h - 2.2], [x + w - 2.2, yy + h - 2.2]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r=".9" fill="#6b7681"/>`).join('');
-  const label = (w, px, py, pw, dim) => {
-    const parts = w.name.split(' '), first = parts[0], rest = parts.slice(1).join(' '), mx = px + pw / 2;
-    const t = (s, yy) => `<text x="${mx}" y="${yy}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 4, s.length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(s.toUpperCase())}</text>`;
-    return `<g font-family="'Copperplate','Copperplate Gothic Bold','Arial Narrow',sans-serif" text-anchor="middle" fill="${dim ? '#384350' : '#2c3540'}"><title>${svgText(w.name)}, ${svgText(w.teamName)}: ${w.value ?? '?'} goals (${svgText(w.seasonName)})</title>
-      ${rest ? t(first, py + 8) + t(rest, py + 14) : t(first, py + 11.5)}
-      <text x="${mx}" y="${py + 20.5}" font-size="4" textLength="${Math.min(pw - 4, (w.short.length + 6) * 2.3)}" lengthAdjust="spacingAndGlyphs">${svgText(w.short)} · ${w.value ?? '?'} G</text></g>`;
-  };
+  // ---------------- collar the skater stands on ----------------
+  defs += lg('col', cx - 76, cx + 76, [[0, '#6f7c87'], [.18, '#f4f7f9'], [.4, '#aeb9c1'], [.62, '#ffffff'], [.85, '#8f9ba5'], [1, '#56626d']]);
+  defs += `<radialGradient id="${id}dish" cx=".42" cy=".35" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#cfd7dd"/><stop offset="1" stop-color="#7d8994"/></radialGradient>`;
+  const collar = `<path d="M${cx - 66} 238 L${cx - 58} 250 L${cx + 58} 250 L${cx + 66} 238 Z" fill="#14171b"/>
+    <path d="M${cx - 76} 228 L${cx - 76} 238 C${cx - 50} 248 ${cx + 50} 248 ${cx + 76} 238 L${cx + 76} 228 Z" fill="${B('col')}"/>
+    <path d="M${cx - 76} 238 C${cx - 50} 248 ${cx + 50} 248 ${cx + 76} 238" stroke="#3b4550" stroke-width="1" fill="none"/>
+    <ellipse cx="${cx}" cy="228" rx="76" ry="10" fill="${B('dish')}"/>
+    <ellipse cx="${cx}" cy="227.5" rx="64" ry="6.5" fill="none" stroke="#8a96a0" stroke-width="1"/>
+    <ellipse cx="${cx + 6}" cy="228" rx="46" ry="4" fill="#1c1004" opacity=".22"/>`;
+
+  // ---------------- base: tapered octagon, three tiers, seen face-on (front face + two angled faces) ----------------
+  const FRONT = 1 / (1 + Math.SQRT2);       // share of the width taken by the front face; each angled face is .707 of it
+  const n = winners.length, R = Math.max(8, Math.ceil(n / 2)), rA = Math.ceil(R / 2), rB = R - rA;
+  const SL = 15;                             // slat pitch
+  const tiers = [{ wt: 136, wb: 144, h: 86 }, { wt: 160, wb: 170, h: 12 + rA * SL }, { wt: 186, wb: 198, h: 12 + rB * SL }];
+  defs += lg('bkF', 0, 0, [[0, '#2a2f35'], [.5, '#15181c'], [1, '#0c0e10']], 0, 1).replace('gradientUnits="userSpaceOnUse" ', '').replace('x2="0" y2="0"', 'x2="0" y2="1"');
+  defs += `<linearGradient id="${id}bkL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a4048"/><stop offset=".25" stop-color="#22272d"/><stop offset="1" stop-color="#121519"/></linearGradient>
+    <linearGradient id="${id}bkR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0d0f12"/><stop offset="1" stop-color="#050607"/></linearGradient>
+    <linearGradient id="${id}pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfcfd"/><stop offset=".45" stop-color="#d9e0e5"/><stop offset=".7" stop-color="#eef2f4"/><stop offset="1" stop-color="#a7b2bb"/></linearGradient>
+    <linearGradient id="${id}plL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2f4"/><stop offset=".6" stop-color="#c4cdd4"/><stop offset="1" stop-color="#9aa6af"/></linearGradient>
+    <linearGradient id="${id}plR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b4bec6"/><stop offset=".6" stop-color="#8e9aa4"/><stop offset="1" stop-color="#6c7883"/></linearGradient>`;
+  const serif = `font-family="'Times New Roman',Georgia,serif" text-anchor="middle" fill="#3a434c"`;
+  let y = 250, k = 0, base = '';
   tiers.forEach((t, ti) => {
-    const yb = y + t.h, xAt = (wid, f) => cx - wid / 2 + wid * f;
-    const cum = [0]; FR.forEach(f => cum.push(cum[cum.length - 1] + f));
-    // ledge: the top of this tier, with a silver trim on its front edge
-    base += `<path d="M${cx - t.wt / 2 - 10} ${y - 1} L${cx - t.wt / 2 + 6} ${y - 8} H${cx + t.wt / 2 - 6} L${cx + t.wt / 2 + 10} ${y - 1} Z" fill="#2a2f36" ${ink(1.8)}/>`;
-    base += `<rect x="${cx - t.wt / 2 - 11}" y="${y - 2}" width="${t.wt + 22}" height="5" rx="1.5" fill="${B('g')}" ${ink(1.8)}/>`;
-    const fills = ['#08090b', B('sideL'), B('blk'), B('sideR'), '#060708'];
-    FR.forEach((f, i) => {
-      const q = [[xAt(t.wt, cum[i]), y + 3], [xAt(t.wt, cum[i + 1]), y + 3], [xAt(t.wb, cum[i + 1]), yb], [xAt(t.wb, cum[i]), yb]];
-      base += `<path d="M${pts(q)} Z" fill="${fills[i]}" ${ink(2.2)}/>`;
-    });
-    base += `<path d="M${xAt(t.wt, .3)} ${y + 4} L${xAt(t.wb, .3)} ${yb - 1}" stroke="#fff" stroke-width="5" opacity=".07"/><path d="M${xAt(t.wt, .36)} ${y + 4} L${xAt(t.wb, .36)} ${yb - 1}" stroke="#fff" stroke-width="1.2" opacity=".12"/>`;
-    // a face's left/right edge at height yy, inset by m
-    const span = (i, yy, m) => { const s = (yy - y) / t.h, w = t.wt + (t.wb - t.wt) * s; return [xAt(w, cum[i]) + m, xAt(w, cum[i + 1]) - m]; };
-    for (let r = 0; r < t.rows; r++) {
-      const py = ti === 0 ? y + 9 : y + 10 + r * 30, ph = ti === 0 ? t.h - 16 : 24;
-      // diagonal faces: plaques drawn on the slant, as perspective trapezoids
-      const side = (i, w) => {
-        const [a, b] = span(i, py, 3.5), [c, d] = span(i, py + ph, 3.5), sk = i === 1 ? 1 : -1;
-        const q = [[a, py + (sk > 0 ? 1.5 : 0)], [b, py + (sk > 0 ? 0 : 1.5)], [d, py + ph - (sk > 0 ? 0 : 1.5)], [c, py + ph - (sk > 0 ? 1.5 : 0)]];
-        let s = `<path d="M${pts(q)} Z" fill="${B('pl2')}" stroke="${w?.wsq ? '#912522' : INK}" stroke-width="${w?.wsq ? 1.6 : .9}"/>`;
-        const [m1, m2] = span(i, py + ph / 2, 5);
-        if (w) s += label(w, m1, py, m2 - m1, true);
-        return s;
-      };
-      if (ti === 0) {
-        base += side(1) + side(3);
-        const [a, b] = span(2, py, 4), pw = b - a;
-        base += `<rect x="${a}" y="${py}" width="${pw}" height="${ph}" rx="1.5" fill="${B('pl')}" ${ink(1.6)}/>${screws(a, py, pw, ph)}
-          <g font-family="'Copperplate','Copperplate Gothic Bold','Times New Roman',serif" text-anchor="middle" fill="#2c3540">
-          <text x="${cx}" y="${py + 8}" font-size="4.2" letter-spacing=".8">TROPHÉE</text>
-          <text x="${cx}" y="${py + 15.5}" font-size="6.6" font-weight="800">Maurice</text>
-          <text x="${cx}" y="${py + 22.5}" font-size="5.4" font-weight="800">“Rocket”</text>
-          <text x="${cx}" y="${py + 29.5}" font-size="6.6" font-weight="800">Richard</text>
-          <text x="${cx}" y="${py + 34.5}" font-size="3.4" letter-spacing=".8">TROPHY</text></g>`;
-        continue;
+    const yb = y + t.h, edges = w => { const f = w * FRONT, d = f / Math.SQRT2; return [cx - w / 2, cx - w / 2 + d, cx + f / 2, cx + w / 2 - d, cx + w / 2].map((v, i) => i === 2 ? cx - f / 2 : v).concat(); };
+    // x positions: left, left/front, (front left), front/right, right — computed per width
+    const xs = w => { const f = w * FRONT, d = f / Math.SQRT2; return [cx - w / 2, cx - f / 2, cx + f / 2, cx + w / 2]; };
+    const at = (yy, i, m = 0) => { const s = (yy - y) / t.h, w = t.wt + (t.wb - t.wt) * s, e = xs(w); return [e[i] + m, e[i + 1] - m]; };
+    // the ledge on top of this tier
+    const lw = t.wt + 8, uw = ti ? tiers[ti - 1].wb : t.wt - 30;
+    base += `<path d="${P([[cx - lw / 2, y + 1], [cx - uw / 2, y - 6], [cx + uw / 2, y - 6], [cx + lw / 2, y + 1]])}" fill="#2a2f36"/>
+      <path d="M${cx - lw / 2} ${y + 1} L${cx + lw / 2} ${y + 1}" stroke="#8c98a2" stroke-width="1.3"/>`;
+    const [T, Bt] = [xs(t.wt), xs(t.wb)];
+    base += `<path d="${P([[T[0], y + 1], [T[1], y + 1], [Bt[1], yb], [Bt[0], yb]])}" fill="${B('bkL')}"/>
+      <path d="${P([[T[1], y + 1], [T[2], y + 1], [Bt[2], yb], [Bt[1], yb]])}" fill="${B('bkF')}"/>
+      <path d="${P([[T[2], y + 1], [T[3], y + 1], [Bt[3], yb], [Bt[2], yb]])}" fill="${B('bkR')}"/>
+      <path d="M${T[0] + 4} ${y + 2} L${Bt[0] + 4} ${yb}" stroke="#fff" stroke-width="1.4" opacity=".12"/>`;
+    const plaque = (i, yy, h, fillN, m = 3.5) => { const [a, b] = at(yy, i, m), [c, d] = at(yy + h, i, m); return `<path d="${P([[a, yy], [b, yy], [d, yy + h], [c, yy + h]])}" fill="${B(fillN)}" stroke="#0a0c0e" stroke-width=".7"/>`; };
+    if (ti === 0) {
+      base += plaque(0, y + 7, t.h - 13, 'plL') + plaque(2, y + 7, t.h - 13, 'plR') + plaque(1, y + 7, t.h - 13, 'pl', 4);
+      base += `<g ${serif}><text x="${cx}" y="${y + 21}" font-size="5">Trophée</text>
+        <text x="${cx}" y="${y + 36}" font-size="13" font-weight="700">Maurice</text>
+        <text x="${cx}" y="${y + 47}" font-size="8" font-style="italic">“Rocket”</text>
+        <text x="${cx}" y="${y + 61}" font-size="13" font-weight="700">Richard</text>
+        <text x="${cx}" y="${y + 72}" font-size="5">Trophy</text></g>`;
+    } else {
+      // front: dedication plaque
+      const ph = t.h - 12;
+      base += plaque(1, y + 6, ph, 'pl', 4);
+      base += ti === 1
+        ? `<g ${serif} font-size="5"><text x="${cx}" y="${y + ph / 2 - 4}">Awarded to the</text><text x="${cx}" y="${y + ph / 2 + 3.5}" font-weight="700" font-size="5.6">WinterSquawks</text><text x="${cx}" y="${y + ph / 2 + 11}">goal-scoring leader</text></g>`
+        : `<g ${serif} font-size="4.6"><text x="${cx}" y="${y + ph / 2 - 3}">Presented in honour of</text><text x="${cx}" y="${y + ph / 2 + 4}" font-weight="700" font-size="5.2">Maurice “Rocket” Richard</text></g>`;
+      // angled faces: stacks of small plaques, one winner each, read left then right, top to bottom
+      const rows = ti === 1 ? rA : rB;
+      for (let r = 0; r < rows; r++) for (const i of [0, 2]) {
+        const yy = y + 6 + r * SL, w = winners[k++];
+        base += plaque(i, yy, SL - 2.4, i === 0 ? 'plL' : 'plR', 3);
+        if (w) {
+          const [a, b] = at(yy + 6, i, 3), pw = b - a, mx = (a + b) / 2;
+          const nm = w.name.toUpperCase(), det = `${w.short} · ${w.value ?? '?'} G`;
+          base += `<g font-family="'Times New Roman',Georgia,serif" text-anchor="middle" fill="${w.wsq ? '#7a1714' : '#2a3138'}"><title>${svgText(w.name)}, ${svgText(w.teamName)}: ${w.value ?? '?'} goals (${svgText(w.seasonName)})</title>
+            <text x="${mx}" y="${yy + 5.6}" font-size="4.6" font-weight="700" textLength="${Math.min(pw - 4, nm.length * 3)}" lengthAdjust="spacingAndGlyphs">${svgText(nm)}</text>
+            <text x="${mx}" y="${yy + 10.8}" font-size="3.7" textLength="${Math.min(pw - 6, det.length * 1.9)}" lengthAdjust="spacingAndGlyphs">${svgText(det)}</text></g>`;
+        }
       }
-      base += side(1, winners[k++]);
-      const [a, b] = span(2, py + 12, 4), pw = (b - a - (t.cols - 1) * 3) / t.cols;
-      for (let c = 0; c < t.cols; c++) {
-        const px = a + c * (pw + 3), w = winners[k++];
-        base += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="1.5" fill="${B('pl')}" stroke="${w?.wsq ? '#912522' : INK}" stroke-width="${w?.wsq ? 1.8 : 1}"/>${screws(px, py, pw, ph)}`;
-        if (w) base += label(w, px, py, pw);
-      }
-      base += side(3, winners[k++]);
     }
-    y = yb + 9;
+    y = yb + 6;
   });
-  // round black plinth with a silver band
-  base += `<rect x="${cx - 128}" y="${y - 8}" width="256" height="6" rx="2" fill="${B('g')}" ${ink(2)}/>
-    <path d="M${cx - 126} ${y - 2} H${cx + 126} V${y + 12} Q${cx} ${y + 28} ${cx - 126} ${y + 12} Z" fill="${B('blk')}" ${ink(2.6)}/>
-    <path d="M${cx - 118} ${y + 8} Q${cx} ${y + 22} ${cx + 118} ${y + 8}" stroke="#fff" stroke-width="1.2" opacity=".25" fill="none"/>`;
-  const H = y + 34;
+  y -= 2;
+  // round black plinth
+  defs += lg('pln', cx - 116, cx + 116, [[0, '#08090b'], [.25, '#30363d'], [.45, '#1a1d21'], [1, '#060708']]);
+  base += `<path d="M${cx - 116} ${y} L${cx - 116} ${y + 24} C${cx - 70} ${y + 36} ${cx + 70} ${y + 36} ${cx + 116} ${y + 24} L${cx + 116} ${y} Z" fill="${B('pln')}"/>
+    <ellipse cx="${cx}" cy="${y}" rx="116" ry="9" fill="#1d2126"/><ellipse cx="${cx}" cy="${y}" rx="116" ry="9" fill="none" stroke="#9aa6b0" stroke-width="1.2" opacity=".8"/>
+    <path d="M${cx - 112} ${y + 17} C${cx - 70} ${y + 28} ${cx + 70} ${y + 28} ${cx + 112} ${y + 17}" stroke="#c9d2d9" stroke-width="1" opacity=".45" fill="none"/>`;
+  const H = y + 42;
 
   return `<svg viewBox="0 0 ${W} ${H}" class="tc-svg rr-svg" role="img" aria-label="Maurice Rocket Richard Trophy">
-  <defs>${chrome(id + 'g')}
-    <linearGradient id="${id}br" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3a6"/><stop offset=".3" stop-color="#e6b35a"/><stop offset=".65" stop-color="#b87d2c"/><stop offset="1" stop-color="#7a4c12"/></linearGradient>
-    <linearGradient id="${id}brD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b37a2c"/><stop offset="1" stop-color="#5a3a10"/></linearGradient>
-    <linearGradient id="${id}cf" gradientUnits="userSpaceOnUse" x1="18" y1="40" x2="166" y2="120"><stop offset="0" stop-color="#cfd7de"/><stop offset=".2" stop-color="#f7f9fb"/><stop offset=".45" stop-color="#aab5be"/><stop offset=".7" stop-color="#e9eef2"/><stop offset="1" stop-color="#7d8994"/></linearGradient>
-    <linearGradient id="${id}ce" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9eef2"/><stop offset=".5" stop-color="#7f8b96"/><stop offset="1" stop-color="#3b4550"/></linearGradient>
-    <linearGradient id="${id}rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e3e9ee"/><stop offset="1" stop-color="#9aa6b0"/></linearGradient>
-    <linearGradient id="${id}blk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#15181c"/><stop offset=".35" stop-color="#30353c"/><stop offset=".6" stop-color="#22262c"/><stop offset="1" stop-color="#121519"/></linearGradient>
-    <linearGradient id="${id}sideL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c0e11"/><stop offset="1" stop-color="#22262c"/></linearGradient>
-    <linearGradient id="${id}sideR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#08090b"/><stop offset="1" stop-color="#1b1e23"/></linearGradient>
-    <linearGradient id="${id}pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d2dae0"/><stop offset="1" stop-color="#97a3ad"/></linearGradient>
-    <linearGradient id="${id}pl2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9d2d9"/><stop offset=".6" stop-color="#a3afb9"/><stop offset="1" stop-color="#7c8893"/></linearGradient>
-    <radialGradient id="${id}dish" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#c9d2d9"/><stop offset="1" stop-color="#6f7c87"/></radialGradient>
-    <clipPath id="${id}cfc"><path d="${face}"/></clipPath></defs>
-  <ellipse cx="${cx}" cy="${H - 5}" rx="140" ry="7" fill="#000" opacity=".3"/>
+  <defs>${defs}</defs>
+  <ellipse cx="${cx}" cy="${H - 8}" rx="130" ry="7" fill="#000" opacity=".35"/>
   ${base}
-  <!-- cup panels (behind the skater) -->
-  ${half(reflL)}${half(reflR, true)}
-  <!-- the round silver collar the skater stands on -->
-  <path d="M${cx - 64} 202 V212 Q${cx} 226 ${cx + 64} 212 V202" fill="${B('g')}" ${ink(2.6)}/>
-  <ellipse cx="${cx}" cy="202" rx="64" ry="10" fill="${B('dish')}" ${ink(2.6)}/>
-  <ellipse cx="${cx}" cy="201" rx="52" ry="6" fill="#5b6772"/><ellipse cx="${cx}" cy="200.5" rx="52" ry="5.5" fill="none" stroke="#c7d0d7" stroke-width="1.1"/>
-  <path d="M${cx - 60} 214 Q${cx} 226 ${cx + 60} 214" stroke="#fff" stroke-width="1.4" opacity=".6" fill="none"/>
-  <ellipse cx="${cx + 4}" cy="203" rx="40" ry="3.5" fill="#000" opacity=".25"/>
+  ${cup}
+  ${collar}
   ${skater}
   </svg>`;
 }
