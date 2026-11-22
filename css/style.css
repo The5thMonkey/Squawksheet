@@ -440,3 +440,23 @@ body.kv-open{overflow:hidden}
 @media (max-width:640px){ .tc-awards{grid-template-columns:1fr} }
 .ar-face .aw-eng{text-shadow:0 1px 0 #0000004d}
 .rr-name{white-space:normal;overflow:visible;line-height:1.05}
+/* trophy case v3: Art Ross | Keg (largest) | Rocket Richard; minis open a zoomable viewer */
+.tc-top{grid-template-columns:1fr auto 1fr;align-items:end;gap:1.2rem}
+.tc-top .tc-keg{justify-self:center}
+.tc-top .tc-keg .tc-svg{width:min(320px,70vw)}
+.tc-top .tc-hint{top:-1.4rem}
+.tc-mini{justify-self:center}
+.tc-mini-ross{width:460px;zoom:.42}
+.tc-mini-rocket .tc-svg{width:min(196px,40vw)}
+.tc-mini .tc-card{margin-top:.5rem}
+.tc-mini:hover .tc-mini-ross,.tc-mini:focus-visible .tc-mini-ross{filter:drop-shadow(0 0 10px #ffe9a0aa)}
+.tc-mini:hover .tc-mini-rocket .tc-svg{transform:translateY(-5px) scale(1.03);filter:drop-shadow(0 0 12px #ffe9a0aa)}
+.tc-mini .ar-puck{pointer-events:none}
+.tv .kv-stage{cursor:zoom-in;touch-action:none}
+.tv-piece{position:absolute;left:0;top:0;transform-origin:0 0;width:460px}
+.tv-rocket{width:420px}
+.tv-piece .tc-svg{width:100%}
+.tv-piece .ar-puck{cursor:pointer}
+@media (max-width:1000px){ .tc-top{grid-template-columns:1fr 1fr} .tc-top .tc-keg{grid-column:1 / -1;grid-row:1} .tc-top .tc-hint{position:static;transform:none;margin-top:.4rem} }
+@media (max-width:520px){ .tc-mini-ross{zoom:.32} }
+.ar-face .aw-eng{text-shadow:none}

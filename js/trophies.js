@@ -161,56 +161,125 @@ export function artRossSVG() {
   <text x="130" y="40" text-anchor="middle" font-family="'Copperplate','Copperplate Gothic Bold','Arial Black',sans-serif" font-size="7.5" font-weight="800" fill="#4f5b66" letter-spacing="1">ART ROSS TROPHY</text>
   </svg>`;
 }
-export function rocketSVG() {
-  const id = 'r' + (++uid);
-  const wing = 'M116 152 L40 84 L45 80 L27 56 L32 52 L12 22 L14 14 L88 4 L94 8 L128 146 Z';
-  const face = 'M118 146 L50 84 L55 80 L37 56 L42 52 L26 24 L84 14 L120 142 Z';
-  const limb = (d, w = 11) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="url(#${id}gold)" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  return `<svg viewBox="0 0 260 176" class="tc-svg aw-top rr-top" aria-hidden="true">
+export function rocketSVG(winners = []) {
+  const id = 'r' + (++uid), W = 340, cx = W / 2;
+  const g = `url(#${id}gold)`, gd = `url(#${id}goldD)`;
+  // two-pass strokes give the cartoon outline: dark wide stroke, then the coloured stroke
+  const limb = (d, w, paint = g) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${paint}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const wing = 'M158 182 L78 118 L84 113 L62 86 L68 81 L46 52 L52 47 L32 16 L120 4 L166 174 Z';
+  // ---- base: title tier, then winners tiers (4 then 5 plaques per row), filled left→right, top→bottom
+  const n = winners.length, r2 = Math.max(1, Math.ceil(n / 9)), r3 = Math.max(1, Math.ceil(Math.max(0, n - 4 * r2) / 5));
+  const tiers = [{ w: 112, h: 46, cols: 0, rows: 0 }, { w: 176, h: 16 + r2 * 30, cols: 4, rows: r2 }, { w: 224, h: 16 + r3 * 30, cols: 5, rows: r3 }];
+  let y = 204, k = 0, base = '';
+  tiers.forEach((t, ti) => {
+    const x0 = cx - t.w / 2, side = 22;
+    base += `<rect x="${x0 - side - 6}" y="${y - 6}" width="${t.w + 2 * side + 12}" height="7" rx="2" fill="url(#${id}g)" stroke="${INK}" stroke-width="2"/>`;   // silver trim
+    base += `<path d="M${x0 - side} ${y + 4} L${x0} ${y} V${y + t.h} L${x0 - side} ${y + t.h + 3} Z" fill="#191c20" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    base += `<path d="M${x0 + t.w + side} ${y + 4} L${x0 + t.w} ${y} V${y + t.h} L${x0 + t.w + side} ${y + t.h + 3} Z" fill="#14171a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    base += `<rect x="${x0}" y="${y}" width="${t.w}" height="${t.h}" fill="url(#${id}blk)" stroke="${INK}" stroke-width="2.5"/>`;
+    // decorative blank plaques on the receding side faces
+    for (let r = 0; r < Math.max(1, t.rows || 1); r++) for (const sx of [x0 - side + 5, x0 + t.w + 4]) base += `<rect x="${sx}" y="${y + 8 + r * 30}" width="13" height="${t.rows ? 22 : t.h - 16}" rx="1.5" fill="url(#${id}pl)" opacity=".55" stroke="${INK}" stroke-width="1"/>`;
+    if (ti === 0) {
+      base += `<rect x="${cx - 46}" y="${y + 6}" width="92" height="${t.h - 12}" rx="2" fill="url(#${id}pl)" stroke="${INK}" stroke-width="1.8"/>
+        <g font-family="'Copperplate','Copperplate Gothic Bold','Times New Roman',serif" text-anchor="middle" fill="#2c3540">
+        <text x="${cx}" y="${y + 17}" font-size="5" letter-spacing=".8">TROPHY</text>
+        <text x="${cx}" y="${y + 27}" font-size="8.5" font-weight="800">“Rocket”</text>
+        <text x="${cx}" y="${y + 37}" font-size="8.5" font-weight="800">Richard</text></g>`;
+    } else {
+      const pw = (t.w - 10 - (t.cols - 1) * 4) / t.cols;
+      for (let r = 0; r < t.rows; r++) for (let c = 0; c < t.cols; c++) {
+        const px = x0 + 5 + c * (pw + 4), py = y + 8 + r * 30, w = winners[k++];
+        base += `<rect x="${px}" y="${py}" width="${pw}" height="24" rx="1.5" fill="url(#${id}pl)" stroke="${w?.wsq ? '#912522' : INK}" stroke-width="${w?.wsq ? 1.8 : 1}"/>`;
+        if (w) base += `<g font-family="'Copperplate','Copperplate Gothic Bold','Arial Narrow',sans-serif" text-anchor="middle" fill="#2c3540"><title>${svgText(w.name)}, ${svgText(w.teamName)}: ${w.value ?? '?'} goals (${svgText(w.seasonName)})</title>
+          ${w.name.split(' ').length > 1 ? `<text x="${px + pw / 2}" y="${py + 7.5}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 4, w.name.split(' ')[0].length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(w.name.split(' ')[0].toUpperCase())}</text>
+          <text x="${px + pw / 2}" y="${py + 13.5}" font-size="4.6" font-weight="800" textLength="${Math.min(pw - 4, w.name.split(' ').slice(1).join(' ').length * 3.4)}" lengthAdjust="spacingAndGlyphs">${svgText(w.name.split(' ').slice(1).join(' ').toUpperCase())}</text>`
+            : `<text x="${px + pw / 2}" y="${py + 11}" font-size="4.6" font-weight="800">${svgText(w.name.toUpperCase())}</text>`}
+          <text x="${px + pw / 2}" y="${py + 20.5}" font-size="4" letter-spacing=".2">${svgText(w.short)} · ${w.value ?? '?'} G</text></g>`;
+      }
+    }
+    y += t.h + 8;
+  });
+  const H = y + 22;
+  base += `<path d="M${cx - 150} ${y - 2} H${cx + 150} L${cx + 158} ${y + 12} H${cx - 158} Z" fill="#202429" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="${cx - 150}" y="${y - 6}" width="300" height="6" rx="2" fill="url(#${id}g)" stroke="${INK}" stroke-width="2"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="tc-svg rr-svg" role="img" aria-label="Rocket Richard Trophy">
   <defs>${chrome(id + 'g')}
-    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".35" stop-color="#e8b955"/><stop offset=".75" stop-color="#b8832a"/><stop offset="1" stop-color="#7d5414"/></linearGradient>
-    <linearGradient id="${id}wl" x1="0" y1="0" x2="1" y2=".3"><stop offset="0" stop-color="#e9eef2"/><stop offset=".25" stop-color="#ffffff"/><stop offset=".55" stop-color="#b9c4cc"/><stop offset=".8" stop-color="#7f8b96"/><stop offset="1" stop-color="#d9e1e6"/></linearGradient>
-    <linearGradient id="${id}wf" x1="1" y1="0" x2="0" y2=".4"><stop offset="0" stop-color="#5d6974"/><stop offset=".5" stop-color="#9aa6b0"/><stop offset="1" stop-color="#c9d2d9"/></linearGradient></defs>
-  <!-- flared, split cup: two stepped silver wings -->
-  <g stroke="${INK}" stroke-width="3" stroke-linejoin="round">
-    <path d="${wing}" fill="url(#${id}wl)"/><path d="${face}" fill="url(#${id}wf)" stroke-width="1.5" opacity=".75"/>
-    <g transform="translate(260 0) scale(-1 1)"><path d="${wing}" fill="url(#${id}wl)"/><path d="${face}" fill="url(#${id}wf)" stroke-width="1.5" opacity=".75"/></g></g>
-  <path d="M20 20 L82 10 M234 20 L178 10" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
-  <path d="M46 70 L108 140 M214 70 L152 140" stroke="#fff" stroke-width="2" opacity=".55"/>
-  <!-- the skater, in stride, stick down -->
-  <g stroke-linejoin="round" stroke-linecap="round">
-    ${limb('M150 104 L160 124 L152 146', 12)}
-    ${limb('M128 102 L110 120 L94 132', 12)}
-    <path d="M144 146 h20 M86 128 l12 10" stroke="${INK}" stroke-width="7"/><path d="M144 146 h20 M86 128 l12 10" stroke="#e9eef2" stroke-width="3"/>
-    <path d="M124 82 Q138 76 156 84 L158 106 Q140 112 124 104 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
-    <path d="M118 46 Q138 34 160 46 L158 86 Q140 92 124 86 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
-    <path d="M126 52 Q136 48 142 54" fill="none" stroke="#fff6d6" stroke-width="3" opacity=".9"/>
-    <path d="M124 60 Q140 66 156 60" fill="none" stroke="#8f611a" stroke-width="2"/>
-    ${limb('M122 50 L106 66 L114 78', 10)}
-    ${limb('M156 52 L166 74 L152 94', 10)}
-    <path d="M108 68 L176 150" stroke="${INK}" stroke-width="7"/><path d="M108 68 L176 150" stroke="url(#${id}gold)" stroke-width="3.5"/>
-    <path d="M172 146 L192 152 L190 158 L170 153 Z" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/>
-    <circle cx="114" cy="76" r="5.5" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/><circle cx="150" cy="96" r="5.5" fill="url(#${id}gold)" stroke="${INK}" stroke-width="2.5"/>
-    <circle cx="140" cy="30" r="11" fill="url(#${id}gold)" stroke="${INK}" stroke-width="3"/>
-    <path d="M130 26 Q140 14 151 25 Q142 21 130 26 Z" fill="#9a6a1e" stroke="${INK}" stroke-width="1.5"/>
-    <path d="M134 27 Q137 23 141 24" fill="none" stroke="#fff6d6" stroke-width="2"/></g>
-  <!-- collar -->
-  <path d="M68 156 V166 Q130 180 192 166 V156" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <ellipse cx="130" cy="156" rx="62" ry="10" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
-  <ellipse cx="130" cy="156" rx="48" ry="5" fill="#5f6b76" opacity=".55"/>
+    <linearGradient id="${id}gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".3" stop-color="#ecc15e"/><stop offset=".65" stop-color="#c48d2e"/><stop offset="1" stop-color="#8a5c17"/></linearGradient>
+    <linearGradient id="${id}goldD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c48d2e"/><stop offset="1" stop-color="#6b440e"/></linearGradient>
+    <linearGradient id="${id}wf" x1="0" y1="0" x2="1" y2=".45">
+      <stop offset="0" stop-color="#f4f7fa"/><stop offset=".12" stop-color="#ffffff"/><stop offset=".2" stop-color="#aeb9c2"/><stop offset=".34" stop-color="#eef2f5"/>
+      <stop offset=".46" stop-color="#7d8a95"/><stop offset=".58" stop-color="#dfe6eb"/><stop offset=".72" stop-color="#9aa6b0"/><stop offset=".86" stop-color="#ffffff"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
+    <linearGradient id="${id}wi" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f4a54"/><stop offset=".6" stop-color="#7d8994"/><stop offset="1" stop-color="#b9c3cb"/></linearGradient>
+    <linearGradient id="${id}blk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#15181c"/><stop offset=".45" stop-color="#2f343b"/><stop offset="1" stop-color="#15181c"/></linearGradient>
+    <linearGradient id="${id}pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d2dae0"/><stop offset="1" stop-color="#97a3ad"/></linearGradient>
+    <clipPath id="${id}clip"><path d="${wing}"/></clipPath></defs>
+  <ellipse cx="${cx}" cy="${H - 6}" rx="160" ry="7" fill="#000" opacity=".3"/>
+  ${base}
+  <!-- the split cup: two stepped silver wings, each with its inner face and top edge showing -->
+  <g transform="translate(20 0)">
+    ${[0, 1].map(m => `<g ${m ? `transform="translate(300 0) scale(-1 1)"` : ''}>
+      <path d="${wing}" fill="url(#${id}wf)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+      <g clip-path="url(#${id}clip)" opacity=".55"><path d="M20 40 L150 10 L160 22 L30 54 Z M40 96 L160 70 L166 80 L46 108 Z" fill="#fff"/><path d="M30 70 L156 40 L160 46 L34 76 Z" fill="#6f7c88"/></g>
+      <path d="M120 4 L166 174 L158 182 L112 12 Z" fill="url(#${id}wi)" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M32 16 L120 4 L116 10 L38 21 Z" fill="#ffffff" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M52 47 L46 52 M68 81 L62 86 M84 113 L78 118" stroke="#fff" stroke-width="2"/></g>`).join('')}
+  </g>
+  <!-- collar the skater stands on -->
+  <path d="M${cx - 74} 186 V198 Q${cx} 214 ${cx + 74} 198 V186" fill="url(#${id}g)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="${cx}" cy="186" rx="74" ry="12" fill="url(#${id}g)" stroke="${INK}" stroke-width="3"/>
+  <ellipse cx="${cx}" cy="186" rx="60" ry="7" fill="#56626d"/><ellipse cx="${cx}" cy="185" rx="60" ry="6" fill="none" stroke="#c7d0d7" stroke-width="1"/>
+  ${Array.from({ length: 15 }, (_, i) => { const t = (i + .5) / 15 * Math.PI; return `<circle cx="${(cx - 72 * Math.cos(t)).toFixed(1)}" cy="${(199 + 8 * Math.sin(t)).toFixed(1)}" r="1.6" fill="#fff" stroke="${INK}" stroke-width=".6"/>`; }).join('')}
+  <!-- the skater -->
+  <g transform="translate(20 4)" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back leg, pushing off -->
+    ${limb('M136 122 L120 140 L104 154', 15)}
+    ${limb('M126 136 L117 146', 15, gd)}
+    <path d="M112 146 l10 6 M108 150 l9 6" stroke="${INK}" stroke-width="2"/>
+    <path d="M96 150 L112 152 L113 161 L93 163 Q88 158 96 150 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
+    <path d="M88 168 L118 165" stroke="${INK}" stroke-width="4"/><path d="M88 168 L118 165" stroke="#eef3f6" stroke-width="1.6"/>
+    <!-- front leg, bent -->
+    ${limb('M162 122 L174 142 L166 160', 16)}
+    ${limb('M172 140 L168 152', 16, gd)}
+    <path d="M162 148 h12 M161 153 h12" stroke="${INK}" stroke-width="2"/>
+    <path d="M158 156 L176 156 L179 168 L155 168 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
+    <path d="M150 174 L184 174" stroke="${INK}" stroke-width="4"/><path d="M150 174 L184 174" stroke="#eef3f6" stroke-width="1.6"/>
+    <!-- pants -->
+    <path d="M132 100 Q150 94 170 102 L176 126 Q166 132 156 124 L150 114 L145 124 Q133 132 128 124 Z" fill="${gd}" stroke="${INK}" stroke-width="3"/>
+    <path d="M136 104 Q140 116 134 126" fill="none" stroke="#e8bb5a" stroke-width="2" opacity=".8"/>
+    <!-- jersey -->
+    <path d="M126 54 Q150 40 176 56 L172 104 Q150 112 130 104 Z" fill="${g}" stroke="${INK}" stroke-width="3"/>
+    <path d="M160 52 Q176 58 172 104 Q162 108 156 106 Q164 80 160 52 Z" fill="${gd}" opacity=".7"/>
+    <path d="M130 92 Q150 100 173 92" fill="none" stroke="${INK}" stroke-width="7"/><path d="M130 92 Q150 100 173 92" fill="none" stroke="#9a6a1e" stroke-width="4"/>
+    <path d="M131 99 Q150 106 172 99" fill="none" stroke="${INK}" stroke-width="1.5"/>
+    <path d="M140 50 Q150 58 160 50" fill="none" stroke="${INK}" stroke-width="2"/>
+    <path d="M132 60 Q138 56 146 57" fill="none" stroke="#fff6d6" stroke-width="3" opacity=".9"/>
+    <!-- arms -->
+    ${limb('M130 60 L112 82 L122 98', 13)}
+    ${limb('M172 62 L184 88 L170 114', 13)}
+    <path d="M114 88 l8 -3 M178 100 l8 3" stroke="${INK}" stroke-width="5"/><path d="M114 88 l8 -3 M178 100 l8 3" stroke="#9a6a1e" stroke-width="2.5"/>
+    <!-- stick, then the gloves holding it -->
+    <path d="M114 84 L200 170" stroke="${INK}" stroke-width="7"/><path d="M114 84 L200 170" stroke="${g}" stroke-width="3.5"/>
+    <path d="M196 166 L222 172 L220 179 L194 173 Z" fill="${g}" stroke="${INK}" stroke-width="2.5"/>
+    <rect x="116" y="92" width="14" height="12" rx="4" fill="${g}" stroke="${INK}" stroke-width="2.5" transform="rotate(40 123 98)"/>
+    <rect x="162" y="110" width="14" height="12" rx="4" fill="${g}" stroke="${INK}" stroke-width="2.5" transform="rotate(40 169 116)"/>
+    <!-- head -->
+    <path d="M145 44 h10 v8 h-10 z" fill="${gd}" stroke="${INK}" stroke-width="2"/>
+    <ellipse cx="150" cy="32" rx="11.5" ry="13" fill="${g}" stroke="${INK}" stroke-width="3"/>
+    <path d="M154 22 Q163 28 160 40 Q156 44 152 44 Q158 34 154 22 Z" fill="${gd}" opacity=".6"/>
+    <path d="M138.5 31 Q139 16 152 18 Q163 20 161.5 31 Q157 24 149 25 Q142 26 138.5 31 Z" fill="#7d5414" stroke="${INK}" stroke-width="2"/>
+    <path d="M144 34 h4 M153 34 h4" stroke="${INK}" stroke-width="1.8"/><path d="M150 35 l-1 5 h2" fill="none" stroke="${INK}" stroke-width="1.2"/>
+    <path d="M146 41 q4 2 8 0" fill="none" stroke="${INK}" stroke-width="1.4"/>
+    <path d="M141 26 Q144 22 149 22" fill="none" stroke="#fff6d6" stroke-width="2"/></g>
   </svg>`;
 }
-function artRoss(winners) {
+function artRoss(winners, links = true) {
+  if (!links) winners = winners.map(w => ({ ...w, href: null }));
   const pucks = winners.map(w => `${wTag(w, ['ar-puck' + (w.wsq ? ' wsq' : ''), wTitle(w, 'PTS')])}<span class="ar-face" style="${w.photo ? '' : `background:${w.bg};border-color:${w.rim}`}">${winnerFace(w, 'PTS')}</span>
       <span class="ar-name">${svgText(w.name)}</span><span class="ar-sub">${svgText(w.short)} · ${w.value ?? '?'} pts</span>${wEnd(w)}`).join('');
-  return `<div class="aw-trophy aw-ross">${artRossSVG()}<div class="ar-base"><div class="ar-grid">${pucks}</div></div>
-    <div class="tc-card">Art Ross Trophy<br><b>Division points leaders</b></div></div>`;
+  return `<div class="aw-trophy aw-ross">${artRossSVG()}<div class="ar-base"><div class="ar-grid">${pucks}</div></div></div>`;
 }
 function rocket(winners) {
-  const plaques = winners.map(w => `${wTag(w, ['rr-plaque' + (w.wsq ? ' wsq' : ''), wTitle(w, 'G')])}${w.photo ? `<img src="${svgText(w.photo)}" alt="">` : ''}
-      <span class="rr-txt"><span class="rr-name">${svgText(w.name)}</span><span class="rr-sub">${svgText(w.short)} · ${w.value ?? '?'} goals</span></span>${wEnd(w)}`).join('');
-  return `<div class="aw-trophy aw-rocket">${rocketSVG()}<div class="rr-base"><div class="rr-grid">${plaques}</div></div>
-    <div class="tc-card">"Rocket" Richard Trophy<br><b>Division goal leaders</b></div></div>`;
+  return `<div class="aw-trophy aw-rocket">${rocketSVG(winners)}</div>`;
 }
 
 // ---------------------------------------------------------------- the case
@@ -225,11 +294,14 @@ export function trophyCase(ctx) {
     <div class="tc-frame"><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="tc-shelf tc-top">
+        ${ctx.artRoss.length ? `<button class="tc-item tc-mini" type="button" data-trophy="ross" aria-label="Art Ross Trophy: see the winners">
+          <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
         <button class="tc-item tc-keg" id="tc-keg" type="button" aria-label="The Stanley Keg: read the engravings">
           ${kegSVG({ wins: ctx.wsqWins, stickers: ctx.stickers })}
           <div class="tc-card">The Stanley Keg<br><b>${ctx.champions.filter(c => c.team === 'WSQ').map(c => c.short).join(' · ') || 'Not yet…'}</b></div>
-          <span class="tc-hint">Click to read the engravings</span></button>
-        ${ctx.artRoss.length || ctx.rocket.length ? `<div class="tc-awards">${ctx.artRoss.length ? artRoss(ctx.artRoss) : ''}${ctx.rocket.length ? rocket(ctx.rocket) : ''}</div>` : ''}
+          <span class="tc-hint">Click a trophy to look closer</span></button>
+        ${ctx.rocket.length ? `<button class="tc-item tc-mini" type="button" data-trophy="rocket" aria-label="Rocket Richard Trophy: see the winners">
+          <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
       ${pres ? `<div class="tc-shelf">${pres}</div><div class="tc-board"></div>` : ''}
@@ -292,4 +364,40 @@ export function openKeg(champions, stickers) {
   fitAll(false);
   setTimeout(() => zoomTo(champions.length - 1, true), reduce ? 0 : 650);   // the first look: whole keg, then zoom into the latest winners
   ov.querySelector('[data-kv="next"]').focus();
+}
+
+// ---------------------------------------------------------------- trophy viewer (Art Ross, Rocket Richard)
+// Opens the trophy large, zooming in from the shelf. Click (or tap) to zoom closer at that spot, drag to look around.
+export function openTrophy(kind, winners, title) {
+  const html = kind === 'ross' ? artRoss(winners, true) : rocketSVG(winners);
+  const ov = document.createElement('div'); ov.className = 'kv tv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', title);
+  ov.innerHTML = `<div class="kv-stage"><div class="tv-piece tv-${kind}">${html}</div></div>
+    <div class="kv-bar"><div class="kv-cap"><b>${title}</b><span>Click to zoom in · drag to look around</span></div>
+      <button class="kv-btn" data-tv="in" aria-label="Zoom in">＋</button><button class="kv-btn" data-tv="out" aria-label="Zoom out">－</button>
+      <button class="kv-btn kv-x" data-tv="close" aria-label="Close">✕</button></div>`;
+  document.body.appendChild(ov); document.body.classList.add('kv-open');
+  const stage = ov.querySelector('.kv-stage'), piece = ov.querySelector('.tv-piece');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let s = 1, tx = 0, ty = 0, fit = 1;
+  const apply = animate => { piece.style.transition = animate && !reduce ? 'transform .7s cubic-bezier(.2,.8,.2,1)' : 'none'; piece.style.transform = `translate(${tx}px,${ty}px) scale(${s})`; };
+  const fitView = animate => { const W = stage.clientWidth, H = stage.clientHeight, w = piece.offsetWidth, h = piece.offsetHeight;
+    fit = Math.min(W * .92 / w, H * .92 / h); s = fit; tx = (W - w * s) / 2; ty = (H - h * s) / 2; apply(animate); };
+  const zoomAt = (px, py, factor) => { const ns = Math.min(fit * 4, Math.max(fit, s * factor)); tx = px - (px - tx) * ns / s; ty = py - (py - ty) * ns / s; s = ns; apply(true); };
+  // start small, then grow into view
+  fitView(false); const s0 = s; s = s0 * .35; tx += piece.offsetWidth * (s0 - s) / 2; ty += piece.offsetHeight * (s0 - s) / 2; apply(false);
+  requestAnimationFrame(() => requestAnimationFrame(() => fitView(true)));
+  let drag = null, moved = false;
+  stage.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, tx, ty }; moved = false; stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; if (moved && s > fit) { tx = drag.tx + dx; ty = drag.ty + dy; apply(false); } });
+  stage.addEventListener('pointerup', e => { const d = drag; drag = null; if (!d || moved) return;
+    if (e.target.closest('a')) return close();
+    const r = stage.getBoundingClientRect(); if (s >= fit * 3.9) fitView(true); else zoomAt(e.clientX - r.left, e.clientY - r.top, 2); });
+  stage.addEventListener('wheel', e => { e.preventDefault(); const r = stage.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.25 : .8); }, { passive: false });
+  const close = () => { ov.classList.add('closing'); document.body.classList.remove('kv-open'); removeEventListener('keydown', key); removeEventListener('resize', rs); setTimeout(() => ov.remove(), reduce ? 0 : 250); };
+  const key = e => { if (e.key === 'Escape') close(); else if (e.key === '+' || e.key === '=') zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, 1.5); else if (e.key === '-') zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, .66); };
+  const rs = () => fitView(false);
+  ov.addEventListener('click', e => { const b = e.target.closest('[data-tv]'); if (!b) return; const a = b.dataset.tv;
+    if (a === 'close') close(); else if (a === 'in') zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, 1.6); else fitView(true); });
+  addEventListener('keydown', key); addEventListener('resize', rs);
+  ov.querySelector('[data-tv="close"]').focus();
 }

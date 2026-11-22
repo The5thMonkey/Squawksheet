@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=d7e173ebf9';
-import * as C from './core.js?v=d7e173ebf9';
+import * as TR from './trophies.js?v=00d6f435a4';
+import * as C from './core.js?v=00d6f435a4';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -516,7 +516,11 @@ function trophyData() {
     artRoss: awardWinners('art_ross'), rocket: awardWinners('rocket'),
   };
 }
-document.addEventListener('click', e => { if (e.target.closest('#tc-keg')) { const ch = kegChampions(); TR.openKeg(ch, kegStickers(ch)); } });
+document.addEventListener('click', e => {
+  if (e.target.closest('#tc-keg')) { const ch = kegChampions(); TR.openKeg(ch, kegStickers(ch)); }
+  const t = e.target.closest('[data-trophy]');
+  if (t) t.dataset.trophy === 'ross' ? TR.openTrophy('ross', awardWinners('art_ross'), 'Art Ross Trophy · points leaders') : TR.openTrophy('rocket', awardWinners('rocket'), '"Rocket" Richard Trophy · goal leaders');
+});
 
 function pageTrophies() {
   const A = [...IX.data.awards].sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).reverse();
