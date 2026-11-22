@@ -32,7 +32,8 @@
    "SquawkSheet (season tabs, Overview, Awards, Squawkey-Reference, Careers)",
    "Squawks_Raw_Data (Skater/Goalie/Team Games)"
   ],
-  "updated": "2026-11-18"
+  "updated": "2026-11-18",
+  "repo": "The5thMonkey/Squawksheet"
  },
  "teams": {
   "WSQ": "WinterSquawks",
@@ -6148,6 +6149,7 @@
    "term": "Fall",
    "team_name": "WINTERSQUAWKS",
    "division": "Division 4",
+   "schedule_url": "https://wicadulthockey.sportngin.com/schedule/day/division_instance/599903?subseason=964738",
    "standings_from_games": true,
    "tracking": "game-log",
    "verification": {
@@ -21029,7 +21031,10 @@
    "away_shots": 40,
    "winner": "AwayOT",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763342",
+   "date": "2026-09-04",
+   "time": null
   },
   {
    "season": "F26",
@@ -21047,15 +21052,18 @@
   {
    "season": "F26",
    "slot": "10:05 PM",
-   "home": "AMW",
-   "away": "BDB",
-   "home_score": 8,
-   "away_score": 2,
-   "home_shots": 45,
-   "away_shots": 16,
-   "winner": "Home",
+   "home": "BDB",
+   "away": "AMW",
+   "home_score": 2,
+   "away_score": 8,
+   "home_shots": 16,
+   "away_shots": 45,
+   "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763345",
+   "date": "2026-09-04",
+   "time": null
   },
   {
    "season": "F26",
@@ -21068,7 +21076,10 @@
    "away_shots": 42,
    "winner": "Tie",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763346",
+   "date": "2026-09-04",
+   "time": null
   },
   {
    "season": "F26",
@@ -21094,20 +21105,26 @@
    "away_shots": 39,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763362",
+   "date": "2026-09-11",
+   "time": null
   },
   {
    "season": "F26",
    "slot": "10:05 PM",
-   "home": "AMW",
-   "away": "NOR",
-   "home_score": 3,
-   "away_score": 6,
-   "home_shots": 35,
-   "away_shots": 25,
-   "winner": "Away",
+   "home": "NOR",
+   "away": "AMW",
+   "home_score": 6,
+   "away_score": 3,
+   "home_shots": 25,
+   "away_shots": 35,
+   "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763364",
+   "date": "2026-09-11",
+   "time": null
   },
   {
    "season": "F26",
@@ -21120,7 +21137,10 @@
    "away_shots": 18,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763366",
+   "date": "2026-09-11",
+   "time": null
   },
   {
    "season": "F26",
@@ -21133,20 +21153,26 @@
    "away_shots": 32,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763369",
+   "date": "2026-09-18",
+   "time": null
   },
   {
    "season": "F26",
    "slot": "8:40 PM",
-   "home": "AMW",
-   "away": "FIC",
-   "home_score": 2,
-   "away_score": 4,
-   "home_shots": 23,
-   "away_shots": 33,
-   "winner": "Away",
+   "home": "FIC",
+   "away": "AMW",
+   "home_score": 4,
+   "away_score": 2,
+   "home_shots": 33,
+   "away_shots": 23,
+   "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763371",
+   "date": "2026-09-18",
+   "time": null
   },
   {
    "season": "F26",
@@ -21159,7 +21185,10 @@
    "away_shots": 32,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763374",
+   "date": "2026-09-18",
+   "time": null
   },
   {
    "season": "F26",
@@ -21185,7 +21214,10 @@
    "away_shots": 35,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763377",
+   "date": "2026-09-25",
+   "time": null
   },
   {
    "season": "F26",
@@ -21198,7 +21230,10 @@
    "away_shots": 28,
    "winner": "AwayOT",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763379",
+   "date": "2026-09-25",
+   "time": null
   },
   {
    "season": "F26",
@@ -21216,28 +21251,34 @@
   {
    "season": "F26",
    "slot": "11:30 PM",
-   "home": "AMW",
-   "away": "CHF",
-   "home_score": 8,
-   "away_score": 2,
-   "home_shots": 29,
-   "away_shots": 24,
-   "winner": "Home",
+   "home": "CHF",
+   "away": "AMW",
+   "home_score": 2,
+   "away_score": 8,
+   "home_shots": 24,
+   "away_shots": 29,
+   "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763382",
+   "date": "2026-09-25",
+   "time": null
   },
   {
    "season": "F26",
    "slot": "7:15 PM",
-   "home": "AMW",
-   "away": "HMR",
-   "home_score": 2,
-   "away_score": 5,
-   "home_shots": 49,
-   "away_shots": 14,
-   "winner": "Away",
+   "home": "HMR",
+   "away": "AMW",
+   "home_score": 5,
+   "away_score": 2,
+   "home_shots": 14,
+   "away_shots": 49,
+   "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763384",
+   "date": "2026-10-02",
+   "time": null
   },
   {
    "season": "F26",
@@ -21250,7 +21291,10 @@
    "away_shots": 21,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763386",
+   "date": "2026-10-02",
+   "time": null
   },
   {
    "season": "F26",
@@ -21276,20 +21320,26 @@
    "away_shots": 22,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763389",
+   "date": "2026-10-02",
+   "time": null
   },
   {
    "season": "F26",
    "slot": "7:15 PM",
-   "home": "AMW",
-   "away": "DKM",
-   "home_score": 6,
-   "away_score": 5,
-   "home_shots": 26,
-   "away_shots": 28,
-   "winner": "Home",
+   "home": "DKM",
+   "away": "AMW",
+   "home_score": 5,
+   "away_score": 6,
+   "home_shots": 28,
+   "away_shots": 26,
+   "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763391",
+   "date": "2026-10-09",
+   "time": null
   },
   {
    "season": "F26",
@@ -21315,7 +21365,10 @@
    "away_shots": 19,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763394",
+   "date": "2026-10-09",
+   "time": null
   },
   {
    "season": "F26",
@@ -21328,7 +21381,10 @@
    "away_shots": 20,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763396",
+   "date": "2026-10-09",
+   "time": null
   },
   {
    "season": "F26",
@@ -21354,7 +21410,10 @@
    "away_shots": 8,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763401",
+   "date": "2026-10-16",
+   "time": null
   },
   {
    "season": "F26",
@@ -21367,7 +21426,10 @@
    "away_shots": 33,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763403",
+   "date": "2026-10-16",
+   "time": null
   },
   {
    "season": "F26",
@@ -21380,7 +21442,10 @@
    "away_shots": 39,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763406",
+   "date": "2026-10-16",
+   "time": null
   },
   {
    "season": "F26",
@@ -21393,7 +21458,10 @@
    "away_shots": 28,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763423",
+   "date": "2026-10-23",
+   "time": null
   },
   {
    "season": "F26",
@@ -21419,7 +21487,10 @@
    "away_shots": 27,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763428",
+   "date": "2026-10-23",
+   "time": null
   },
   {
    "season": "F26",
@@ -21432,7 +21503,10 @@
    "away_shots": 12,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763430",
+   "date": "2026-10-23",
+   "time": null
   },
   {
    "season": "F26",
@@ -21445,7 +21519,10 @@
    "away_shots": 21,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763435",
+   "date": "2026-10-30",
+   "time": null
   },
   {
    "season": "F26",
@@ -21458,7 +21535,10 @@
    "away_shots": 31,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763436",
+   "date": "2026-10-30",
+   "time": null
   },
   {
    "season": "F26",
@@ -21471,7 +21551,10 @@
    "away_shots": 26,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763438",
+   "date": "2026-10-30",
+   "time": null
   },
   {
    "season": "F26",
@@ -21510,7 +21593,10 @@
    "away_shots": 34,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763449",
+   "date": "2026-11-06",
+   "time": null
   },
   {
    "season": "F26",
@@ -21523,7 +21609,10 @@
    "away_shots": 26,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763454",
+   "date": "2026-11-06",
+   "time": null
   },
   {
    "season": "F26",
@@ -21536,7 +21625,10 @@
    "away_shots": 30,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763455",
+   "date": "2026-11-06",
+   "time": null
   },
   {
    "season": "F26",
@@ -21549,7 +21641,10 @@
    "away_shots": 15,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763460",
+   "date": "2026-11-13",
+   "time": null
   },
   {
    "season": "F26",
@@ -21562,7 +21657,10 @@
    "away_shots": 26,
    "winner": "Home",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763462",
+   "date": "2026-11-13",
+   "time": null
   },
   {
    "season": "F26",
@@ -21575,7 +21673,10 @@
    "away_shots": 27,
    "winner": "Away",
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763465",
+   "date": "2026-11-13",
+   "time": null
   },
   {
    "season": "F26",
@@ -21601,7 +21702,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763469",
+   "date": "2026-11-20",
+   "time": "19:20"
   },
   {
    "season": "F26",
@@ -21614,7 +21718,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763470",
+   "date": "2026-11-20",
+   "time": "20:45"
   },
   {
    "season": "F26",
@@ -21640,7 +21747,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763474",
+   "date": "2026-11-20",
+   "time": "23:35"
   },
   {
    "season": "F26",
@@ -21653,7 +21763,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763476",
+   "date": "2026-11-27",
+   "time": "19:20"
   },
   {
    "season": "F26",
@@ -21679,7 +21792,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763480",
+   "date": "2026-11-27",
+   "time": "22:10"
   },
   {
    "season": "F26",
@@ -21692,7 +21808,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763481",
+   "date": "2026-11-27",
+   "time": "23:35"
   },
   {
    "season": "F26",
@@ -21705,7 +21824,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763483",
+   "date": "2026-12-04",
+   "time": "19:20"
   },
   {
    "season": "F26",
@@ -21718,7 +21840,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763484",
+   "date": "2026-12-04",
+   "time": "20:45"
   },
   {
    "season": "F26",
@@ -21731,7 +21856,10 @@
    "away_shots": null,
    "winner": null,
    "playoff": false,
-   "championship": false
+   "championship": false,
+   "source_id": "45763486",
+   "date": "2026-12-04",
+   "time": "22:10"
   },
   {
    "season": "F26",

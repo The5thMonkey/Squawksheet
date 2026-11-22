@@ -1,0 +1,32 @@
+name: Fetch league schedule
+# Reads every season that has a "League schedule link" and saves the schedule and the league
+# site's results to the league-schedule branch. The site's data (main) is never changed here:
+# the stats entry page merges the schedule in when you click "Sync schedule".
+on:
+  schedule:
+    - cron: '17 14 * * *'   # every day, about 6-7 AM Pacific
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [data/squawks.json, tools/schedule.mjs, .github/workflows/league-schedule.yml]
+permissions:
+  contents: write
+concurrency:
+  group: league-schedule
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/schedule.mjs --out schedule-out
+      - name: Save to the league-schedule branch
+        run: |
+          cd schedule-out
+          git init -q -b league-schedule
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "League schedule $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" league-schedule

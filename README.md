@@ -38,6 +38,15 @@ Your work is kept in the browser until you publish or discard it, so closing the
 
 **New season:** go to Season & roster → **Start next season**. It copies the roster. Then paste in the schedule, one game per line: `2027-01-08 20:40 Puck Norris`.
 
+## League games and standings
+
+The division standings are worked out from every game in the division: the Squawks' games from the game log and everyone else's from the **League games** tab on the stats page.
+
+* **Start of each season:** on the **Season & roster** tab, paste the division's schedule page from the league site into **League schedule link** (e.g. `https://wicadulthockey.sportngin.com/schedule/day/division_instance/599903?subseason=964738`) and publish.
+* A GitHub job (`.github/workflows/league-schedule.yml`) then reads the league site every morning and saves the schedule and the league site's results to the `league-schedule` branch. It never changes the site's data.
+* **Each week:** on the **League games** tab, click **Sync schedule** to add any new games, dates and times. Games are grouped by date, and weeks that need results are flagged. The league site's score shows under each game: click **use** (or **Fill … from league site** for the whole night), or type the score and shots yourself. The Game tab shows the same night's other games under the Squawks game.
+* Sync never changes a score you've entered.
+
 ## Player photos
 
 Put photos in `img/players/`, named with the player's id (it's shown on the entry page's Players tab):

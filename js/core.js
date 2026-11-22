@@ -157,6 +157,51 @@ export function computeStandings(data, sid) {
   return Object.values(rows).sort((a, b) => b.pts - a.pts || b.w - a.w || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf || a.team.localeCompare(b.team));
 }
 export const seasonStandings = (data, s) => s.standings_from_games ? computeStandings(data, s.id) : (s.standings || []);
+
+// ---------- league schedule (fetched from the league site by tools/schedule.mjs) ----------
+// A fetched schedule is { season, url, fetched_at, games: [{ id, date, time, home, away, home_name, away_name,
+// status: 'scheduled' | 'final', decided: null | 'OT' | 'SO', home_score, away_score }] } with team codes (null if unknown).
+// mergeSchedule() adds missing games and fills in dates, times and home/away. It never changes a score.
+const pairKey = (a, b) => [a, b].sort().join('|');
+export function mergeSchedule(data, sid, sched, newSquawksGame) {
+  const rep = { leagueAdded: [], leagueUpdated: [], squawksAdded: [], squawksUpdated: [], unknownTeams: [], notes: [] };
+  const lg = data.league_games ||= [];
+  const used = new Set();
+  for (const s of sched.games || []) {
+    if (!s.home || !s.away) { for (const k of ['home', 'away']) if (!s[k] && !rep.unknownTeams.includes(s[k + '_name'])) rep.unknownTeams.push(s[k + '_name']); continue; }
+    if (s.home === 'WSQ' || s.away === 'WSQ') {
+      const opp = s.home === 'WSQ' ? s.away : s.home;
+      let g = data.games.find(x => x.season === sid && x.date === s.date && x.opponent === opp);
+      if (!g) {
+        const other = data.games.find(x => x.season === sid && x.date === s.date);
+        if (other) { rep.notes.push(`${s.date}: league site has the Squawks vs ${data.teams[opp]}, the game log has ${data.teams[other.opponent] || 'no opponent'}. Not changed.`); continue; }
+        g = newSquawksGame(sid); g.date = s.date; g.time = s.time; g.opponent = opp; data.games.push(g); rep.squawksAdded.push(g.id); continue;
+      }
+      if (g.status !== 'final' && s.time && g.time !== s.time) { g.time = s.time; rep.squawksUpdated.push(g.id); }
+      continue;
+    }
+    const pk = pairKey(s.home, s.away);
+    const cand = x => x.season === sid && !used.has(x) && x.home !== 'WSQ' && x.away !== 'WSQ';
+    let g = lg.find(x => cand(x) && x.source_id === s.id)
+      || lg.find(x => cand(x) && !x.source_id && x.date === s.date && pairKey(x.home, x.away) === pk)
+      || lg.find(x => cand(x) && !x.source_id && !x.date && pairKey(x.home, x.away) === pk);   // imported games without dates, in order
+    if (!g) {
+      g = { season: sid, date: s.date, time: s.time, home: s.home, away: s.away, home_score: null, away_score: null, home_shots: null, away_shots: null, ot: null, winner: null, playoff: false, championship: false, source_id: s.id };
+      lg.push(g); used.add(g); rep.leagueAdded.push(g); continue;
+    }
+    used.add(g);
+    const before = JSON.stringify(g);
+    g.source_id = s.id; g.date = s.date; if (s.time || !g.time) g.time = s.time;
+    if (g.home !== s.home) { // the league site's home/away wins; scores and shots move with their team
+      [g.home, g.away] = [g.away, g.home]; [g.home_score, g.away_score] = [g.away_score, g.home_score]; [g.home_shots, g.away_shots] = [g.away_shots, g.home_shots];
+      if (g.winner) g.winner = lgWinner(g);
+    }
+    if (JSON.stringify(g) !== before) rep.leagueUpdated.push(g);
+  }
+  return rep;
+}
+// The league site's result for a game, as a short label, e.g. "4–3 SO". Away score shown second to match home–away order.
+export const siteScore = s => s && s.status === 'final' && s.home_score != null ? `${s.home_score}–${s.away_score}${s.decided ? ' ' + s.decided : ''}` : null;
 export function verification(ix, s) {
   const gs = (ix.gamesBySeason[s.id] || []).filter(final);
   return { goals: gs.reduce((n, g) => n + g.goals.length, 0), video_linked: gs.reduce((n, g) => n + g.goals.filter(x => x.video).length, 0) };
@@ -225,6 +270,7 @@ export function validate(data) {
     if (g.en_against != null && (!Number.isInteger(g.en_against) || g.en_against < 0 || g.en_against > g.ga)) errs.push(`${w}: empty-net goals against must be between 0 and ${g.ga}`);
     for (const p of g.roster || []) if (!P.has(p)) errs.push(`${w}: roster has unknown player "${p}"`);
     if (g.goalie && !P.has(g.goalie)) errs.push(`${w}: unknown goalie "${g.goalie}"`);
+    const junk = Object.keys(g).filter(k => k.startsWith('_')); if (junk.length) errs.push(`${w}: has working fields that shouldn't be saved (${junk.join(', ')})`);
     if (g.lineup) {
       const lu = g.lineup, lp = lineupPlayers(lu);
       for (const [k, n, w2] of [['f', 4, 3], ['d', 3, 2]]) {
@@ -276,7 +322,8 @@ export function validate(data) {
     for (const k of ['home', 'away']) if (g[k] && !data.teams[g[k]]) errs.push(`${w}: unknown team "${g[k]}"`);
     if (g.home && g.home === g.away) errs.push(`${w}: a team can't play itself`);
     if ((g.home_score == null) !== (g.away_score == null)) errs.push(`${w}: enter both scores or neither`);
-    if (g.ot && lgFinal(g) && g.home_score === g.away_score) errs.push(`${w}: decided in ${g.ot === 'SO' ? 'a shootout' : 'overtime'} but the score is tied`);
+    if (g.ot === 'OT' && lgFinal(g) && g.home_score === g.away_score) errs.push(`${w}: decided in overtime but the score is tied (a tied game after overtime goes to a shootout)`);
+    if (g.date && !/^\d{4}-\d{2}-\d{2}$/.test(g.date)) errs.push(`${w}: date must be YYYY-MM-DD`);
     if (g.ot && !['OT', 'SO'].includes(g.ot)) errs.push(`${w}: "decided in" must be Regulation, OT or SO`);
   }
   return { errs, warns };

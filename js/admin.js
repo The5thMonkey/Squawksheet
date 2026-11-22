@@ -1,4 +1,4 @@
-import * as C from './core.js?v=ed5f4744cb';
+import * as C from './core.js?v=046e34a566';
 
 // Working copy of the data. Nothing leaves the browser until you download it.
 let DATA = null, ORIGINAL = '', IX = null;
@@ -53,6 +53,8 @@ function newGame(season) {
     shots_for: null, shots_against: null, links: [], source: 'entry', status: 'scheduled', _new: true, _legacyRoster: [], _legacyGoalie: null };
   syncRoster(g); return g;
 }
+// working fields (names starting with _) live only in the form, never in the data
+const cleanGame = g => { for (const k of Object.keys(g)) if (k.startsWith('_')) delete g[k]; return g; };
 // ---------- lineup builder ----------
 // Starts with one forward line, one D pair and the season's starting goalie in G1.
 function emptyLineup(season) {
@@ -99,6 +101,7 @@ function loadGame(id) {
 }
 function gameTab() {
   if (!G.season) G.season = C.latestSeason(IX).id;
+  loadSchedule(G.season);
   const gs = IX.gamesBySeason[G.season] || [];
   if (!G.f) {
     const nxt = gs.find(g => g.status !== 'final');
@@ -166,7 +169,17 @@ function gameTab() {
   <textarea data-b="notes">${esc(f.notes || '')}</textarea>
   <div class="msgs" id="g-msgs">${G.msgs || ''}</div>
   <div class="sticky"><button class="btn pri" id="g-save">Save game</button><button class="btn" id="g-reset">Discard edits</button>${info("Saving checks the game, then keeps it in this browser's working copy until you publish.")}</div>
-  </div>`;
+  </div>
+  ${leagueNight(f)}`;
+}
+// The other division games played the same night, so league results go in alongside the Squawks game.
+function leagueNight(f) {
+  if (!f.date) return '';
+  const rows = lgRows(f.season).filter(x => x.g.date === f.date);
+  const sched = SCHED[f.season];
+  if (!rows.length) return `<div class="card"><h3 style="margin-top:0">League results · ${esc(dayLabel(f.date))}</h3><p class="small muted">No other league games on this date${IX.seasonById[f.season]?.schedule_url ? '. Try <b>Sync schedule</b> on the League games tab.' : '.'}</p></div>`;
+  return `<div class="card"><h3 style="margin-top:0">League results · ${esc(dayLabel(f.date))} ${info('The other games in the division that night. They count toward the standings. Changes here save straight into your working copy, the same as on the League games tab.')}</h3>
+  ${lgTable(f.season, [{ date: f.date, rows }], sched, false)}</div>`;
 }
 // Every game is at night: a bare '10:05' means 10:05 PM. Stored as 24-hour 'HH:MM'.
 function toPM(t, ap) { let [h, mi] = t.split(':').map(Number); ap = (ap || '').toLowerCase();
@@ -341,6 +354,7 @@ function seasonTab() {
     <label style="flex:1;min-width:260px">Result text (e.g. "Championship: 2-3 OT Apuckalypse Meow")<input data-s="result" value="${esc(s.result || '')}"></label>
   </div>
   <div class="row"><label style="flex:1">Story title<input data-s="story_title" value="${esc(s.story_title || '')}"></label></div>
+  <div class="row"><label style="flex:1">League schedule link ${info('The division\'s schedule page on the league site, e.g. <code>https://wicadulthockey.sportngin.com/schedule/day/division_instance/599903?subseason=964738</code>. Paste it at the start of each season and publish. The schedule and results are then fetched every morning; use <b>Sync schedule</b> on the League games tab.')}<input type="url" data-s="schedule_url" value="${esc(s.schedule_url || '')}" placeholder="https://wicadulthockey.sportngin.com/schedule/day/division_instance/…"></label></div>
   ${awardsForm(s)}
   <h3>Roster</h3>
   <div class="tw"><table><thead><tr><th class="l">Player</th><th>#</th><th class="l">Pos</th><th class="l">Notes (C, LTIR - Ankle, sub…)</th><th></th></tr></thead><tbody>
@@ -409,7 +423,7 @@ document.addEventListener('click', e => {
       const m = l.match(/^(\d{4}-\d{2}-\d{2})\s+(?:(\d{1,2}:\d{2})\s*(am|pm)?)?\s*(.+)$/i);
       const opp = m && (byName[m[4].trim().toLowerCase()] || (DATA.teams[m[4].trim().toUpperCase()] ? m[4].trim().toUpperCase() : null));
       if (!m || !opp) { bad.push(l); continue; }
-      const g = newGame(s.id); g.date = m[1]; g.time = m[2] ? toPM(m[2], m[3]) : null; g.opponent = opp; delete g._new;
+      const g = cleanGame(newGame(s.id)); g.date = m[1]; g.time = m[2] ? toPM(m[2], m[3]) : null; g.opponent = opp;
       DATA.games.push(g); reindex(); n++;
     }
     $('#s-schedmsg').innerHTML = `${n} added.${bad.length ? ` <span style="color:var(--red)">Couldn't read: ${bad.map(esc).join(' | ')}</span>` : ''}`;
@@ -435,58 +449,151 @@ function lgTeamOpts(sid, sel) {
 function lgResult(g) {
   if (!C.lgFinal(g) || !g.home || !g.away) return '<span class="muted">not played</span>';
   const ot = C.lgOT(g), tag = ot === 'SO' ? ' (SO)' : ot ? ' (OT)' : '';
-  if (g.home_score === g.away_score) return ot ? `<span style="color:var(--red)">tied, but decided in ${ot}</span>` : 'Tie · 1–1 pts';
-  const [w, l] = g.home_score > g.away_score ? [g.home, g.away] : [g.away, g.home];
+  if (g.home_score === g.away_score) return ot === 'OT' ? '<span style="color:var(--red)">tied, but decided in OT</span>' : `Tie${tag} · 1–1 pts`;
+  const w = g.home_score > g.away_score ? g.home : g.away;
   return `${esc(DATA.teams[w])} win${tag} · 2–${ot ? 1 : 0} pts`;
+}
+// ---------- league schedule fetched from the league site ----------
+// A GitHub job (.github/workflows/league-schedule.yml) fetches the league site every day and saves it on the
+// league-schedule branch; it's read from there because the browser can't read the league site directly.
+const SCHED = {}, SCHED_ERR = {}, SCHED_LOADING = new Set();
+function repoName() {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i), seg = location.pathname.split('/').filter(Boolean)[0];
+  return m && seg && !/\.html$/.test(seg) ? `${m[1]}/${seg}` : (DATA.meta?.repo || null);
+}
+function loadSchedule(sid, force) {
+  const s = IX.seasonById[sid]; if (!s?.schedule_url || SCHED_LOADING.has(sid) || (SCHED[sid] && !force)) return;
+  const repo = repoName(); if (!repo) { SCHED_ERR[sid] = 'Unknown repository.'; return; }
+  SCHED_LOADING.add(sid);
+  fetch(`https://raw.githubusercontent.com/${repo}/league-schedule/${sid}.json?t=${Date.now()}`, { cache: 'no-store' })
+    .then(r => { if (r.status === 404) throw new Error('not fetched yet'); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(j => { SCHED[sid] = j; delete SCHED_ERR[sid]; })
+    .catch(e => { SCHED_ERR[sid] = e.message; })
+    .finally(() => { SCHED_LOADING.delete(sid); if (TAB === 'league' || TAB === 'game') render(); });
+}
+const siteGame = (sid, g) => { const sc = SCHED[sid]; if (!sc) return null;
+  return sc.games.find(x => x.id === g.source_id) || sc.games.find(x => x.date === g.date && [x.home, x.away].sort().join() === [g.home, g.away].sort().join()) || null; };
+// the league site's score, oriented to this game's home/away
+function siteFor(sid, g) {
+  const x = siteGame(sid, g); if (!x || x.status !== 'final' || x.home_score == null) return null;
+  const same = x.home === g.home; return { home_score: same ? x.home_score : x.away_score, away_score: same ? x.away_score : x.home_score, ot: x.decided };
+}
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const dayLabel = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }) : 'No date';
+const needsResult = g => !C.lgFinal(g) && g.date && g.date <= todayISO();
+const lgRows = sid => (DATA.league_games || []).map((g, i) => ({ g, i })).filter(x => x.g.season === sid && x.g.home !== 'WSQ' && x.g.away !== 'WSQ');
+function lgGroups(sid) {
+  const by = {}; for (const r of lgRows(sid)) (by[r.g.date || ''] ||= []).push(r);
+  const keys = Object.keys(by).sort((a, b) => !a ? 1 : !b ? -1 : a.localeCompare(b));
+  return keys.map(d => ({ date: d || null, rows: by[d].sort((a, b) => (a.g.time || '99').localeCompare(b.g.time || '99') || a.i - b.i) }));
+}
+function lgTable(sid, groups, sched, showHeads = true) {
+  const num = (i, k, v) => `<input type="number" min="0" style="width:4rem" data-lg="${i}" data-k="${k}" value="${v ?? ''}">`;
+  const today = todayISO();
+  const body = groups.map(({ date, rows }) => {
+    const need = rows.filter(r => needsResult(r.g)), fillable = need.filter(r => siteFor(sid, r.g));
+    const state = !date ? 'nodate' : need.length ? 'need' : date > today ? 'upcoming' : 'done';
+    const label = { need: `${need.length} need${need.length === 1 ? 's' : ''} results`, upcoming: 'upcoming', done: 'all results in', nodate: 'no date' }[state];
+    const head = showHeads ? `<tr class="lg-day ${state}" id="lgday-${date || 'none'}"><td colspan="11"><b>${esc(dayLabel(date))}</b> <span class="lg-state">${label}</span>
+      ${fillable.length ? ` <button class="btn" data-lguseday="${date}">Fill ${fillable.length} from league site</button>` : ''}</td></tr>` : '';
+    return head + rows.map(({ g, i }) => {
+      const site = siteFor(sid, g), siteTxt = site ? `${site.home_score}–${site.away_score}${site.ot ? ' ' + site.ot : ''}` : '';
+      const differs = site && C.lgFinal(g) && (site.home_score !== g.home_score || site.away_score !== g.away_score);
+      return `<tr class="${needsResult(g) ? 'lg-need' : ''}">
+      <td class="small muted">${g.time ? C.fmt.time(g.time) : ''}</td>
+      <td class="l"><select data-lg="${i}" data-k="home">${lgTeamOpts(sid, g.home)}</select></td>
+      <td class="l"><select data-lg="${i}" data-k="away">${lgTeamOpts(sid, g.away)}</select></td>
+      <td class="l"><select data-lg="${i}" data-k="ot">${[[null, 'Regulation'], ['OT', 'Overtime'], ['SO', 'Shootout']].map(([v, t]) => `<option value="${v ?? ''}" ${C.lgOT(g) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></td>
+      <td>${num(i, 'home_score', g.home_score)}</td><td>${num(i, 'away_score', g.away_score)}</td><td>${num(i, 'home_shots', g.home_shots)}</td><td>${num(i, 'away_shots', g.away_shots)}</td>
+      <td><input type="checkbox" data-lg="${i}" data-k="playoff" ${g.playoff ? 'checked' : ''} title="Playoff games don't count in the standings"></td>
+      <td class="l small">${g.home && g.home === g.away ? '<span style="color:var(--red)">same team twice</span>' : lgResult(g)}
+        ${site ? `<div class="lg-site${differs ? ' differs' : ''}">League site: ${siteTxt}${!C.lgFinal(g) ? ` <button class="linkbtn" data-lguse="${i}">use</button>` : differs ? ' (differs)' : ''}</div>` : ''}</td>
+      <td><button class="x" data-dellg="${i}" title="Delete game">✕</button></td></tr>`;
+    }).join('');
+  }).join('');
+  return `<div class="tw"><table class="lg-table"><thead><tr><th class="l">Time</th><th class="l">Home</th><th class="l">Away</th><th class="l">Decided in</th><th>Home<br>score</th><th>Away<br>score</th><th>Home<br>shots</th><th>Away<br>shots</th><th>Playoff</th><th class="l">Result</th><th></th></tr></thead>
+    <tbody>${body || '<tr><td colspan="11" class="muted">No games yet.</td></tr>'}</tbody></table></div>`;
+}
+function syncBox(s) {
+  if (!s.schedule_url) return `<p class="lb-legacy">No league schedule link for ${esc(s.name)}. Add it on the <b>Season &amp; roster</b> tab to fetch the schedule and the league site's results automatically.</p>`;
+  loadSchedule(s.id);
+  const sc = SCHED[s.id], err = SCHED_ERR[s.id];
+  const ago = sc ? Math.round((Date.now() - Date.parse(sc.fetched_at)) / 3600000) : null;
+  return `<div class="lg-sync"><div><b>League schedule</b> · <a href="${esc(s.schedule_url)}" target="_blank" rel="noopener">league site ↗</a>
+    ${sc ? ` · fetched ${ago < 1 ? 'within the hour' : ago < 48 ? ago + ' h ago' : Math.round(ago / 24) + ' days ago'} · ${sc.games.length} games on ${sc.days.length} days` : SCHED_LOADING.has(s.id) ? ' · loading…' : err ? ` · <span style="color:var(--red)">couldn't load (${esc(err)})</span>` : ''}
+    ${sc?.unknown_teams?.length ? `<br><span style="color:var(--red)">Teams on the league site that aren't in the data: ${sc.unknown_teams.map(esc).join(', ')}.</span>` : ''}</div>
+    ${sc ? `<button class="btn pri" id="l-sync">Sync schedule</button>` : `<button class="btn" id="l-reload">Try again</button>`}
+    ${info('A GitHub job reads the league site every morning (and right after you publish a new schedule link). <b>Sync schedule</b> adds any games that are missing and fills in dates, times and home/away. It never changes a score: the league site’s results show next to each game, and you choose whether to use them.')}</div>
+    ${L.report ? `<div class="lg-report">${L.report}</div>` : ''}`;
 }
 function leagueTab() {
   if (!L.id) L.id = C.latestSeason(IX).id;
   const s = IX.seasonById[L.id];
-  const rows = (DATA.league_games || []).map((g, i) => ({ g, i })).filter(x => x.g.season === L.id && x.g.home !== 'WSQ' && x.g.away !== 'WSQ').reverse();
+  const groups = lgGroups(L.id), sched = SCHED[L.id];
+  const needDays = groups.filter(gr => gr.rows.some(r => needsResult(r.g)));
   const st = C.computeStandings(DATA, L.id);
-  const num = (i, k, v) => `<input type="number" min="0" style="width:4.2rem" data-lg="${i}" data-k="${k}" value="${v ?? ''}">`;
   return `<div class="card">
   <div class="row"><label>Season<select id="l-pick">${seasonOpts(L.id)}</select></label>
-    <p class="small muted" style="flex:1;min-width:260px;margin:0">Enter every game in the division that the Squawks <b>aren't</b> in. The Squawks' own games come from the Game tab, so they're never entered twice.</p></div>
+    <p class="small muted" style="flex:1;min-width:260px;margin:0">Every game in the division that the Squawks <b>aren't</b> in. The Squawks' own games come from the Game tab, so they're never entered twice.</p></div>
+  ${syncBox(s)}
   ${s.standings_from_games ? '' : `<p class="lb-legacy">${esc(s.name)}'s standings on the site are a snapshot copied from the sheet. <button class="btn" id="l-live">Use these games for ${esc(s.name)}'s standings</button></p>`}
-  <h3>Standings ${info('2 points for a win, 1 for a tie or an overtime/shootout loss. Order: points, then wins, goal difference, goals for. Playoff games don\'t count.')}</h3>
+  <h3>Standings ${info('2 points for a win, 1 for a tie or an overtime/shootout loss. A shootout can end tied (1 point each). Order: points, then wins, goal difference, goals for. Playoff games don\'t count.')}</h3>
   <div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>GP</th><th>W</th><th>L</th><th>T</th><th>OTL</th><th>PTS</th><th>GF</th><th>GA</th><th>DIFF</th><th>SF</th><th>SA</th></tr></thead><tbody>
   ${st.map((r, k) => `<tr${r.team === 'WSQ' ? ' style="font-weight:700"' : ''}><td>${k + 1}</td><td class="l">${esc(DATA.teams[r.team] || r.team)}</td><td>${r.gp}</td><td>${r.w}</td><td>${r.l}</td><td>${r.t}</td><td>${r.otl}</td><td>${r.pts}</td><td>${r.gf}</td><td>${r.ga}</td><td>${r.gf - r.ga > 0 ? '+' : ''}${r.gf - r.ga}</td><td>${r.shots ? r.sf : ''}</td><td>${r.shots ? r.sa : ''}</td></tr>`).join('')}
   </tbody></table></div>
-  <h3 style="margin-top:1.2rem">Games <span class="small muted">(${rows.length}, newest first)</span></h3>
-  <button class="btn pri" id="l-add">+ Add game</button>
-  <div class="tw" style="margin-top:.5rem"><table class="lg-table"><thead><tr><th class="l">Home</th><th class="l">Away</th><th class="l">Decided in</th><th>Home<br>score</th><th>Away<br>score</th><th>Home<br>shots</th><th>Away<br>shots</th><th title="Playoff games don't count in the standings">Playoff</th><th class="l">Result</th><th></th></tr></thead><tbody>
-  ${rows.map(({ g, i }) => `<tr>
-    <td class="l"><select data-lg="${i}" data-k="home">${lgTeamOpts(L.id, g.home)}</select></td>
-    <td class="l"><select data-lg="${i}" data-k="away">${lgTeamOpts(L.id, g.away)}</select></td>
-    <td class="l"><select data-lg="${i}" data-k="ot">${[[null, 'Regulation'], ['OT', 'Overtime'], ['SO', 'Shootout']].map(([v, t]) => `<option value="${v ?? ''}" ${C.lgOT(g) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></td>
-    <td>${num(i, 'home_score', g.home_score)}</td><td>${num(i, 'away_score', g.away_score)}</td><td>${num(i, 'home_shots', g.home_shots)}</td><td>${num(i, 'away_shots', g.away_shots)}</td>
-    <td><input type="checkbox" data-lg="${i}" data-k="playoff" ${g.playoff ? 'checked' : ''}></td>
-    <td class="l small">${g.home && g.home === g.away ? '<span style="color:var(--red)">same team twice</span>' : lgResult(g)}</td>
-    <td><button class="x" data-dellg="${i}" title="Delete game">✕</button></td></tr>`).join('') || '<tr><td colspan="10" class="muted">No games yet.</td></tr>'}
-  </tbody></table></div>
-  <p class="small muted">In overtime or a shootout, enter the final score including the deciding goal, the way the league reports it. The winner gets 2 points and the loser 1.</p></div>`;
+  <h3 style="margin-top:1.2rem">Games by date</h3>
+  ${needDays.length ? `<p class="lg-needs">Need results: ${needDays.map(gr => `<a href="#lgday-${gr.date}">${esc(dayLabel(gr.date))} (${gr.rows.filter(r => needsResult(r.g)).length})</a>`).join(' · ')}</p>` : '<p class="small muted">Every game played so far has a result.</p>'}
+  ${lgTable(L.id, groups, sched)}
+  <div class="row" style="margin-top:.6rem"><label>Date<input type="date" id="l-adddate" value="${esc(needDays[0]?.date || groups.filter(g => g.date).at(-1)?.date || '')}"></label><button class="btn" id="l-add">+ Add game on this date</button></div>
+  <p class="small muted">For overtime and shootout games, enter the final score the way the league reports it. A shootout can end tied: that's a tie, 1 point each.</p></div>`;
 }
+// league game inputs work on both the League games tab and the Game tab's "League results" section
+document.addEventListener('change', e => {
+  const t = e.target; if (t.dataset.lg === undefined || (TAB !== 'league' && TAB !== 'game')) return;
+  const g = DATA.league_games[+t.dataset.lg], k = t.dataset.k;
+  if (k === 'playoff') g.playoff = t.checked;
+  else if (k === 'ot') g.ot = t.value || null;
+  else if (k === 'home' || k === 'away') g[k] = t.value || null;
+  else g[k] = t.value === '' ? null : Math.max(0, Math.round(+t.value));
+  if (g.ot === undefined) g.ot = C.lgOT(g);
+  g.winner = C.lgWinner(g); reindex(); render();
+});
+function useSite(i) {
+  const g = DATA.league_games[i], x = siteFor(g.season, g); if (!x || C.lgFinal(g)) return false;
+  g.home_score = x.home_score; g.away_score = x.away_score; g.ot = x.ot || null; g.winner = C.lgWinner(g); return true;
+}
+document.addEventListener('click', e => {
+  const t = e.target; if (TAB !== 'league' && TAB !== 'game') return;
+  if (t.dataset.lguse !== undefined) { useSite(+t.dataset.lguse); reindex(); render(); }
+  if (t.dataset.lguseday !== undefined) { const sid = TAB === 'game' ? G.f.season : L.id; let n = 0; for (const r of lgRows(sid)) if (r.g.date === t.dataset.lguseday && useSite(r.i)) n++; reindex(); render(); }
+  if (t.dataset.dellg !== undefined) { const g = DATA.league_games[+t.dataset.dellg]; if (confirm(`Delete ${g.home ? DATA.teams[g.home] : '?'} vs ${g.away ? DATA.teams[g.away] : '?'}?`)) { DATA.league_games.splice(+t.dataset.dellg, 1); reindex(); render(); } }
+});
 document.addEventListener('change', e => {
   if (TAB !== 'league') return;
   const t = e.target;
-  if (t.id === 'l-pick') { L.id = t.value; return render(); }
-  if (t.dataset.lg !== undefined) {
-    const g = DATA.league_games[+t.dataset.lg], k = t.dataset.k;
-    if (k === 'playoff') g.playoff = t.checked;
-    else if (k === 'ot') g.ot = t.value || null;
-    else if (k === 'home' || k === 'away') g[k] = t.value || null;
-    else g[k] = t.value === '' ? null : Math.max(0, Math.round(+t.value));
-    if (g.ot === undefined) g.ot = C.lgOT(g);
-    g.winner = C.lgWinner(g); reindex(); render();
-  }
+  if (t.id === 'l-pick') { L.id = t.value; L.report = ''; return render(); }
 });
 document.addEventListener('click', e => {
   if (TAB !== 'league') return;
   const t = e.target;
-  if (t.id === 'l-add') { (DATA.league_games ||= []).push({ season: L.id, slot: null, home: null, away: null, home_score: null, away_score: null, home_shots: null, away_shots: null, ot: null, winner: null, playoff: false, championship: false }); reindex(); render(); }
-  if (t.dataset.dellg !== undefined) { const g = DATA.league_games[+t.dataset.dellg]; if (confirm(`Delete ${g.home ? DATA.teams[g.home] : '?'} vs ${g.away ? DATA.teams[g.away] : '?'}?`)) { DATA.league_games.splice(+t.dataset.dellg, 1); reindex(); render(); } }
+  if (t.id === 'l-add') {
+    const d = $('#l-adddate').value || null;
+    (DATA.league_games ||= []).push({ season: L.id, date: d, time: null, home: null, away: null, home_score: null, away_score: null, home_shots: null, away_shots: null, ot: null, winner: null, playoff: false, championship: false });
+    reindex(); render(); document.getElementById('lgday-' + (d || 'none'))?.scrollIntoView({ block: 'start' });
+  }
   if (t.id === 'l-live') { if (confirm(`Work out ${IX.seasonById[L.id].name}'s standings from the games instead of the sheet snapshot?`)) { IX.seasonById[L.id].standings_from_games = true; reindex(); render(); } }
+  if (t.id === 'l-reload') { delete SCHED_ERR[L.id]; loadSchedule(L.id, true); render(); }
+  if (t.id === 'l-sync') {
+    const r = C.mergeSchedule(DATA, L.id, SCHED[L.id], sid => cleanGame(newGame(sid)));
+    const n = r.leagueAdded.length + r.leagueUpdated.length + r.squawksAdded.length + r.squawksUpdated.length;
+    L.report = n || r.notes.length || r.unknownTeams.length ? `<b>Synced.</b> ${[
+      r.leagueAdded.length && `${r.leagueAdded.length} league game${r.leagueAdded.length === 1 ? '' : 's'} added`,
+      r.leagueUpdated.length && `${r.leagueUpdated.length} league game${r.leagueUpdated.length === 1 ? '' : 's'} given dates, times or home/away`,
+      r.squawksAdded.length && `${r.squawksAdded.length} Squawks game${r.squawksAdded.length === 1 ? '' : 's'} added to the schedule`,
+      r.squawksUpdated.length && `${r.squawksUpdated.length} Squawks game time${r.squawksUpdated.length === 1 ? '' : 's'} updated`].filter(Boolean).join(', ') || 'Nothing to change'}. No scores were changed.
+      ${r.notes.map(x => `<br>⚠ ${esc(x)}`).join('')}${r.unknownTeams.length ? `<br>⚠ Skipped games with teams not in the data: ${r.unknownTeams.map(esc).join(', ')}.` : ''}` : '<b>Already up to date.</b> Nothing to change.';
+    reindex(); render();
+  }
 });
 
 // =====================================================================
