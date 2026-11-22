@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=bbcf0994e1';
-import * as C from './core.js?v=bbcf0994e1';
+import * as TR from './trophies.js?v=61e57c9440';
+import * as C from './core.js?v=61e57c9440';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -488,7 +488,7 @@ function kegChampions() {
   return [...(IX.data.awards || [])].filter(a => a.stanley_keg).sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).map(a => {
     const s = IX.seasonById[a.season], team = a.stanley_keg;
     // names: an engraving list saved with the award, otherwise (for the Squawks) the season roster, captain marked like the real Cup
-    let names = (a.keg_roster || []).map(t => ({ text: t })), captain = a.keg_captain ? { text: a.keg_captain } : null;
+    let names = (a.keg_roster || []).map(t => ({ text: t, note: t.trim().split(/\s+/).length > 4 })) /* a long line is a note, not a name */, captain = a.keg_captain ? { text: a.keg_captain } : null;
     if (!names.length && team === 'WSQ') {
       const ros = s?.roster || [], cap = ros.find(e => (e.tags || []).includes('C'));
       if (cap) captain = { text: pname(cap.player), href: `#/player/${cap.player}` };

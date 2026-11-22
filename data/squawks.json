@@ -15968,7 +15968,20 @@
     "name": "Ryan Linnane",
     "value": 22,
     "team": "HMR"
-   }
+   },
+   "keg_roster": [
+    "Nathanael Lind",
+    "Patrick Bartshe",
+    "Nicholas Nixon",
+    "Ian Macauley",
+    "Jeffrey Larson",
+    "Dillon Gentry",
+    "Merle Hill",
+    "Michael West",
+    "Brian Collins",
+    "Ilya Sofinskiy",
+    "And others lost to time"
+   ]
   },
   {
    "season": "S23",
@@ -15984,7 +15997,22 @@
     "name": "Johnny Andersen",
     "value": 16,
     "team": "WKD"
-   }
+   },
+   "keg_roster": [
+    "William Lewis",
+    "David Wiltz",
+    "Matthew Palmer",
+    "Michael Bair",
+    "Christian De Verteuil",
+    "Mason Saxton",
+    "Eric Olmedo",
+    "Jerad Klingsporn",
+    "Stacey Ross",
+    "Joseph Matarazzo",
+    "Nicholas Anderson",
+    "Che Lowenstein",
+    "And others lost to time"
+   ]
   },
   {
    "season": "F23",
@@ -16000,7 +16028,22 @@
     "name": "Ryan Linnane",
     "value": 15,
     "team": "HMR"
-   }
+   },
+   "keg_roster": [
+    "Drew Liebert",
+    "Shaun Guth",
+    "Thomas Jacobs",
+    "Joel Wick",
+    "Ryan Linnane",
+    "Jeff Farrell",
+    "Travis Kanoff",
+    "Rich Turkisher",
+    "Isaac Erickson",
+    "Stephen Brusse",
+    "Bryan Erickson",
+    "Jerome Piche",
+    "And others lost to time"
+   ]
   },
   {
    "season": "W24",
@@ -16016,7 +16059,10 @@
     "name": "Mark Hilzenrath",
     "value": 18,
     "team": "AMW"
-   }
+   },
+   "keg_roster": [
+    "A bunch of old guys and all their college aged kids who conveniently were rostered come playoff time"
+   ]
   },
   {
    "season": "S24",

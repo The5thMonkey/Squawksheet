@@ -492,3 +492,4 @@ body.kv-open{overflow:hidden}
 .ar-puck{gap:.5rem}
 .ar-grid{column-gap:.6rem;row-gap:.8rem}
 .ar-name{font-size:.56rem}
+.kv-names .kv-note{flex-basis:100%;font-style:italic;letter-spacing:.02em}
