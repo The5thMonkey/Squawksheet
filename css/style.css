@@ -533,6 +533,6 @@ body.kv-open{overflow:hidden}
 @media (max-width:700px){ .tc-shelf .tc-squawkcup{position:static;height:220px;width:auto} }
 .tc-squawkcup:hover{filter:none}
 /* a worn-out baseball lying in the bottom shelf's left corner */
-.tc-shelf .tc-baseball{position:absolute;left:1.6rem;bottom:-2px;z-index:1;width:clamp(40px,5vw,58px);transform:rotate(-8deg);filter:brightness(.92)}
+.tc-squawkcup .sc-svg{position:relative;z-index:1}
+.tc-squawkcup .tc-baseball{position:absolute;left:4%;bottom:-1px;z-index:0;width:27%;transform:rotate(-8deg);filter:brightness(.85)}
 .tc-baseball .bb-svg{display:block;width:100%;height:auto}
-@media (max-width:700px){ .tc-shelf .tc-baseball{position:static} }

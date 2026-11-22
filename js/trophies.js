@@ -20,21 +20,27 @@ function chrome(id, dark = '#56616b') {
 // or 'minis' (little paper-wrapped bitters bottles). Plain, unbranded designs.
 function iceFill(cx, cy, rx, ry, kind) {
   const ice = (x, y, s, r) => `<rect x="${x - s / 2}" y="${y - s / 2}" width="${s}" height="${s}" rx="${s * .22}" transform="rotate(${r} ${x} ${y})" fill="#eaf6fc" stroke="#7fa8bd" stroke-width=".9"/><path d="M${x - s * .3} ${y - s * .15} l${s * .25} -${s * .15}" stroke="#fff" stroke-width="${s * .12}" stroke-linecap="round" transform="rotate(${r} ${x} ${y})"/>`;
+  const moose = `<g fill="#efe3c0"><ellipse cx="0" cy="0" rx="3.4" ry="1.7"/><path d="M-2.9 .8 v2.4 h.7 v-2.2 M-1.6 1 v2.2 h.7 v-2.2 M1.4 1 v2.2 h.7 v-2.2 M2.5 .7 v2.5 h.7 v-2.4" stroke="#efe3c0" stroke-width=".5"/>
+      <path d="M2.4 -1 L4.4 -2.2 L5.9 -1.5 L5.6 -.5 L4.1 -.3 Z"/><path d="M3.9 -2.3 l-.9 -1.5 l.7 .2 l.1 -.9 l.6 .9 l.6 -.8 l.3 1 l.9 -.5 l-.7 1.5 Z"/></g>`;
+  const leaf = 'M0 -4.6 L.9 -2.8 L2 -3.3 L1.6 -1.1 L3.3 -2 L2.9 -.7 L4.2 -.5 L2.9 .7 L3.3 1.3 L.9 1.1 L.45 1.3 L.45 3 L-.45 3 L-.45 1.3 L-.9 1.1 L-3.3 1.3 L-2.9 .7 L-4.2 -.5 L-2.9 -.7 L-3.3 -2 L-1.6 -1.1 L-2 -3.3 L-.9 -2.8 Z';
   const can = (x, y, r, h = 26) => `<g transform="translate(${x} ${y}) rotate(${r})">
-      <rect x="-7" y="${-h}" width="14" height="${h}" rx="2" fill="#1c55b5" stroke="${INK}" stroke-width="1.6"/>
-      <path d="M-7 ${-h * .62} L7 ${-h * .48} L7 ${-h * .36} L-7 ${-h * .5} Z" fill="#fff"/>
-      <rect x="-4.5" y="${-h + 3}" width="2.4" height="${h - 6}" rx="1.2" fill="#fff" opacity=".35"/>
+      <rect x="-7" y="${-h}" width="14" height="${h}" rx="2" fill="#1e4d2e" stroke="${INK}" stroke-width="1.6"/>
+      <path d="M-7 ${-h + 3.5} H7 M-7 -3.5 H7" stroke="#c9a94e" stroke-width="1.2"/>
+      <g transform="translate(-.6 ${-h * .52}) scale(1.05)">${moose}</g>
+      <rect x="-4.8" y="${-h + 3}" width="2.2" height="${h - 6}" rx="1.1" fill="#fff" opacity=".22"/>
       <ellipse cx="0" cy="${-h}" rx="7" ry="2.2" fill="#d7dee3" stroke="${INK}" stroke-width="1.3"/></g>`;
   const bottle = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})">
       <path d="M-6 0 V-17 Q-6 -21 -2.5 -23 V-31 H2.5 V-23 Q6 -21 6 -17 V0 Z" fill="#7a3f10" stroke="${INK}" stroke-width="1.5"/>
-      <rect x="-6" y="-14" width="12" height="9" fill="#1c55b5"/><path d="M-6 -11 H6" stroke="#fff" stroke-width="1.6"/>
+      <rect x="-6" y="-15" width="12" height="10" fill="#f6f1e4"/><g transform="translate(0 -10) scale(.95)"><path d="${leaf}" fill="#d0202a"/></g>
       <rect x="-3" y="-34" width="6" height="3.5" rx="1" fill="#c9a227" stroke="${INK}" stroke-width="1"/>
-      <rect x="-4" y="-21" width="1.6" height="16" rx=".8" fill="#fff" opacity=".35"/></g>`;
+      <rect x="-4.4" y="-21" width="1.5" height="5" rx=".7" fill="#fff" opacity=".35"/></g>`;
+  // little bitters bottle wrapped in brown paper that runs up over the cap and is twisted shut; white label with green stripes under the neck
   const mini = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(1.45)">
-      <path d="M-4.2 0 V-11 Q-4.2 -14 -1.8 -15 V-20 H1.8 V-15 Q4.2 -14 4.2 -11 V0 Z" fill="#a9824f" stroke="${INK}" stroke-width="1.2"/>
-      <path d="M-4.2 -3 L4.2 -5 M-4.2 -7 L4.2 -8.6" stroke="#7d5a2e" stroke-width=".7"/>
-      <rect x="-4.2" y="-10" width="8.4" height="3.6" fill="#f1e6c8"/>
-      <rect x="-2.3" y="-22.5" width="4.6" height="2.8" rx=".6" fill="#2f6b34" stroke="${INK}" stroke-width=".8"/></g>`;
+      <path d="M-4.2 0 V-11 Q-4.2 -14 -1.8 -15 V-21 L-2.7 -23.6 L-1.3 -22.8 L0 -24.2 L1.3 -22.8 L2.7 -23.6 L1.8 -21 V-15 Q4.2 -14 4.2 -11 V0 Z" fill="#a9824f" stroke="${INK}" stroke-width="1.1"/>
+      <path d="M-1.8 -21 Q0 -20.2 1.8 -21 M-.8 -20.6 L-.5 -23 M.7 -20.6 L.6 -23.2" stroke="#7d5a2e" stroke-width=".55" fill="none"/>
+      <path d="M-4.2 -3 L4.2 -4.6 M-4.2 -6.4 L4.2 -7.4 M-1.4 -17 L-1.2 -20" stroke="#7d5a2e" stroke-width=".6"/>
+      <path d="M-3.9 -13.6 Q0 -15 3.9 -13.6 L4.2 -10.4 Q0 -9.4 -4.2 -10.4 Z" fill="#fbfaf4" stroke="#8d8a7c" stroke-width=".4"/>
+      <path d="M-4 -12.6 Q0 -13.7 4 -12.6 M-4.1 -11.2 Q0 -10.4 4.1 -11.2" stroke="#2f7a3a" stroke-width=".7" fill="none"/></g>`;
   const k = rx / 74;   // scale positions to the bowl
   const X = f => cx + f * rx, Y = f => cy + f * ry;
   const mound = `<path d="M${cx - rx * .92} ${cy + ry * .2} Q${cx - rx * .5} ${cy - ry * 1.6} ${cx} ${cy - ry * 1.5} Q${cx + rx * .5} ${cy - ry * 1.6} ${cx + rx * .92} ${cy + ry * .2} Z" fill="#d7ecf6"/>`;
@@ -644,8 +650,7 @@ export function trophyCase(ctx) {
       </div>
       <div class="tc-board"></div>
       <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}
-        <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}</div>
-        <div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div>
+        <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
