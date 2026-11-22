@@ -522,6 +522,57 @@ function pedestalSVG() {
   <path d="M14 26 Q150 58 286 26" fill="none" stroke="#d3dae0" stroke-width="2"/>
   </svg>`;
 }
+// The real Squawk Cup: a beat-up plastic stadium cup with a black rim, scratched-up print, a hockey-net pattern,
+// stickers, and a base wrapped in layers of grubby stick tape with CHAMPIONS written on it in marker.
+function squawkCupSVG() {
+  const id = 'sc' + (++uid);
+  const body = 'M10 14 L26 212 Q60 221 94 212 L110 14 Z';
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const scratches = Array.from({ length: 70 }, () => { const x = 12 + rnd() * 96, y = 18 + rnd() * 108, a = rnd() * 3.14, l = 2 + rnd() * 9;
+    return `M${x.toFixed(1)} ${y.toFixed(1)} l${(Math.cos(a) * l).toFixed(1)} ${(Math.sin(a) * l).toFixed(1)}`; }).join(' ');
+  const specks = Array.from({ length: 40 }, () => `<circle cx="${(14 + rnd() * 92).toFixed(1)}" cy="${(132 + rnd() * 80).toFixed(1)}" r="${(.4 + rnd() * 1.3).toFixed(1)}" fill="#5b4a2e" opacity="${(.15 + rnd() * .35).toFixed(2)}"/>`).join('');
+  const rainbow = ['#ff4d4d', '#ff9f1c', '#ffd23f', '#3ecf6e', '#3aa0ff', '#8b5cf6', '#ff5fa2'];
+  const sq = [...'SQUAWKS'].map((c, i) => `<tspan fill="${rainbow[i]}">${c}</tspan>`).join('');
+  // tape bands: y, height, colour, writing, x shift of the writing (it runs round the cup, so it's cut off at the edges)
+  const tape = [[128, 17, '#cbb68c', 'SQUAWKS', -10], [145, 16, '#d6c49d', 'CHAMPIONS', 12], [160, 17, '#c9b48a', 'CHAMPIONS', -14], [176, 17, '#e4dccb', 'CHAMPIONS', 9], [192, 22, '#ebe6da', 'CHAMPIONS', 0]];
+  const band = ([y, h, c, txt, dx], i) => {
+    const jag = Array.from({ length: 12 }, (_, k) => `L${(8 + k * 9.5).toFixed(1)} ${(y + (k % 2 ? 1.2 : -.6) + (i % 2 ? .8 : 0)).toFixed(1)}`).join(' ');
+    return `<path d="M4 ${y} ${jag} L116 ${y} L116 ${y + h} Q60 ${y + h + 5} 4 ${y + h} Z" fill="${c}"/>
+      <path d="M4 ${y + h} Q60 ${y + h + 5} 116 ${y + h}" stroke="#8d7a55" stroke-width=".9" fill="none" opacity=".8"/>
+      <path d="M4 ${y + 3} Q60 ${y + 7} 116 ${y + 3}" stroke="#fff" stroke-width="1" fill="none" opacity=".35"/>
+      <text x="${60 + dx}" y="${y + h * .78}" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="${h * .82}" fill="#1b1b1b" opacity=".82" letter-spacing="1">${txt}</text>`;
+  };
+  return `<svg viewBox="0 0 120 226" class="sc-svg" role="img" aria-label="The Squawk Cup">
+  <defs><clipPath id="${id}c"><path d="${body}"/></clipPath>
+    <linearGradient id="${id}sh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".25" stop-color="#fff" stop-opacity=".05"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient></defs>
+  <ellipse cx="60" cy="216" rx="40" ry="6" fill="#000" opacity=".35"/>
+  <g clip-path="url(#${id}c)">
+    <rect x="0" y="0" width="120" height="226" fill="#1d1f23"/>
+    <rect x="0" y="14" width="120" height="16" fill="#3a3f47"/>
+    <!-- hockey-net pattern -->
+    <g stroke="#e9e9e9" stroke-linecap="round" fill="none"><path d="M6 30 L70 120 M6 96 L56 30 M40 18 L100 104" stroke-width="5" stroke-dasharray="2.5 1.6" opacity=".9"/><path d="M6 30 L70 120 M6 96 L56 30 M40 18 L100 104" stroke-width="1.4" stroke="#b9b9b9"/></g>
+    <!-- worn white-and-red print -->
+    <path d="M62 52 C74 40 98 42 108 58 C112 72 104 92 92 102 C84 110 70 108 64 98 C70 90 66 84 58 82 C64 72 56 64 62 52 Z" fill="#f2f2f2" opacity=".92"/>
+    <path d="M58 50 C72 34 104 36 112 60" stroke="#c8302c" stroke-width="3" fill="none"/><path d="M56 84 C50 100 58 116 76 120" stroke="#c8302c" stroke-width="2.4" fill="none"/>
+    <path d="${scratches}" stroke="#ffffff" stroke-width=".9" opacity=".55" stroke-linecap="round"/>
+    <text x="60" y="27" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="12" letter-spacing="2">${sq}</text>
+    <text transform="translate(19 40) rotate(90)" font-family="'Arial Black',Impact,sans-serif" font-size="8" fill="#f08a24" letter-spacing="1.5" opacity=".9">SQUAWKS</text>
+    <!-- stickers -->
+    <g transform="translate(48 48)"><circle r="13" fill="#9fd3f2" stroke="#fff" stroke-width="2.4" stroke-dasharray=".1 3.2" stroke-linecap="round"/><circle r="11.5" fill="#9fd3f2"/>
+      <path d="M-7 4 A7 7 0 0 1 7 4" stroke="#ff4d4d" stroke-width="1.6" fill="none"/><path d="M-5.4 4 A5.4 5.4 0 0 1 5.4 4" stroke="#ffd23f" stroke-width="1.6" fill="none"/><path d="M-3.8 4 A3.8 3.8 0 0 1 3.8 4" stroke="#3ecf6e" stroke-width="1.6" fill="none"/>
+      <path d="M-1 -2 l3 -8" stroke="#f5d76e" stroke-width="1.4" stroke-linecap="round"/><circle cx="-2" cy="0" r="3" fill="#fff"/></g>
+    <g transform="translate(22 66) rotate(-6)"><path d="M-6 -8 H6 V-3 Q6 4 0 5 Q-6 4 -6 -3 Z" fill="#e0a526" stroke="#8a5a12" stroke-width=".8"/><rect x="-1.5" y="5" width="3" height="4" fill="#c88a1c"/><rect x="-4.5" y="9" width="9" height="3.5" fill="#a5651c"/></g>
+    <g transform="translate(97 44)"><path d="M-7 -6 H7 V4 H0 L-4 8 V4 H-7 Z" fill="#fff"/><path d="M0 1.5 L-2.4 -1 A1.4 1.4 0 0 1 0 -2.6 A1.4 1.4 0 0 1 2.4 -1 Z" fill="#e0303c"/></g>
+    <g transform="translate(32 114) rotate(-7)"><rect x="-12" y="-6" width="24" height="11" rx="1.5" fill="#9a4a24" stroke="#5a2a10" stroke-width=".8"/><text y="2.6" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="6.6" fill="#f3d9b5">SPORT</text></g>
+    <!-- the tape -->
+    ${tape.map(band).join('')}${specks}
+    <rect x="0" y="0" width="120" height="226" fill="url(#${id}sh)"/>
+  </g>
+  <path d="${body}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
+  <ellipse cx="60" cy="14" rx="50.5" ry="6.5" fill="#26292e" stroke="${INK}" stroke-width="2.6"/><ellipse cx="60" cy="14.6" rx="46" ry="4.4" fill="#0d0e10"/>
+  <path d="M16 12.5 Q36 8.5 54 8.4" stroke="#fff" stroke-width="1.2" opacity=".5" fill="none"/>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -544,7 +595,8 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
-      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}
+        <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}</div></div>
       <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
