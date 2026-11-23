@@ -744,14 +744,36 @@ function sticksSVG() {
       <rect x="-1.4" y="270" width="2.8" height="${len * .4}" fill="${accent2}"/>
       <rect x="-7" y="${len * .66}" width="14" height="30" fill="${accent}" opacity=".9"/>
       <rect x="-4.8" y="4" width="2" height="${len - 8}" fill="#fff" opacity=".14"/></g>
-      <path d="M${hx + 6} ${hy - 12} Q${hx + 4} ${hy + 14} ${hx - 22} ${hy + 30} L${hx - 70} ${hy + 46} Q${hx - 78} ${hy + 42} ${hx - 72} ${hy + 30} L${hx - 30} ${hy + 14} Q${hx - 12} ${hy + 4} ${hx - 8} ${hy - 14} Z"
-        fill="#f1eee6" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
-      <path d="M${hx - 20} ${hy + 18} l-3 9 M${hx - 34} ${hy + 24} l-3 9 M${hx - 48} ${hy + 29} l-2 9 M${hx - 60} ${hy + 34} l-2 8 M${hx - 26} ${hy + 22} l6 2" stroke="#8a8578" stroke-width="1.3"/>`;
+      <path d="M${hx - 8} ${hy - 14} Q${hx - 6} ${hy + 14} ${hx + 22} ${hy + 30} L${hx + 100} ${hy + 50} Q${hx + 112} ${hy + 46} ${hx + 106} ${hy + 30} L${hx + 34} ${hy + 12} Q${hx + 14} ${hy + 2} ${hx + 9} ${hy - 18} Z"
+        fill="#f1eee6" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M${hx + 24} ${hy + 18} l2 11 M${hx + 42} ${hy + 24} l2 11 M${hx + 60} ${hy + 29} l2 11 M${hx + 78} ${hy + 34} l2 10 M${hx + 92} ${hy + 38} l1 9 M${hx + 30} ${hy + 22} l-7 3" stroke="#8a8578" stroke-width="1.4"/>`;
   };
-  return `<svg viewBox="0 0 170 1000" class="st-svg" aria-hidden="true">
-  <ellipse cx="100" cy="994" rx="70" ry="5" fill="#000" opacity=".3"/>
-  ${stick(18, 10, 112, 930, '#f06a1f', '#2f6fd6')}${stick(40, 44, 132, 936, '#2bd37a', '#2bd37a')}${stick(62, 80, 152, 942, '#22b8c9', '#e6e6e6')}
+  return `<svg viewBox="0 0 170 1000" class="st-svg" overflow="visible" aria-hidden="true">
+  <ellipse cx="150" cy="992" rx="96" ry="5" fill="#000" opacity=".3"/>
+  ${stick(14, 10, 70, 922, '#f06a1f', '#2f6fd6')}${stick(36, 44, 90, 930, '#2bd37a', '#2bd37a')}${stick(58, 80, 110, 938, '#22b8c9', '#e6e6e6')}
   </svg>`;
+}
+// A wall-mounted TV with an idle screen; clicking it zooms in and plays the video
+const TV_VIDEO = 'JeRkCnOnmmc';
+function tvHTML() {
+  return `<button class="tc-tv" type="button" data-trophy="tv" aria-label="TV: Reserved for Steve. Play the video">
+    <span class="tv-mount" aria-hidden="true"></span>
+    <span class="tv-bezel"><span class="tv-screen"><span class="tv-idle"><span>Reserved for Steve</span></span></span><span class="tv-led"></span></span></button>`;
+}
+export function openTV() {
+  const ov = document.createElement('div'); ov.className = 'kv tvz-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Reserved for Steve');
+  ov.innerHTML = `<div class="kv-stage tvz-stage"><div class="tvz"><span class="tv-bezel"><span class="tv-screen">
+      <iframe src="https://www.youtube-nocookie.com/embed/${TV_VIDEO}?autoplay=1&rel=0&playsinline=1" title="Reserved for Steve" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+    </span><span class="tv-led on"></span></span></div></div>
+    <div class="kv-bar"><div class="kv-cap"><b>Reserved for Steve</b><a class="small" href="https://www.youtube.com/watch?v=${TV_VIDEO}" target="_blank" rel="noopener">Open on YouTube ↗</a></div>
+      <button class="kv-btn kv-x" data-tv="close" aria-label="Close">✕</button></div>`;
+  document.body.appendChild(ov); document.body.classList.add('kv-open');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const close = () => { ov.classList.add('closing'); document.body.classList.remove('kv-open'); removeEventListener('keydown', key); setTimeout(() => ov.remove(), reduce ? 0 : 250); };
+  const key = e => { if (e.key === 'Escape') close(); };
+  ov.addEventListener('click', e => { if (e.target.closest('[data-tv="close"]') || e.target === ov.querySelector('.tvz-stage')) close(); });
+  addEventListener('keydown', key);
+  ov.querySelector('[data-tv="close"]').focus();
 }
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
@@ -776,8 +798,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
-      <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}
-        <div class="tc-beanie" title="A Squawks beanie">${beanieSVG()}</div>
+      <div class="tc-shelf tc-level2">${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>

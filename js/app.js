@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=d461ff853f';
-import * as C from './core.js?v=d461ff853f';
+import * as TR from './trophies.js?v=042cdf1442';
+import * as C from './core.js?v=042cdf1442';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -547,6 +547,7 @@ document.addEventListener('click', e => {
   if (!t) return;
   if (t.dataset.trophy === 'ross') TR.openTrophy('ross', awardWinners('art_ross'), 'Art Ross Trophy · points leaders');
   else if (t.dataset.trophy === 'pucks') TR.openTrophy('pucks', cupWinners(), 'Squawk 🏆 winners · three-stars points');
+  else if (t.dataset.trophy === 'tv') TR.openTV();
   else TR.openTrophy('rocket', awardWinners('rocket'), '"Rocket" Richard Trophy · goal leaders');
 });
 
