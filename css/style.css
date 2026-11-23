@@ -595,6 +595,6 @@ body{overflow-x:clip}
 .tc-jello svg{display:block;width:100%;height:auto}
 @media (max-width:700px){ .tc-sticky{top:2.4rem} }
 /* Lindsay's jersey on the bottom shelf's back wall, behind the President's Trophies */
-.tc-shelf .tc-jersey{position:absolute;left:30.5%;top:.6rem;width:clamp(150px,19vw,240px);transform:translateX(-50%) rotate(-1.5deg)}
+.tc-shelf .tc-jersey{position:absolute;left:30.5%;top:2.2rem;width:clamp(150px,19vw,240px);transform:translateX(-50%) rotate(-1.5deg)}
 .tc-jersey svg{display:block;width:100%;height:auto}
 @media (max-width:700px){ .tc-shelf .tc-jersey{display:none} }

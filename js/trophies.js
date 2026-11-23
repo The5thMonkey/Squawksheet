@@ -889,7 +889,7 @@ function jerseySVG() {
     <text x="110" y="124" ${word} transform="rotate(180 110 130)">LINDSAY</text>`;
   // on a hanger: the wooden bar is inside the jersey, seen only through the neck hole; the metal hook comes up out of
   // the bar's centre and curls over a nail
-  return `<svg viewBox="0 -40 220 264" class="js-svg" role="img" aria-label="Lindsay's number 33 goalie jersey on a hanger">
+  return `<svg viewBox="0 -14 220 238" class="js-svg" role="img" aria-label="Lindsay's number 33 goalie jersey on a hanger">
     <defs><clipPath id="jsN"><path d="M96 18 Q110 52 124 18 Z"/></clipPath>
       <linearGradient id="jsW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c58a48"/><stop offset="1" stop-color="#8a5726"/></linearGradient></defs>
     ${body}
@@ -899,9 +899,9 @@ function jerseySVG() {
     </g>
     <path d="M96 18 Q110 52 124 18" fill="none" stroke="${INK}" stroke-width="2.2"/>
     <circle cx="110" cy="23" r="2.6" fill="#b9c1c8" stroke="${INK}" stroke-width="1.2"/>
-    <path d="M110 22 V-6 Q110 -16 117 -21 Q123 -27 118 -33 Q113 -38 106 -34" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>
-    <path d="M110 22 V-6 Q110 -16 117 -21 Q123 -27 118 -33 Q113 -38 106 -34" fill="none" stroke="#c3cad1" stroke-width="2.2" stroke-linecap="round"/>
-    <circle cx="112" cy="-31" r="3.2" fill="#8a939c" stroke="${INK}" stroke-width="1.4"/>
+    <path d="M110 22 V11 Q110 5 114.5 2 Q119 -2 116 -7 Q113 -10.5 107.5 -8" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>
+    <path d="M110 22 V11 Q110 5 114.5 2 Q119 -2 116 -7 Q113 -10.5 107.5 -8" fill="none" stroke="#c3cad1" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="112" cy="-5" r="3.2" fill="#8a939c" stroke="${INK}" stroke-width="1.4"/>
     </svg>`;
 }
 export function trophyCase(ctx) {
