@@ -815,6 +815,64 @@ function skeletonSVG() {
   </g>
   </svg>`;
 }
+// ---------------- graffiti and odds and ends ----------------
+// words scratched into the wooden shelf with a key
+function scratchSVG() {
+  return `<svg viewBox="0 0 220 34" class="sc-scratch" aria-label="Scratched into the wood: Fuck Norris">
+  <defs><filter id="scrF" x="-5%" y="-30%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4"/></filter></defs>
+  <g filter="url(#scrF)" font-family="'Bradley Hand','Segoe Print','Comic Sans MS',cursive" font-size="25" font-style="italic" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-3 110 17)">
+    <text x="110" y="25" text-anchor="middle" stroke="#3b1d08" stroke-width="1.6" opacity=".55" transform="translate(.6 .8)">Fuck Norris</text>
+    <text x="110" y="25" text-anchor="middle" stroke="#ffd9a6" stroke-width="1.1" opacity=".9">Fuck Norris</text>
+  </g>
+  <path d="M30 29 l12 -2 M170 9 l14 -3" stroke="#ffd9a6" stroke-width=".7" opacity=".6"/>
+  </svg>`;
+}
+// pink Sharpie on the glass, inside a heart
+function squivesSVG() {
+  return `<svg viewBox="0 0 230 150" class="sq-graffiti" aria-label="Written on the glass in pink marker: Squives were here">
+  <g fill="none" stroke="#ff4fa8" stroke-linecap="round" stroke-linejoin="round" opacity=".92">
+    <path d="M115 140 C70 108 14 86 12 46 C10 18 34 6 58 10 C84 14 104 34 115 52 C126 32 148 12 176 10 C202 9 222 26 218 54 C214 90 160 112 115 140 Z" stroke-width="4.2"/>
+    <path d="M117 136 C78 110 22 88 18 50" stroke-width="1.4" opacity=".6"/>
+  </g>
+  <g font-family="'Permanent Marker','Marker Felt',cursive" fill="#ff4fa8" text-anchor="middle" opacity=".95" transform="rotate(-6 115 70)">
+    <text x="114" y="64" font-size="25">Squives</text><text x="116" y="92" font-size="21">were here</text></g>
+  </svg>`;
+}
+// sticky note with the Livebarn code history
+function stickyHTML() {
+  const strike = w => `<svg class="sn-strike" viewBox="0 0 60 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 L58 5 M3 4 Q18 12 30 6 T57 9" stroke="#1f2a6b" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+  return `<div class="tc-sticky" aria-label="Sticky note: Livebarn code. 6868 crossed out, 8686 crossed out, dead">
+    <b>Livebarn code</b><span class="sn-x">6868${strike()}</span><span class="sn-x">8686${strike()}</span><span>dead :(</span></div>`;
+}
+// emergency box: red frame, glass front, a jello shot inside, a little glass-breaker hammer resting on top
+function jelloBoxSVG() {
+  return `<svg viewBox="0 0 120 170" class="jb-svg" role="img" aria-label="A jello shot in a glass case: break if you need a goal">
+  <defs><linearGradient id="jbR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5257"/><stop offset="1" stop-color="#b3121a"/></linearGradient>
+    <linearGradient id="jbJ" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3d6e"/><stop offset="1" stop-color="#c3123f"/></linearGradient></defs>
+  <ellipse cx="60" cy="168" rx="52" ry="2.5" fill="#000" opacity=".35"/>
+  <!-- the hammer lying on top -->
+  <g transform="translate(14 22) rotate(-6)">
+    <rect x="0" y="2" width="70" height="7" rx="3" fill="#e3262b" stroke="${INK}" stroke-width="2"/>
+    <path d="M66 -4 L90 -4 Q94 -4 94 0 L94 15 Q94 19 90 19 L66 19 Z" fill="#c9ced3" stroke="${INK}" stroke-width="2"/>
+    <path d="M94 4 L100 7.5 L94 11" fill="#c9ced3" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M70 -1 H90" stroke="#fff" stroke-width="1.6"/></g>
+  <!-- the box -->
+  <rect x="6" y="34" width="108" height="104" rx="5" fill="url(#jbR)" stroke="${INK}" stroke-width="2.6"/>
+  <rect x="16" y="44" width="88" height="84" rx="2" fill="#0d1a2e" stroke="${INK}" stroke-width="2"/>
+  <!-- jello shot: little plastic cup -->
+  <path d="M42 120 L46 92 H74 L78 120 Z" fill="#f4f7fa" fill-opacity=".55" stroke="#9fb0bf" stroke-width="1.6"/>
+  <path d="M44 117 L47 98 H73 L76 117 Z" fill="url(#jbJ)"/><ellipse cx="60" cy="98" rx="13" ry="2.4" fill="#ff7a98"/>
+  <path d="M49 103 L48 113" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/>
+  <ellipse cx="60" cy="92" rx="14.5" ry="3" fill="none" stroke="#9fb0bf" stroke-width="1.6"/>
+  <!-- glass front -->
+  <rect x="16" y="44" width="88" height="84" rx="2" fill="#bfe6ff" fill-opacity=".18"/>
+  <path d="M22 50 L50 50 L22 86 Z M58 50 L66 50 L26 104 L22 104 Z" fill="#fff" opacity=".28"/>
+  <!-- label -->
+  <rect x="10" y="140" width="100" height="22" rx="2" fill="#f7f3e6" stroke="${INK}" stroke-width="2"/>
+  <text x="60" y="149.5" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="7" fill="#b3121a">BREAK IF YOU</text>
+  <text x="60" y="158" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="7" fill="#b3121a">NEED A GOAL</text>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -836,10 +894,11 @@ export function trophyCase(ctx) {
         ${ctx.rocket.length ? `<button class="tc-item tc-mini" type="button" data-trophy="rocket" aria-label="Rocket Richard Trophy: see the winners">
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
-      <div class="tc-board"></div>
-      <div class="tc-shelf tc-level2">${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-board"><span class="tc-scratch">${scratchSVG()}</span></div>
+      <div class="tc-shelf tc-level2"><div class="tc-jello" title="Break if you need a goal">${jelloBoxSVG()}</div>${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
+      <span class="tc-squives">${squivesSVG()}</span>${stickyHTML()}
     </div><div class="tc-glass" aria-hidden="true"></div></div>
     <div class="tc-plinth"></div>
   </section>`;
