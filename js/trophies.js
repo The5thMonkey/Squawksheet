@@ -754,7 +754,7 @@ export function openTV() {
   ov.querySelector('[data-tv="close"]').focus();
 }
 // The skeleton sitting on top of the case, as in the bar photo: Squawks beanie, white shoulder pads, head tilted with a
-// grin, one hand on the top of the case, legs dangling over the front. The seat (the case's top edge) is at y=118.
+// grin, both hands resting on the top of the case, legs dangling over the front. The seat (the case's top edge) is at y=118.
 function skeletonSVG() {
   const id = 'sk' + (++uid), bone = '#efe8d4', ink = `stroke="${INK}" stroke-linejoin="round" stroke-linecap="round"`;
   const b = (d, w = 1.8) => `<path d="${d}" fill="${bone}" ${ink} stroke-width="${w}"/>`;
@@ -786,15 +786,14 @@ function skeletonSVG() {
   <!-- his right arm hangs down to the case top; his left arm reaches up and back -->
   ${long(42, 58, 36, 86, 4)}${long(36, 88, 40, 112, 3.4)}
   ${b('M35 110 Q41 108 45 112 L44 118 Q38 119 35 116 Z', 1.4)}
-  ${long(98, 56, 112, 34, 4)}${long(112, 32, 120, 12, 3.4)}
-  ${b('M115 12 Q119 6 125 8 L126 14 Q121 16 116 15 Z', 1.4)}${fingers(117, 8)}
+  ${long(98, 58, 104, 86, 4)}${long(104, 88, 100, 112, 3.4)}
+  ${b('M105 110 Q99 108 95 112 L96 118 Q102 119 105 116 Z', 1.4)}
   <!-- white hockey shoulder pads -->
   <path d="M40 52 Q46 42 62 44 L70 50 L78 44 Q94 42 100 52 L100 70 Q92 76 88 70 L86 60 Q78 66 70 64 Q62 66 54 60 L52 70 Q48 76 40 70 Z" fill="#f4f6f8" ${ink} stroke-width="2"/>
   <path d="M36 50 Q36 38 50 38 Q58 40 58 50 Q56 62 48 64 Q38 62 36 50 Z" fill="#fbfcfd" ${ink} stroke-width="2"/>
   <path d="M84 48 Q84 36 96 36 Q106 38 106 48 Q104 60 96 62 Q86 60 84 48 Z" fill="#fbfcfd" ${ink} stroke-width="2"/>
   <path d="M40 46 Q46 41 54 43 M88 44 Q94 39 102 41" stroke="#fff" stroke-width="2" fill="none"/><path d="M38 56 Q46 62 56 58 M86 54 Q94 60 104 56" stroke="#b9c3cc" stroke-width="1.2" fill="none"/>
-  <rect x="58" y="60" width="9" height="3" rx="1" fill="#c8302c"/><path d="M56 70 L84 70" stroke="#cfd6dc" stroke-width="1.2"/>
-  <path d="M50 66 L50 82 M90 66 L90 82" stroke="#e4e8ec" stroke-width="3"/>
+  <rect x="58" y="60" width="9" height="3" rx="1" fill="#c8302c"/>
   <!-- skull, tilted, grinning -->
   <g transform="rotate(-14 52 40)">
     ${b('M33 30 Q33 12 52 12 Q71 12 71 30 Q71 40 64 44 L64 50 Q52 56 40 50 L40 44 Q33 40 33 30 Z', 2)}
