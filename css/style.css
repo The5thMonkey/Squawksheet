@@ -610,3 +610,7 @@ body{overflow-x:clip}
 .tc-shelf .tc-mic{position:absolute;left:3.6%;top:.2rem;z-index:0;width:clamp(30px,3.8vw,46px)}
 .tc-foil svg,.tc-mic svg{display:block;width:100%;height:auto}
 @media (max-width:700px){ .tc-shelf .tc-foil,.tc-shelf .tc-mic{display:none} }
+/* clipboard leaning in the top shelf's back right corner, behind the Rocket */
+.tc-top .tc-clip{position:absolute;right:-.4rem;bottom:0;z-index:0;width:clamp(70px,8vw,104px)}
+.tc-clip svg{display:block;width:100%;height:auto}
+@media (max-width:700px){ .tc-top .tc-clip{display:none} }

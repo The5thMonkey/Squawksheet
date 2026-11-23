@@ -991,6 +991,26 @@ function micSVG() {
   <path d="M22 162 Q25 158 29 157" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
   </svg>`;
 }
+// A clipboard leaning in the back corner of the top shelf
+function clipboardSVG() {
+  return `<svg viewBox="0 0 110 150" class="cl-svg" role="img" aria-label="Clipboard: Players too good for this league: SAM">
+  <ellipse cx="62" cy="148" rx="44" ry="2.4" fill="#000" opacity=".35"/>
+  <g transform="rotate(8 60 148)">
+    <rect x="12" y="10" width="92" height="138" rx="6" fill="#a8743c" stroke="${INK}" stroke-width="2.4"/>
+    <path d="M18 16 L98 16" stroke="#c99560" stroke-width="2" opacity=".7"/>
+    <rect x="20" y="22" width="76" height="118" fill="#fbfaf4" stroke="#bdbbb0" stroke-width="1"/>
+    ${[56, 64, 112, 120, 128].map(y => `<path d="M26 ${y} H90" stroke="#bcd3ea" stroke-width=".8"/>`).join('')}
+    <path d="M30 22 V140" stroke="#f0a8a8" stroke-width=".8"/>
+    <text x="58" y="40" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="7.2" fill="#1f2a6b">Players too good</text>
+    <text x="58" y="50" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="7.2" fill="#1f2a6b">for this league</text>
+    <text x="58" y="92" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="30" fill="#1f2a6b">SAM</text>
+    <path d="M30 98 Q58 95 88 97 M31 103 Q60 100 87 102" stroke="#1f2a6b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <rect x="38" y="2" width="40" height="16" rx="3" fill="#c9ced3" stroke="${INK}" stroke-width="2"/>
+    <rect x="48" y="0" width="20" height="7" rx="3" fill="none" stroke="${INK}" stroke-width="2"/>
+    <path d="M42 8 H74" stroke="#fff" stroke-width="1.6"/>
+  </g>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -1002,7 +1022,7 @@ export function trophyCase(ctx) {
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
-      <div class="tc-shelf tc-top">
+      <div class="tc-shelf tc-top"><div class="tc-clip" title="Players too good for this league">${clipboardSVG()}</div>
         ${ctx.papers?.length ? `<div class="tc-papers" aria-label="Front pages">${ctx.papers.map(paperFrame).join('')}</div>` : ''}
         ${ctx.artRoss.length ? `<button class="tc-item tc-mini" type="button" data-trophy="ross" aria-label="Art Ross Trophy: see the winners">
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
