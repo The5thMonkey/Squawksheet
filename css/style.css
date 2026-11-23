@@ -528,13 +528,13 @@ body.kv-open{overflow:hidden}
 .tc-keg .tc-svg{position:relative;z-index:2}
 .tc-ped{display:block;position:relative;z-index:1;width:calc(min(400px,72vw) * 1.05);margin-top:calc(min(400px,72vw) * -.176)}
 /* the actual Squawk Cup, tucked away in the bottom shelf's right corner */
-.tc-shelf .tc-squawkcup{position:absolute;right:.8rem;top:1.2rem;bottom:0;z-index:1;aspect-ratio:120 / 218;filter:brightness(.9)}
+.tc-shelf .tc-squawkcup{position:absolute;right:2.8rem;top:auto;height:calc((100% - 1.2rem) * .85);bottom:0;z-index:1;aspect-ratio:120 / 218;filter:brightness(.9)}
 .tc-squawkcup .sc-svg{display:block;width:100%;height:100%}
 @media (max-width:700px){ .tc-shelf .tc-squawkcup{position:static;height:220px;width:auto} }
 .tc-squawkcup:hover{filter:none}
 /* a worn-out baseball lying in the bottom shelf's left corner */
 .tc-squawkcup .sc-svg{position:relative;z-index:1}
-.tc-squawkcup .tc-baseball{position:absolute;left:4%;bottom:0;z-index:0;width:27%;transform:rotate(-8deg);filter:brightness(.85)}
+.tc-squawkcup .tc-baseball{position:absolute;left:70%;bottom:0;z-index:0;width:47.6%;transform:rotate(8deg);filter:brightness(.85)}
 .tc-baseball .bb-svg{display:block;width:100%;height:auto}
 /* everything rests on the wood: the label cards are mounted on the front edge of the shelf board instead of
    holding the trophies up */
