@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=07fec7a943';
-import * as C from './core.js?v=07fec7a943';
+import * as TR from './trophies.js?v=ae3bc6b620';
+import * as C from './core.js?v=ae3bc6b620';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -522,14 +522,14 @@ function cupWinners() {
 function champPapers() {
   return IX.data.games.filter(g => g.championship && g.status === 'final' && g.result === 'W' && (!g.team || g.team === 'WSQ'))
     .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
-    .map(g => {
+    .map((g, n) => {
       // the finals before this one, newest first: a win right before makes it back-to-back; a run of losses to the
       // same team makes it the one where they finally beat them
       const prev = IX.data.games.filter(x => x.championship && x.status === 'final' && (x.date || '') < (g.date || '')).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       let streak = 1; while (prev[streak - 1]?.result === 'W') streak++;
       let lostTo = 0; while (streak === 1 && prev[lostTo] && prev[lostTo].result !== 'W' && prev[lostTo].opponent === g.opponent) lostTo++;
       return { id: g.id, season: IX.seasonById[g.season]?.name || g.season, date: g.date, opp: tname(g.opponent), oppCode: g.opponent, gf: g.gf, ga: g.ga, ot: g.ot || '',
-        photo: g.photo?.src || null, star: g.stars?.[0] ? pname(g.stars[0]) : null, streak, lostTo };
+        photo: g.photo?.src || null, star: g.stars?.[0] ? pname(g.stars[0]) : null, streak, lostTo, first: n === 0 };
     });
 }
 function trophyData() {

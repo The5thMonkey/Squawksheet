@@ -502,12 +502,12 @@ function paperFrame(p, i) {
   const nick = { AMW: 'the Cats' }[p.oppCode] || p.opp, times = ['', '', 'two', 'three', 'four', 'five'][p.lostTo] || p.lostTo;
   const runs = { 2: 'back to back', 3: 'a three-peat', 4: 'four straight' };
   const head = p.streak >= 2 ? (p.streak === 2 ? 'SQUAWKS GO BACK TO BACK!' : `SQUAWKS WIN ${(runs[p.streak] || p.streak + ' straight').toUpperCase()}!`)
-    : p.lostTo >= 1 ? `SQUAWKS FINALLY BEAT ${nick.toUpperCase()}!` : 'SQUAWKS WIN THE STANLEY KEG!';
+    : p.lostTo >= 1 ? `SQUAWKS FINALLY BEAT ${nick.toUpperCase()}!` : p.first ? 'SQUAWKS WIN THEIR FIRST STANLEY KEG!' : 'SQUAWKS WIN THE STANLEY KEG!';
   const score = `${p.gf}–${p.ga}${extra}`;
   const deck = p.streak >= 2 ? `Stanley Keg champions again: beat ${p.opp} ${score} in the final`
     : p.lostTo >= 2 ? `Beat ${p.opp} ${score} for the Stanley Keg after losing the last ${times} finals to them`
     : p.lostTo === 1 ? `Beat ${p.opp} ${score} for the Stanley Keg, a year after losing the final to them`
-    : `Beat ${p.opp} ${score} in the final`;
+    : p.first ? `The team’s first cup: beat ${p.opp} ${score} in the final` : `Beat ${p.opp} ${score} in the final`;
   const lines = n => Array.from({ length: n }, (_, k) => `<i style="width:${[100, 96, 100, 88, 100, 93, 70][k % 7]}%"></i>`).join('');
   return `<a class="tc-paper p${i}" href="#/game/${pEsc(p.id)}" aria-label="${pEsc(p.season)} Stanley Keg final: front page">
     <span class="tp-frame"><span class="tp-mat"><span class="tp-page">
