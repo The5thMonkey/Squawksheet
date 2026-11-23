@@ -1023,22 +1023,32 @@ function bannerSVG() {
       <path d="M62 250 C66 266 70 278 74 286" stroke="#fff4c2" stroke-width="4" stroke-linecap="round" opacity=".45" fill="none"/>
       <ellipse cx="102" cy="46" rx="16" ry="12" fill="#c9921c" stroke="#5c3f06" stroke-width="3"/>
       <path d="M92 42 C98 38 108 40 112 46" stroke="#fff1b0" stroke-width="3" fill="none" opacity=".7"/></g>`;
+  const sag = x => { const t = (x - 190) / 620; return 104 + 4 * t * (1 - t) * 64; };
+  const wave = 'M' + Array.from({ length: 63 }, (_, i) => { const x = 190 + i * 10; return `${x} ${(sag(x) + 7 * Math.sin((x - 190) / 46) + 3 * Math.sin((x - 190) / 17)).toFixed(1)}`; }).join(' L');
   return `<svg viewBox="0 0 1000 300" class="tb-svg" preserveAspectRatio="xMidYMid meet">
   <defs><linearGradient id="tbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8dd72"/><stop offset=".55" stop-color="#ecc03e"/><stop offset="1" stop-color="#c98f1a"/></linearGradient>
     <linearGradient id="tbT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2cd55"/><stop offset="1" stop-color="#c08816"/></linearGradient>
     <clipPath id="tbC"><path d="${swag}"/></clipPath>
-    <path id="tbP" d="M190 104 C340 190 660 190 810 104"/></defs>
+    <path id="tbP" d="${wave}"/></defs>
   ${tail(false)}${tail(true)}
   <path d="${swag}" fill="url(#tbG)" stroke="#5c3f06" stroke-width="3.4" stroke-linejoin="round"/>
-  <g clip-path="url(#tbC)" fill="none">
-    <path d="${fold(118, 150)}" stroke="#a8740e" stroke-width="9" opacity=".28"/>
-    <path d="${fold(132, 168)}" stroke="#fff3bf" stroke-width="7" opacity=".55"/>
-    <path d="M120 96 C300 205 700 205 880 96" stroke="#a8740e" stroke-width="12" opacity=".22"/>
-    <path d="M140 120 C320 222 680 222 860 120" stroke="#fff3bf" stroke-width="6" opacity=".45"/>
-    <path d="M200 160 C360 236 640 236 800 160" stroke="#8f5f08" stroke-width="10" opacity=".22"/>
+  <g clip-path="url(#tbC)">
+    <!-- the lettering is printed on the cloth: it rides the sag, ripples with the fabric, and the folds'
+         shadows and highlights fall across it -->
+    <g>
+      <text font-family="'Permanent Marker','Marker Felt',cursive" font-size="62" letter-spacing="3" fill="#7fa6cc" stroke="#22323f" stroke-width="2.6" paint-order="stroke" stroke-linejoin="round" text-anchor="middle">
+        <textPath href="#tbP" startOffset="45%">Trophy Room</textPath></text></g>
+    <g fill="none" style="mix-blend-mode:multiply">
+      <path d="${fold(118, 150)}" stroke="#a8740e" stroke-width="9" opacity=".3"/>
+      <path d="M120 96 C300 205 700 205 880 96" stroke="#a8740e" stroke-width="12" opacity=".25"/>
+      <path d="M104 64 C290 168 710 168 896 64" stroke="#8a5c08" stroke-width="7" opacity=".3"/>
+      <path d="M130 108 C310 214 690 214 870 108" stroke="#8a5c08" stroke-width="5" opacity=".28"/>
+      <path d="M200 160 C360 236 640 236 800 160" stroke="#8f5f08" stroke-width="10" opacity=".25"/></g>
+    <g fill="none" style="mix-blend-mode:screen">
+      <path d="${fold(132, 168)}" stroke="#fff3bf" stroke-width="7" opacity=".45"/>
+      <path d="M140 120 C320 222 680 222 860 120" stroke="#fff3bf" stroke-width="6" opacity=".4"/>
+      <path d="M112 82 C300 186 700 186 888 82" stroke="#fff6cf" stroke-width="4" opacity=".5"/></g>
   </g>
-  <text font-family="'Permanent Marker','Marker Felt',cursive" font-size="64" letter-spacing="3" fill="#a6c1da" stroke="#1d2a33" stroke-width="5" paint-order="stroke" stroke-linejoin="round" text-anchor="middle">
-    <textPath href="#tbP" startOffset="45%">Trophy Room</textPath></text>
   </svg>`;
 }
 export function trophyCase(ctx) {
