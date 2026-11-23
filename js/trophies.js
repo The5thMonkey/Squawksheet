@@ -795,7 +795,7 @@ function skeletonSVG() {
   <path d="M40 46 Q46 41 54 43 M88 44 Q94 39 102 41" stroke="#fff" stroke-width="2" fill="none"/><path d="M38 56 Q46 62 56 58 M86 54 Q94 60 104 56" stroke="#b9c3cc" stroke-width="1.2" fill="none"/>
   <rect x="58" y="60" width="9" height="3" rx="1" fill="#c8302c"/>
   <!-- skull, tilted, grinning -->
-  <g transform="rotate(-14 52 40)">
+  <g transform="translate(18 0) rotate(-5 52 40)">
     ${b('M33 30 Q33 12 52 12 Q71 12 71 30 Q71 40 64 44 L64 50 Q52 56 40 50 L40 44 Q33 40 33 30 Z', 2)}
     <ellipse cx="44.5" cy="31" rx="5.6" ry="5" fill="#26221c"/><ellipse cx="59.5" cy="31" rx="5.6" ry="5" fill="#26221c"/>
     <path d="M52 35 L50 40 L54 40 Z" fill="#26221c"/>

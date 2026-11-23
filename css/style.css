@@ -578,5 +578,5 @@ body{overflow-x:clip}
 @media (max-width:700px){ .tc-tv{position:relative;right:auto;bottom:auto;display:block;margin:0 auto 1rem} }
 /* the skeleton sitting on the top-left of the case, legs over the front */
 .tcase{margin-top:clamp(9rem,25vw,22rem)}
-.tc-skel{position:absolute;left:2%;top:0;z-index:6;width:clamp(150px,28vw,372px);transform:translateY(calc(-132 / 246 * 100%));pointer-events:none}
+.tc-skel{position:absolute;left:auto;right:2%;top:0;z-index:6;width:clamp(150px,28vw,372px);transform:translateY(calc(-132 / 246 * 100%));pointer-events:none}
 .tc-skel svg{display:block;width:100%;height:auto}
