@@ -1011,13 +1011,34 @@ function clipboardSVG() {
   </g>
   </svg>`;
 }
+// The page title: a gold felt banner hung loosely from two nails, sagging in the middle with soft folds
+function bannerSVG() {
+  // top edge sags between the nails; the bottom edge sags more and ripples
+  const top = 'M20 22 Q500 92 980 22', bot = ' L968 120 Q930 170 880 188 Q800 214 700 222 Q600 236 500 240 Q400 236 300 222 Q200 214 120 188 Q70 170 32 120 Z';
+  const folds = [[120, .14], [230, .1], [380, .12], [520, .08], [640, .12], [780, .1], [890, .14]];
+  return `<svg viewBox="0 0 1000 250" class="tb-svg" preserveAspectRatio="xMidYMid meet">
+  <defs><linearGradient id="tbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d35a"/><stop offset=".6" stop-color="#e9b934"/><stop offset="1" stop-color="#c8931c"/></linearGradient>
+    <clipPath id="tbC"><path d="${top}${bot}"/></clipPath>
+    <path id="tbP" d="M150 118 Q500 178 850 118"/></defs>
+  <ellipse cx="500" cy="244" rx="430" ry="6" fill="#000" opacity=".12"/>
+  <path d="${top}${bot}" fill="url(#tbG)" stroke="#1d2a33" stroke-width="4" stroke-linejoin="round"/>
+  <g clip-path="url(#tbC)">
+    ${folds.map(([x, o]) => `<path d="M${x} 0 Q${x + 18} 120 ${x - 6} 250" stroke="#7a5408" stroke-width="26" opacity="${o}" fill="none"/><path d="M${x + 22} 0 Q${x + 36} 120 ${x + 16} 250" stroke="#fff6c8" stroke-width="10" opacity="${o * 2.2}" fill="none"/>`).join('')}
+    <path d="M20 34 Q500 104 980 34" stroke="#7a5408" stroke-width="8" opacity=".18" fill="none"/>
+    <path d="M60 46 Q500 116 940 46" stroke="#9a6d12" stroke-width="2" stroke-dasharray="10 7" opacity=".55" fill="none"/>
+  </g>
+  <text font-family="var(--head),'Arial Black',Impact,sans-serif" font-weight="900" font-size="66" letter-spacing="5" fill="#a6c1da" stroke="#1d2a33" stroke-width="6" paint-order="stroke" stroke-linejoin="round" text-anchor="middle">
+    <textPath href="#tbP" startOffset="40%">TROPHY ROOM</textPath></text>
+  <circle cx="20" cy="22" r="8" fill="#9aa3ac" stroke="#1d2a33" stroke-width="2.4"/><circle cx="980" cy="22" r="8" fill="#9aa3ac" stroke="#1d2a33" stroke-width="2.4"/>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
   const medals = ctx.runnerUps.map(r => `<a class="tc-medal" href="#/season/${r.id}" title="Runner-up, ${svgText(r.name)}">
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
-    <div class="tc-banner" aria-hidden="true"><span class="tb-rope"></span><span class="tb-cloth"><span class="tb-text">Trophy Room</span></span></div>
+    <div class="tc-banner" aria-hidden="true">${bannerSVG()}</div>
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
     <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break glass for goal">${jelloBoxSVG()}</div><div class="tc-sharpener" title="Sharpies tonight?">${sharpenerSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
