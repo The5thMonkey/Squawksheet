@@ -907,36 +907,40 @@ function jerseySVG() {
 // A skate sharpener (from the photo of the user's): long dark-grey body, control pad and foot on the left, two skate
 // holders in the top slot, translucent smoke tray glowing red underneath. A note is taped to the front.
 function sharpenerSVG() {
-  return `<svg viewBox="0 0 250 104" class="sp-svg" role="img" aria-label="A skate sharpener with a note taped to it: sharpies tonight?">
+  return `<svg viewBox="0 -4 600 108" class="sp-svg" role="img" aria-label="A skate sharpener with a note taped to it: sharpies tonight?">
   <defs><linearGradient id="spB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a5f66"/><stop offset=".5" stop-color="#3a3e44"/><stop offset="1" stop-color="#26292d"/></linearGradient>
     <linearGradient id="spT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1416" stop-opacity=".9"/><stop offset=".55" stop-color="#8a1a22" stop-opacity=".85"/><stop offset="1" stop-color="#2a1416" stop-opacity=".95"/></linearGradient>
     <radialGradient id="spG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4a3d" stop-opacity=".55"/><stop offset="1" stop-color="#ff4a3d" stop-opacity="0"/></radialGradient></defs>
-  <ellipse cx="128" cy="101" rx="116" ry="3" fill="#000" opacity=".35"/>
+  <ellipse cx="300" cy="101" rx="286" ry="3" fill="#000" opacity=".35"/>
+  <g transform="translate(0 101) scale(1 1.3) translate(0 -101)">
   <!-- smoke tray, glowing red -->
-  <path d="M24 60 H232 Q236 60 236 64 L232 94 Q230 98 225 98 H32 Q26 98 25 94 L20 64 Q20 60 24 60 Z" fill="url(#spT)" stroke="${INK}" stroke-width="2.2"/>
-  <ellipse cx="128" cy="78" rx="96" ry="14" fill="url(#spG)"/>
-  <path d="M40 72 H212" stroke="#ff8a6a" stroke-width="2" opacity=".75"/>
-  <circle cx="216" cy="82" r="6" fill="none" stroke="#d98a4a" stroke-width="2"/>
+  <path d="M28 60 H572 Q578 60 577 64 L571 94 Q569 98 563 98 H38 Q31 98 30 94 L24 64 Q24 60 28 60 Z" fill="url(#spT)" stroke="${INK}" stroke-width="2.4"/>
+  <ellipse cx="300" cy="78" rx="250" ry="15" fill="url(#spG)"/>
+  <path d="M60 72 H520" stroke="#ff8a6a" stroke-width="2.2" opacity=".75"/>
+  <path d="M120 88 Q300 92 480 88" stroke="#ff5a4a" stroke-width="1.4" opacity=".5" fill="none"/>
+  <circle cx="548" cy="81" r="7" fill="none" stroke="#d98a4a" stroke-width="2.2"/>
   <!-- body -->
-  <path d="M30 30 Q30 24 36 24 H222 Q232 24 232 34 V60 H24 V38 Z" fill="url(#spB)" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
-  <path d="M36 27 H222" stroke="#8a9098" stroke-width="1.4"/>
-  <!-- top slot with two skate holders -->
-  <rect x="78" y="40" width="118" height="9" rx="2" fill="#16181b" stroke="${INK}" stroke-width="1.4"/>
-  <path d="M94 49 L98 33 L104 33 L102 49 Z M172 49 L176 33 L182 33 L180 49 Z" fill="#c9ced3" stroke="${INK}" stroke-width="1.2"/>
+  <path d="M34 30 Q34 22 42 22 H558 Q572 22 572 34 V60 H28 V38 Z" fill="url(#spB)" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M42 25 H558" stroke="#8a9098" stroke-width="1.5"/>
+  <!-- long top slot with the two skate holders -->
+  <rect x="150" y="39" width="320" height="10" rx="2.5" fill="#16181b" stroke="${INK}" stroke-width="1.6"/>
+  <path d="M200 49 L205 31 L212 31 L209 49 Z M410 49 L415 31 L422 31 L419 49 Z" fill="#c9ced3" stroke="${INK}" stroke-width="1.3"/>
+  <circle cx="300" cy="30" r="1.6" fill="#16181b"/>
   <!-- end caps -->
-  <rect x="230" y="34" width="8" height="22" rx="2" fill="#2a2d31" stroke="${INK}" stroke-width="1.6"/>
-  <rect x="210" y="48" width="14" height="8" rx="2" fill="#1d1f23" stroke="${INK}" stroke-width="1.2"/>
+  <rect x="570" y="32" width="10" height="24" rx="2.5" fill="#2a2d31" stroke="${INK}" stroke-width="1.8"/>
+  <rect x="540" y="47" width="18" height="9" rx="2.5" fill="#1d1f23" stroke="${INK}" stroke-width="1.3"/>
   <!-- control pad and foot on the left -->
-  <path d="M2 44 Q2 38 8 38 H26 V52 H8 Q2 52 2 46 Z" fill="#1d1f23" stroke="${INK}" stroke-width="2"/>
-  <rect x="26" y="30" width="44" height="18" rx="3" fill="#1b1d20" stroke="${INK}" stroke-width="2"/>
-  <path d="M38 36 A8 8 0 0 1 56 36" fill="none" stroke="#9fd3f2" stroke-width="1.4"/>
-  <circle cx="36" cy="43" r="1.3" fill="#d7dde2"/><circle cx="43" cy="43" r="1.3" fill="#d7dde2"/><circle cx="50" cy="43" r="1.3" fill="#d7dde2"/><circle cx="57" cy="43" r="1.3" fill="#d7dde2"/>
+  <path d="M2 44 Q2 37 9 37 H30 V52 H9 Q2 52 2 46 Z" fill="#1d1f23" stroke="${INK}" stroke-width="2"/>
+  <rect x="30" y="28" width="56" height="22" rx="3.5" fill="#1b1d20" stroke="${INK}" stroke-width="2"/>
+  <path d="M46 35 A11 11 0 0 1 70 35" fill="none" stroke="#9fd3f2" stroke-width="1.5"/>
+  <circle cx="42" cy="44" r="1.5" fill="#d7dde2"/><circle cx="51" cy="44" r="1.5" fill="#d7dde2"/><circle cx="60" cy="44" r="1.5" fill="#d7dde2"/><circle cx="69" cy="44" r="1.5" fill="#d7dde2"/>
+  </g>
   <!-- the note, taped on -->
-  <g transform="rotate(-5 160 50)">
-    <rect x="126" y="38" width="66" height="34" fill="#fbfbf6" stroke="#bdbbb0" stroke-width=".8"/>
-    <rect x="148" y="33" width="22" height="9" fill="#efe6c4" fill-opacity=".8" transform="rotate(6 159 37)"/>
-    <text x="159" y="53" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="10" fill="#1b1b1b">sharpies</text>
-    <text x="159" y="66" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="10" fill="#1b1b1b">tonight?</text></g>
+  <g transform="translate(0 -6) rotate(-4 330 52)">
+    <rect x="290" y="34" width="80" height="40" fill="#fbfbf6" stroke="#bdbbb0" stroke-width=".8"/>
+    <rect x="318" y="29" width="26" height="10" fill="#efe6c4" fill-opacity=".8" transform="rotate(6 331 34)"/>
+    <text x="330" y="51" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="12" fill="#1b1b1b">sharpies</text>
+    <text x="330" y="67" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="12" fill="#1b1b1b">tonight?</text></g>
   </svg>`;
 }
 export function trophyCase(ctx) {

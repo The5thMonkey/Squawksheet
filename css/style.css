@@ -599,6 +599,9 @@ body{overflow-x:clip}
 .tc-jersey svg{display:block;width:100%;height:auto}
 @media (max-width:700px){ .tc-shelf .tc-jersey{display:none} }
 /* skate sharpener on top of the case */
-.tc-frame .tc-sharpener{position:absolute;left:16.6%;top:0;z-index:6;width:clamp(110px,13vw,168px);transform:translateY(calc(-101 / 104 * 100%))}
+.tc-frame .tc-sharpener{position:absolute;left:1.4%;top:0;z-index:5;width:clamp(250px,37vw,420px);transform:translateY(calc(-105 / 108 * 100%))}
+/* the jello box sits on top of the sharpener; the sharpener's right end tucks behind the title plate */
+.tc-frame .tc-jello{left:9%;margin-top:calc(clamp(250px,37vw,420px) * -103 / 600)}
+.tc-crown{z-index:7}
 .tc-sharpener svg{display:block;width:100%;height:auto}
-@media (max-width:700px){ .tc-frame .tc-sharpener{left:30%} }
+
