@@ -859,11 +859,14 @@ function jelloBoxSVG() {
   <!-- the box -->
   <rect x="6" y="34" width="108" height="104" rx="5" fill="url(#jbR)" stroke="${INK}" stroke-width="2.6"/>
   <rect x="16" y="44" width="88" height="84" rx="2" fill="#0d1a2e" stroke="${INK}" stroke-width="2"/>
-  <!-- jello shot: little plastic cup -->
-  <path d="M42 120 L46 92 H74 L78 120 Z" fill="#f4f7fa" fill-opacity=".55" stroke="#9fb0bf" stroke-width="1.6"/>
-  <path d="M44 117 L47 98 H73 L76 117 Z" fill="url(#jbJ)"/><ellipse cx="60" cy="98" rx="13" ry="2.4" fill="#ff7a98"/>
-  <path d="M49 103 L48 113" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/>
-  <ellipse cx="60" cy="92" rx="14.5" ry="3" fill="none" stroke="#9fb0bf" stroke-width="1.6"/>
+  <!-- jello shot: little plastic cup, wide at the top and narrow at the base, with a clear snap-on lid -->
+  <ellipse cx="60" cy="121" rx="12" ry="2" fill="#000" opacity=".35"/>
+  <path d="M41 95 L47 120 H73 L79 95 Z" fill="#f4f7fa" fill-opacity=".5" stroke="#9fb0bf" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M43 99 L48 118 H72 L77 99 Z" fill="url(#jbJ)"/><ellipse cx="60" cy="99" rx="17" ry="2.6" fill="#ff7a98"/>
+  <path d="M46 103 L49.5 115" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/>
+  <path d="M38 92 Q38 88 42 88 H78 Q82 88 82 92 L81 95 H39 Z" fill="#e9f3fa" fill-opacity=".8" stroke="#8fa3b4" stroke-width="1.6" stroke-linejoin="round"/>
+  <ellipse cx="60" cy="88" rx="17" ry="2.2" fill="#f7fbfe" stroke="#8fa3b4" stroke-width="1.2"/>
+  <path d="M44 90.5 H58" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
   <!-- glass front -->
   <rect x="16" y="44" width="88" height="84" rx="2" fill="#bfe6ff" fill-opacity=".18"/>
   <path d="M22 50 L50 50 L22 86 Z M58 50 L66 50 L26 104 L22 104 Z" fill="#fff" opacity=".28"/>
