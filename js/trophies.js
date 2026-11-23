@@ -1011,25 +1011,34 @@ function clipboardSVG() {
   </g>
   </svg>`;
 }
-// The page title: a gold felt banner hung loosely from two nails, sagging in the middle with soft folds
+// The page title: a gold cloth swag gathered at two top corners, sagging between them in soft folds, with a tail
+// twisting down from each corner. The lettering is marker-casual and rides the curve of the folds.
 function bannerSVG() {
-  // top edge sags between the nails; the bottom edge sags more and ripples
-  const top = 'M20 22 Q500 92 980 22', bot = ' L968 120 Q930 170 880 188 Q800 214 700 222 Q600 236 500 240 Q400 236 300 222 Q200 214 120 188 Q70 170 32 120 Z';
-  const folds = [[120, .14], [230, .1], [380, .12], [520, .08], [640, .12], [780, .1], [890, .14]];
-  return `<svg viewBox="0 0 1000 250" class="tb-svg" preserveAspectRatio="xMidYMid meet">
-  <defs><linearGradient id="tbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d35a"/><stop offset=".6" stop-color="#e9b934"/><stop offset="1" stop-color="#c8931c"/></linearGradient>
-    <clipPath id="tbC"><path d="${top}${bot}"/></clipPath>
-    <path id="tbP" d="M150 118 Q500 178 850 118"/></defs>
-  <ellipse cx="500" cy="244" rx="430" ry="6" fill="#000" opacity=".12"/>
-  <path d="${top}${bot}" fill="url(#tbG)" stroke="#1d2a33" stroke-width="4" stroke-linejoin="round"/>
-  <g clip-path="url(#tbC)">
-    ${folds.map(([x, o]) => `<path d="M${x} 0 Q${x + 18} 120 ${x - 6} 250" stroke="#7a5408" stroke-width="26" opacity="${o}" fill="none"/><path d="M${x + 22} 0 Q${x + 36} 120 ${x + 16} 250" stroke="#fff6c8" stroke-width="10" opacity="${o * 2.2}" fill="none"/>`).join('')}
-    <path d="M20 34 Q500 104 980 34" stroke="#7a5408" stroke-width="8" opacity=".18" fill="none"/>
-    <path d="M60 46 Q500 116 940 46" stroke="#9a6d12" stroke-width="2" stroke-dasharray="10 7" opacity=".55" fill="none"/>
+  const swag = 'M96 44 C260 128 740 128 904 44 C890 120 820 205 500 230 C180 205 110 120 96 44 Z';
+  const fold = (y1, y2) => `M100 48 C${260} ${y1} ${740} ${y1} 900 48 M110 70 C300 ${y2} 700 ${y2} 890 70`;
+  const tail = (m) => `<g transform="${m ? 'translate(1000 0) scale(-1 1)' : ''}">
+      <path d="M96 44 C70 80 58 130 76 170 C52 200 38 240 58 292 L84 280 C74 246 94 214 112 196 C100 150 112 96 116 58 Z" fill="url(#tbT)" stroke="#5c3f06" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M76 170 C92 176 104 186 112 196 C100 206 88 222 84 240 C80 214 72 192 76 170 Z" fill="#a8740e" opacity=".75"/>
+      <path d="M90 60 C82 96 80 130 92 160" stroke="#fff4c2" stroke-width="5" stroke-linecap="round" opacity=".5" fill="none"/>
+      <path d="M62 250 C66 266 70 278 74 286" stroke="#fff4c2" stroke-width="4" stroke-linecap="round" opacity=".45" fill="none"/>
+      <ellipse cx="102" cy="46" rx="16" ry="12" fill="#c9921c" stroke="#5c3f06" stroke-width="3"/>
+      <path d="M92 42 C98 38 108 40 112 46" stroke="#fff1b0" stroke-width="3" fill="none" opacity=".7"/></g>`;
+  return `<svg viewBox="0 0 1000 300" class="tb-svg" preserveAspectRatio="xMidYMid meet">
+  <defs><linearGradient id="tbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8dd72"/><stop offset=".55" stop-color="#ecc03e"/><stop offset="1" stop-color="#c98f1a"/></linearGradient>
+    <linearGradient id="tbT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2cd55"/><stop offset="1" stop-color="#c08816"/></linearGradient>
+    <clipPath id="tbC"><path d="${swag}"/></clipPath>
+    <path id="tbP" d="M190 104 C340 190 660 190 810 104"/></defs>
+  ${tail(false)}${tail(true)}
+  <path d="${swag}" fill="url(#tbG)" stroke="#5c3f06" stroke-width="3.4" stroke-linejoin="round"/>
+  <g clip-path="url(#tbC)" fill="none">
+    <path d="${fold(118, 150)}" stroke="#a8740e" stroke-width="9" opacity=".28"/>
+    <path d="${fold(132, 168)}" stroke="#fff3bf" stroke-width="7" opacity=".55"/>
+    <path d="M120 96 C300 205 700 205 880 96" stroke="#a8740e" stroke-width="12" opacity=".22"/>
+    <path d="M140 120 C320 222 680 222 860 120" stroke="#fff3bf" stroke-width="6" opacity=".45"/>
+    <path d="M200 160 C360 236 640 236 800 160" stroke="#8f5f08" stroke-width="10" opacity=".22"/>
   </g>
-  <text font-family="var(--head),'Arial Black',Impact,sans-serif" font-weight="900" font-size="66" letter-spacing="5" fill="#a6c1da" stroke="#1d2a33" stroke-width="6" paint-order="stroke" stroke-linejoin="round" text-anchor="middle">
-    <textPath href="#tbP" startOffset="40%">TROPHY ROOM</textPath></text>
-  <circle cx="20" cy="22" r="8" fill="#9aa3ac" stroke="#1d2a33" stroke-width="2.4"/><circle cx="980" cy="22" r="8" fill="#9aa3ac" stroke="#1d2a33" stroke-width="2.4"/>
+  <text font-family="'Permanent Marker','Marker Felt',cursive" font-size="64" letter-spacing="3" fill="#a6c1da" stroke="#1d2a33" stroke-width="5" paint-order="stroke" stroke-linejoin="round" text-anchor="middle">
+    <textPath href="#tbP" startOffset="45%">Trophy Room</textPath></text>
   </svg>`;
 }
 export function trophyCase(ctx) {
