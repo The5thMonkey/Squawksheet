@@ -339,8 +339,8 @@ th.has-tip:last-child::before{left:auto;right:0;transform:none}
 
 /* ================= Stanley Keg engraving viewer ================= */
 body.kv-open{overflow:hidden}
-.kv{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 40%,#2a3d52,#0b1219 75%);animation:kvin .3s ease}
-.kv.closing{animation:kvout .25s ease forwards}
+.kv.kv-ov{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 40%,#2a3d52,#0b1219 75%);animation:kvin .3s ease}
+.kv.kv-ov.closing{animation:kvout .25s ease forwards}
 @keyframes kvin{from{opacity:0}} @keyframes kvout{to{opacity:0}}
 .kv-stage{position:absolute;inset:0 0 72px 0;overflow:hidden}
 .kv-surface{position:absolute;left:0;top:0;width:1560px;transform-origin:0 0;padding:26px 30px;border:4px solid #16212b;border-radius:18px;

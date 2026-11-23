@@ -739,7 +739,7 @@ function tvHTML() {
     <span class="tv-bezel"><span class="tv-screen"><span class="tv-idle"><span>Squawks Fan Reaction</span></span></span><span class="tv-led"></span></span></button>`;
 }
 export function openTV() {
-  const ov = document.createElement('div'); ov.className = 'kv tvz-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Squawks Fan Reaction');
+  const ov = document.createElement('div'); ov.className = 'kv kv-ov tvz-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Squawks Fan Reaction');
   ov.innerHTML = `<div class="kv-stage tvz-stage"><div class="tvz"><span class="tv-bezel"><span class="tv-screen">
       <iframe src="https://www.youtube-nocookie.com/embed/${TV_VIDEO}?autoplay=1&rel=0&playsinline=1" title="Squawks Fan Reaction" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
     </span><span class="tv-led on"></span></span></div></div>
@@ -926,7 +926,7 @@ export function openKeg(champions, stickers) {
     : `<span class="kv-sticker" title="${esc(s.name)}" style="background:${s.bg};color:${s.fg}">${esc(s.code)}</span>`;
   const band = () => '<div class="kv-band"></div>';
   const surface = `<div class="kv-surface">${band()}${rings.map((ring, r) => `<div class="kv-ring">${ring.map(c => panel(c, idx++)).join('')}${'<div class="kv-panel empty"></div>'.repeat(6 - ring.length)}</div>${band()}`).join('')}</div>`;
-  const ov = document.createElement('div'); ov.className = 'kv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Stanley Keg engravings');
+  const ov = document.createElement('div'); ov.className = 'kv kv-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Stanley Keg engravings');
   ov.innerHTML = `<div class="kv-stage">${surface}</div>
     <div class="kv-bar"><button class="kv-btn" data-kv="prev" aria-label="Previous champion">◀</button>
       <div class="kv-cap"><b></b><span></span></div>
@@ -966,7 +966,7 @@ export function openKeg(champions, stickers) {
 // Opens the trophy large, zooming in from the shelf. Click (or tap) to zoom closer at that spot, drag to look around.
 export function openTrophy(kind, winners, title) {
   const html = kind === 'ross' ? artRoss(winners, true) : kind === 'pucks' ? puckPileSVG(winners) : rocketSVG(winners);
-  const ov = document.createElement('div'); ov.className = 'kv tv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', title);
+  const ov = document.createElement('div'); ov.className = 'kv kv-ov tv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', title);
   ov.innerHTML = `<div class="kv-stage"><div class="tv-piece tv-${kind}">${html}</div></div>
     <div class="kv-bar"><div class="kv-cap"><b>${title}</b><span>Click to zoom in · drag to look around</span></div>
       <button class="kv-btn" data-tv="in" aria-label="Zoom in">＋</button><button class="kv-btn" data-tv="out" aria-label="Zoom out">－</button>
