@@ -880,7 +880,7 @@ export function trophyCase(ctx) {
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
-    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-inner">
+    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break if you need a goal">${jelloBoxSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
@@ -895,7 +895,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"><span class="tc-scratch">${scratchSVG()}</span></div>
-      <div class="tc-shelf tc-level2"><div class="tc-jello" title="Break if you need a goal">${jelloBoxSVG()}</div>${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-shelf tc-level2">${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
       <span class="tc-squives">${squivesSVG()}</span>${stickyHTML()}
