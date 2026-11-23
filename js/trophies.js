@@ -846,10 +846,10 @@ function stickyHTML() {
 }
 // emergency box: red frame, glass front, a jello shot inside, a little glass-breaker hammer resting on top
 function jelloBoxSVG() {
-  return `<svg viewBox="0 0 120 170" class="jb-svg" role="img" aria-label="A jello shot in a glass case: break if you need a goal">
+  return `<svg viewBox="0 0 120 141" class="jb-svg" role="img" aria-label="A jello shot in a glass case: break glass for goal">
   <defs><linearGradient id="jbR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5257"/><stop offset="1" stop-color="#b3121a"/></linearGradient>
     <linearGradient id="jbJ" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3d6e"/><stop offset="1" stop-color="#c3123f"/></linearGradient></defs>
-  <ellipse cx="60" cy="168" rx="52" ry="2.5" fill="#000" opacity=".35"/>
+  <ellipse cx="60" cy="139" rx="52" ry="2" fill="#000" opacity=".35"/>
   <!-- the hammer lying on top -->
   <g transform="translate(14 22) rotate(-6)">
     <rect x="0" y="2" width="70" height="7" rx="3" fill="#e3262b" stroke="${INK}" stroke-width="2"/>
@@ -870,10 +870,9 @@ function jelloBoxSVG() {
   <!-- glass front -->
   <rect x="16" y="44" width="88" height="84" rx="2" fill="#bfe6ff" fill-opacity=".18"/>
   <path d="M22 50 L50 50 L22 86 Z M58 50 L66 50 L26 104 L22 104 Z" fill="#fff" opacity=".28"/>
-  <!-- label -->
-  <rect x="10" y="140" width="100" height="22" rx="2" fill="#f7f3e6" stroke="${INK}" stroke-width="2"/>
-  <text x="60" y="149.5" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="7" fill="#b3121a">BREAK IF YOU</text>
-  <text x="60" y="158" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="7" fill="#b3121a">NEED A GOAL</text>
+  <!-- lettering on the glass -->
+  <g font-family="'Arial Black',Impact,sans-serif" font-size="12" fill="#b3121a" text-anchor="middle">
+    <text x="60" y="63" textLength="80" lengthAdjust="spacingAndGlyphs">BREAK GLASS</text><text x="60" y="78" textLength="62" lengthAdjust="spacingAndGlyphs">FOR GOAL</text></g>
   </svg>`;
 }
 export function trophyCase(ctx) {
@@ -883,7 +882,7 @@ export function trophyCase(ctx) {
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
-    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break if you need a goal">${jelloBoxSVG()}</div><div class="tc-inner">
+    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break glass for goal">${jelloBoxSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
