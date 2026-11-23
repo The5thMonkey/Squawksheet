@@ -545,3 +545,16 @@ body.kv-open{overflow:hidden}
 @media (max-width:1000px){ .tc-shelf{row-gap:4.2rem} }
 /* the pedestal's wooden foot sits on the shelf (its drawing has a little shadow room below it) */
 .tc-ped{margin-bottom:calc(min(400px,72vw) * 1.05 * -6.5 / 300)}
+/* finishing details */
+.tcase{position:relative}
+body{overflow-x:clip}
+.tc-keg .tc-cowbells,.tc-keg .tc-figurine{position:absolute;bottom:0;z-index:3;pointer-events:none}
+.tc-keg .tc-cowbells{right:calc(100% - 38px);width:clamp(70px,9vw,108px)}
+.tc-keg .tc-figurine{left:calc(100% - 46px);width:clamp(80px,10vw,120px)}
+.tc-cowbells svg,.tc-figurine svg,.tc-beanie svg,.tc-sticks svg{display:block;width:100%;height:auto}
+.tc-shelf .tc-beanie{position:absolute;left:.4rem;bottom:0;z-index:1;width:clamp(100px,14vw,165px)}
+.tc-sticks{position:absolute;right:-96px;bottom:4px;height:66%;aspect-ratio:170 / 1000;z-index:3;pointer-events:none}
+.tc-sticks svg{height:100%;width:100%}
+@media (max-width:1300px){ .tc-sticks{right:-62px;height:58%} }
+@media (max-width:1000px){ .tc-sticks{display:none} }
+@media (max-width:700px){ .tc-shelf .tc-beanie{position:static} }

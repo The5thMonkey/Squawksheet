@@ -637,12 +637,129 @@ function baseballSVG() {
   <path d="M24 24 Q32 14 44 12" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6" fill="none"/>
   </svg>`;
 }
+// ---------------- finishing details ----------------
+// Three red cowbells bunched together
+function cowbellsSVG() {
+  const bell = (x, y, r, k) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${k})">
+      <path d="M14 0 L10 -26 L15 -24 L19 -1 Z" fill="#9e1418" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M-14 0 L-10 -26 Q0 -29 10 -26 L14 0 Q0 4 -14 0 Z" fill="url(#cbR)" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M-5 -27 V-36 Q0 -42 5 -36 V-27" fill="none" stroke="${INK}" stroke-width="4.4"/><path d="M-5 -27 V-36 Q0 -42 5 -36 V-27" fill="none" stroke="#e3262b" stroke-width="2.4"/>
+      <rect x="-1.6" y="-26" width="3.2" height="3" fill="#2a0607"/>
+      <path d="M-9 -21 L-11.5 -3" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/><path d="M-6 -24 Q0 -26 6 -24" stroke="#fff" stroke-width="1.2" opacity=".55" fill="none"/></g>`;
+  return `<svg viewBox="0 0 120 92" class="cb-svg" aria-hidden="true">
+  <defs><linearGradient id="cbR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a5e"/><stop offset=".45" stop-color="#e3262b"/><stop offset="1" stop-color="#b3161b"/></linearGradient></defs>
+  <ellipse cx="62" cy="90" rx="52" ry="3" fill="#000" opacity=".3"/>
+  ${bell(34, 84, -10, .95)}${bell(88, 85, 12, .92)}${bell(60, 90, -2, 1.08)}
+  </svg>`;
+}
+// The 3D-printed Squawks hawk figurine: hawk in a black jersey with red, light-blue and white stripes, red gloves,
+// stick on the puck, on a round black base with an ice top
+function figurineSVG() {
+  const stripes = (d, w = 2) => ['#e3262b', '#8fd0f0', '#ffffff'].map((c, i) => `<path d="${d}" transform="translate(0 ${i * w})" stroke="${c}" stroke-width="${w * .8}" fill="none"/>`).join('');
+  return `<svg viewBox="0 0 140 148" class="fg-svg" aria-hidden="true">
+  <path d="M12 122 V134 Q70 150 128 134 V122 Z" fill="#1b1d21" stroke="${INK}" stroke-width="2.2"/>
+  <ellipse cx="70" cy="122" rx="58" ry="13" fill="#f4f7f9" stroke="${INK}" stroke-width="2.2"/>
+  <path d="M30 120 Q44 116 58 121 M78 126 Q92 122 108 125 M54 129 Q66 127 76 130" stroke="#c9d3da" stroke-width="1" fill="none"/>
+  <ellipse cx="104" cy="124" rx="7" ry="2.6" fill="#111" stroke="${INK}" stroke-width="1"/>
+  <!-- wings, out behind the head -->
+  <path d="M54 52 Q36 38 16 40 L23 45 L15 49 L25 52 L19 57 Q38 62 54 60 Z" fill="#7a5a44" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M16 40 L23 45 L15 49 L25 52 L19 57 L28 56 L26 50 L31 47 L26 43 Z" fill="#fff"/>
+  <path d="M86 52 Q104 38 124 40 L117 45 L125 49 L115 52 L121 57 Q102 62 86 60 Z" fill="#7a5a44" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M124 40 L117 45 L125 49 L115 52 L121 57 L112 56 L114 50 L109 47 L114 43 Z" fill="#fff"/>
+  <!-- legs: breezers, striped socks, skates -->
+  <path d="M50 84 Q42 95 39 104 L50 106 Q54 96 61 90 Z" fill="#17191c" stroke="${INK}" stroke-width="1.8"/>
+  <path d="M84 86 Q94 95 99 104 L88 107 Q84 98 78 92 Z" fill="#17191c" stroke="${INK}" stroke-width="1.8"/>
+  <path d="M39 102 L50 104 L48 115 L37 113 Z" fill="#17191c" stroke="${INK}" stroke-width="1.6"/>${stripes('M38.5 106 L49.5 108', 1.8)}
+  <path d="M88 104 L99 102 L101 113 L90 115 Z" fill="#17191c" stroke="${INK}" stroke-width="1.6"/>${stripes('M88.5 106.5 L99.5 104.5', 1.8)}
+  <path d="M31 113 L50 115 Q53 120 49 122 L29 122 Q26 117 31 113 Z" fill="#111" stroke="${INK}" stroke-width="1.6"/><path d="M38 116 l3 2 M42 115.5 l3 2" stroke="#fff" stroke-width="1"/>
+  <path d="M89 113 L107 111 Q111 116 107 120 L89 121 Q86 117 89 113 Z" fill="#111" stroke="${INK}" stroke-width="1.6"/><path d="M95 114 l3 2 M99 113.5 l3 2" stroke="#fff" stroke-width="1"/>
+  <!-- pants and jersey -->
+  <path d="M47 74 Q70 70 92 76 L93 92 Q80 96 70 90 Q60 96 47 92 Z" fill="#17191c" stroke="${INK}" stroke-width="2"/>${stripes('M48 86 Q70 82 92 87', 1.6)}
+  <path d="M45 56 Q70 47 95 56 L93 80 Q70 86 47 80 Z" fill="#17191c" stroke="${INK}" stroke-width="2"/>${stripes('M47 70 Q70 75 93 70', 2)}
+  <!-- the stick, down to the puck -->
+  <path d="M38 64 L104 119" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M38 64 L104 119" stroke="#2a2d33" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M101 116 L121 121 L122 126 L100 122 Z" fill="#f2f2f2" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M106 119 v4 M111 120 v4 M116 121 v4" stroke="#c9c9c9" stroke-width=".8"/>
+  <!-- arms and red gloves -->
+  <path d="M46 57 Q35 63 37 75 L48 77 Q47 67 54 62 Z" fill="#17191c" stroke="${INK}" stroke-width="1.8"/>${stripes('M37 70 L48 71.5', 1.6)}
+  <path d="M93 58 Q102 70 93 90 L83 93 Q89 77 85 64 Z" fill="#17191c" stroke="${INK}" stroke-width="1.8"/>${stripes('M86 84 L95 86', 1.6)}
+  <rect x="37" y="69" width="13" height="12" rx="4" fill="#e3262b" stroke="${INK}" stroke-width="1.8" transform="rotate(-12 43 75)"/>
+  <rect x="73" y="91" width="13" height="12" rx="4" fill="#e3262b" stroke="${INK}" stroke-width="1.8" transform="rotate(-20 79 97)"/>
+  <!-- head: brown feathers, white face, angry brows, hooked yellow beak -->
+  <ellipse cx="70" cy="36" rx="27" ry="24" fill="#7a5a44" stroke="${INK}" stroke-width="2.2"/>
+  <path d="M52 22 q3 -3 6 0 M62 16 q3 -3 6 0 M74 16 q3 -3 6 0 M84 22 q3 -3 6 0 M57 28 q3 -3 6 0 M79 28 q3 -3 6 0 M67 22 q3 -3 6 0" stroke="#5a412f" stroke-width="1.2" fill="none"/>
+  <path d="M48 40 Q50 59 70 63 Q90 59 92 40 Q81 33 70 39 Q59 33 48 40 Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>
+  <path d="M49 31 L67 39 L65 42.5 L49 36 Z" fill="#fff" stroke="${INK}" stroke-width="1.3"/><path d="M91 31 L73 39 L75 42.5 L91 36 Z" fill="#fff" stroke="${INK}" stroke-width="1.3"/>
+  <circle cx="60" cy="44" r="4.2" fill="#f2c23a" stroke="${INK}" stroke-width="1.6"/><circle cx="80" cy="44" r="4.2" fill="#f2c23a" stroke="${INK}" stroke-width="1.6"/>
+  <circle cx="61" cy="44.5" r="1.7" fill="${INK}"/><circle cx="79" cy="44.5" r="1.7" fill="${INK}"/>
+  <path d="M62 47 Q70 43 78 47 Q79 56 72 63 Q69 64 68 61 Q64 55 62 47 Z" fill="#f4c430" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M66 55 Q70 58 74 55" stroke="#c8302c" stroke-width="1.4" fill="none"/><path d="M71 61 Q73 58 76 53" stroke="#c99a1c" stroke-width="1.2" fill="none"/>
+  </svg>`;
+}
+// A crumpled knit beanie lying on its side: red crown, cream and light-blue stripes, SQUAWKS on a black band, crossed
+// sticks on a red band, black cuff with the primary logo patch, red/blue/black pom-pom
+function beanieSVG() {
+  const id = 'bn' + (++uid);
+  const shape = 'M20 166 L17 134 Q12 96 28 56 Q46 22 75 18 Q104 22 122 56 Q138 96 133 134 L131 166 Q100 172 74 168 Q46 173 20 166 Z';
+  const band = (y, h, c) => `<rect x="0" y="${y}" width="150" height="${h}" fill="${c}"/>`;
+  const sticks = [24, 52, 80, 108].map(x => `<g transform="translate(${x} 118)" stroke="#f3ecdc" stroke-width="1.8" fill="none" stroke-linecap="round"><path d="M-6 -5 L5 5 l3 0 M6 -5 L-5 5 l-3 0"/></g>`).join('');
+  const pom = Array.from({ length: 34 }, (_, k) => { const a = k * 2.39, r = 4 + (k % 5) * 2.2, x = 75 + Math.cos(a) * r, y = 13 + Math.sin(a) * r * .8;
+    return `<path d="M${x.toFixed(1)} ${y.toFixed(1)} l${(Math.cos(a) * 5).toFixed(1)} ${(Math.sin(a) * 4).toFixed(1)}" stroke="${['#e3262b', '#8fc3ea', '#16181b'][k % 3]}" stroke-width="2.4" stroke-linecap="round"/>`; }).join('');
+  return `<svg viewBox="0 0 200 112" class="bn-svg" aria-hidden="true">
+  <defs><clipPath id="${id}c"><path d="${shape}"/></clipPath>
+    <pattern id="${id}k" width="3" height="3.4" patternUnits="userSpaceOnUse"><path d="M0 0 L1.5 3 L3 0" stroke="#000" stroke-width=".5" fill="none" opacity=".25"/></pattern></defs>
+  <ellipse cx="108" cy="109" rx="86" ry="3.5" fill="#000" opacity=".3"/>
+  <g transform="translate(40 108) skewX(-24) scale(1.06 .62) translate(0 -168)">
+    <g clip-path="url(#${id}c)">
+      ${band(0, 70, '#e3262b')}${band(56, 5, '#f3ecdc')}${band(61, 2, '#16181b')}${band(63, 5, '#8fc3ea')}${band(68, 2, '#16181b')}${band(70, 5, '#f3ecdc')}${band(75, 4, '#e3262b')}
+      ${band(79, 25, '#16181b')}
+      <text x="75" y="98" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="15" fill="#e3262b" stroke="#f3ecdc" stroke-width=".8" letter-spacing="1.5">SQUAWKS</text>
+      ${band(104, 4, '#8fc3ea')}${band(108, 20, '#e3262b')}${sticks}${band(128, 8, '#16181b')}${band(136, 40, '#1d1f23')}
+      <path d="M0 136 H150" stroke="#000" stroke-width="2" opacity=".5"/>
+      <image href="img/logos/primary.png" x="57" y="140" width="36" height="26.6"/>
+      <rect x="0" y="0" width="150" height="180" fill="url(#${id}k)"/>
+      <!-- crumples -->
+      <path d="M30 60 Q50 80 44 120 Q40 140 52 166 L20 166 Q14 110 30 60 Z" fill="#000" opacity=".25"/>
+      <path d="M96 30 Q86 70 98 100 Q108 128 96 166" stroke="#000" stroke-width="7" opacity=".18" fill="none"/>
+      <path d="M100 30 Q90 70 102 100 Q112 128 100 166" stroke="#fff" stroke-width="2" opacity=".18" fill="none"/>
+      <path d="M60 22 Q70 60 62 96" stroke="#000" stroke-width="4" opacity=".15" fill="none"/>
+      <path d="M10 104 Q50 92 80 106 Q110 120 140 100" stroke="#000" stroke-width="6" opacity=".22" fill="none"/>
+      <path d="M10 101 Q50 89 80 103 Q110 117 140 97" stroke="#fff" stroke-width="1.6" opacity=".18" fill="none"/>
+      <path d="M14 52 Q60 70 132 48" stroke="#000" stroke-width="5" opacity=".2" fill="none"/>
+    </g>
+    <path d="${shape}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
+    ${pom}<circle cx="75" cy="13" r="2" fill="#16181b"/>
+  </g>
+  </svg>`;
+}
+// Three hockey sticks leaning against the outside of the case: taped knobs, coloured graphics on black shafts,
+// white scuffed blades on the floor
+function sticksSVG() {
+  const stick = (tx, ty, hx, hy, accent, accent2) => {
+    const ang = Math.atan2(hy - ty, hx - tx) * 180 / Math.PI, len = Math.hypot(hx - tx, hy - ty);
+    return `<g transform="translate(${tx} ${ty}) rotate(${ang - 90})">
+      <rect x="-7" y="0" width="14" height="${len}" rx="2.5" fill="#15171a" stroke="${INK}" stroke-width="2.4"/>
+      <rect x="-7" y="0" width="14" height="74" rx="2.5" fill="#d9d4c7" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-7 14 L7 24 M-7 32 L7 42 M-7 50 L7 60" stroke="#a39d8d" stroke-width="1.4"/>
+      <rect x="-7" y="100" width="14" height="66" fill="${accent}"/><path d="M-7 190 L7 220 M-7 230 L7 250" stroke="${accent2}" stroke-width="3"/>
+      <rect x="-1.4" y="270" width="2.8" height="${len * .4}" fill="${accent2}"/>
+      <rect x="-7" y="${len * .66}" width="14" height="30" fill="${accent}" opacity=".9"/>
+      <rect x="-4.8" y="4" width="2" height="${len - 8}" fill="#fff" opacity=".14"/></g>
+      <path d="M${hx + 6} ${hy - 12} Q${hx + 4} ${hy + 14} ${hx - 22} ${hy + 30} L${hx - 70} ${hy + 46} Q${hx - 78} ${hy + 42} ${hx - 72} ${hy + 30} L${hx - 30} ${hy + 14} Q${hx - 12} ${hy + 4} ${hx - 8} ${hy - 14} Z"
+        fill="#f1eee6" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M${hx - 20} ${hy + 18} l-3 9 M${hx - 34} ${hy + 24} l-3 9 M${hx - 48} ${hy + 29} l-2 9 M${hx - 60} ${hy + 34} l-2 8 M${hx - 26} ${hy + 22} l6 2" stroke="#8a8578" stroke-width="1.3"/>`;
+  };
+  return `<svg viewBox="0 0 170 1000" class="st-svg" aria-hidden="true">
+  <ellipse cx="100" cy="994" rx="70" ry="5" fill="#000" opacity=".3"/>
+  ${stick(18, 10, 112, 930, '#f06a1f', '#2f6fd6')}${stick(40, 44, 132, 936, '#2bd37a', '#2bd37a')}${stick(62, 80, 152, 942, '#22b8c9', '#e6e6e6')}
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
   const medals = ctx.runnerUps.map(r => `<a class="tc-medal" href="#/season/${r.id}" title="Runner-up, ${svgText(r.name)}">
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
+    <div class="tc-sticks" aria-hidden="true">${sticksSVG()}</div>
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
     <div class="tc-frame"><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -654,12 +771,13 @@ export function trophyCase(ctx) {
           <div class="tc-mini-ross">${artRoss(ctx.artRoss, false)}</div><div class="tc-card">Art Ross Trophy<br><b>Points leaders</b></div></button>` : '<div></div>'}
         <button class="tc-item tc-keg" id="tc-keg" type="button" aria-label="The Stanley Keg: read the engravings">
           ${kegSVG({ wins: ctx.wsqWins, stickers: ctx.stickers })}
-          ${pedestalSVG()}</button>
+          ${pedestalSVG()}<span class="tc-cowbells">${cowbellsSVG()}</span><span class="tc-figurine">${figurineSVG()}</span></button>
         ${ctx.rocket.length ? `<button class="tc-item tc-mini" type="button" data-trophy="rocket" aria-label="Rocket Richard Trophy: see the winners">
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"></div>
       <div class="tc-shelf tc-level2">${pres}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}
+        <div class="tc-beanie" title="A Squawks beanie">${beanieSVG()}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
     </div><div class="tc-glass" aria-hidden="true"></div></div>
