@@ -871,7 +871,7 @@ function jelloBoxSVG() {
   <rect x="16" y="44" width="88" height="84" rx="2" fill="#bfe6ff" fill-opacity=".18"/>
   <path d="M22 50 L50 50 L22 86 Z M58 50 L66 50 L26 104 L22 104 Z" fill="#fff" opacity=".28"/>
   <!-- lettering on the glass -->
-  <g font-family="'Arial Black',Impact,sans-serif" font-size="12" font-weight="900" fill="#b3121a" stroke="#b3121a" stroke-width=".6" stroke-linejoin="round" text-anchor="middle">
+  <g font-family="'Arial Black',Impact,sans-serif" font-size="12" font-weight="900" fill="#ffd84a" stroke="#b3121a" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke" text-anchor="middle">
     <text x="60" y="63" textLength="80" lengthAdjust="spacingAndGlyphs">BREAK GLASS</text><text x="60" y="78" textLength="62" lengthAdjust="spacingAndGlyphs">FOR GOAL</text></g>
   </svg>`;
 }
