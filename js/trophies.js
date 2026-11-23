@@ -904,6 +904,41 @@ function jerseySVG() {
     <circle cx="112" cy="-5" r="3.2" fill="#8a939c" stroke="${INK}" stroke-width="1.4"/>
     </svg>`;
 }
+// A skate sharpener (from the photo of the user's): long dark-grey body, control pad and foot on the left, two skate
+// holders in the top slot, translucent smoke tray glowing red underneath. A note is taped to the front.
+function sharpenerSVG() {
+  return `<svg viewBox="0 0 250 104" class="sp-svg" role="img" aria-label="A skate sharpener with a note taped to it: sharpies tonight?">
+  <defs><linearGradient id="spB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a5f66"/><stop offset=".5" stop-color="#3a3e44"/><stop offset="1" stop-color="#26292d"/></linearGradient>
+    <linearGradient id="spT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1416" stop-opacity=".9"/><stop offset=".55" stop-color="#8a1a22" stop-opacity=".85"/><stop offset="1" stop-color="#2a1416" stop-opacity=".95"/></linearGradient>
+    <radialGradient id="spG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4a3d" stop-opacity=".55"/><stop offset="1" stop-color="#ff4a3d" stop-opacity="0"/></radialGradient></defs>
+  <ellipse cx="128" cy="101" rx="116" ry="3" fill="#000" opacity=".35"/>
+  <!-- smoke tray, glowing red -->
+  <path d="M24 60 H232 Q236 60 236 64 L232 94 Q230 98 225 98 H32 Q26 98 25 94 L20 64 Q20 60 24 60 Z" fill="url(#spT)" stroke="${INK}" stroke-width="2.2"/>
+  <ellipse cx="128" cy="78" rx="96" ry="14" fill="url(#spG)"/>
+  <path d="M40 72 H212" stroke="#ff8a6a" stroke-width="2" opacity=".75"/>
+  <circle cx="216" cy="82" r="6" fill="none" stroke="#d98a4a" stroke-width="2"/>
+  <!-- body -->
+  <path d="M30 30 Q30 24 36 24 H222 Q232 24 232 34 V60 H24 V38 Z" fill="url(#spB)" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M36 27 H222" stroke="#8a9098" stroke-width="1.4"/>
+  <!-- top slot with two skate holders -->
+  <rect x="78" y="40" width="118" height="9" rx="2" fill="#16181b" stroke="${INK}" stroke-width="1.4"/>
+  <path d="M94 49 L98 33 L104 33 L102 49 Z M172 49 L176 33 L182 33 L180 49 Z" fill="#c9ced3" stroke="${INK}" stroke-width="1.2"/>
+  <!-- end caps -->
+  <rect x="230" y="34" width="8" height="22" rx="2" fill="#2a2d31" stroke="${INK}" stroke-width="1.6"/>
+  <rect x="210" y="48" width="14" height="8" rx="2" fill="#1d1f23" stroke="${INK}" stroke-width="1.2"/>
+  <!-- control pad and foot on the left -->
+  <path d="M2 44 Q2 38 8 38 H26 V52 H8 Q2 52 2 46 Z" fill="#1d1f23" stroke="${INK}" stroke-width="2"/>
+  <rect x="26" y="30" width="44" height="18" rx="3" fill="#1b1d20" stroke="${INK}" stroke-width="2"/>
+  <path d="M38 36 A8 8 0 0 1 56 36" fill="none" stroke="#9fd3f2" stroke-width="1.4"/>
+  <circle cx="36" cy="43" r="1.3" fill="#d7dde2"/><circle cx="43" cy="43" r="1.3" fill="#d7dde2"/><circle cx="50" cy="43" r="1.3" fill="#d7dde2"/><circle cx="57" cy="43" r="1.3" fill="#d7dde2"/>
+  <!-- the note, taped on -->
+  <g transform="rotate(-5 160 50)">
+    <rect x="126" y="38" width="66" height="34" fill="#fbfbf6" stroke="#bdbbb0" stroke-width=".8"/>
+    <rect x="148" y="33" width="22" height="9" fill="#efe6c4" fill-opacity=".8" transform="rotate(6 159 37)"/>
+    <text x="159" y="53" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="10" fill="#1b1b1b">sharpies</text>
+    <text x="159" y="66" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="10" fill="#1b1b1b">tonight?</text></g>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -911,7 +946,7 @@ export function trophyCase(ctx) {
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
-    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break glass for goal">${jelloBoxSVG()}</div><div class="tc-inner">
+    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break glass for goal">${jelloBoxSVG()}</div><div class="tc-sharpener" title="Sharpies tonight?">${sharpenerSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
