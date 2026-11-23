@@ -875,6 +875,35 @@ function jelloBoxSVG() {
     <text x="60" y="63" textLength="80" lengthAdjust="spacingAndGlyphs">BREAK GLASS</text><text x="60" y="78" textLength="62" lengthAdjust="spacingAndGlyphs">FOR GOAL</text></g>
   </svg>`;
 }
+// Lindsay's goalie jersey: white, green LINDSAY over an upside-down LINDSAY, 33 on the chest.
+function jerseySVG() {
+  const g = '#119a6c', shirt = 'M60 30 L96 18 Q110 34 124 18 L160 30 L208 64 L190 104 L164 90 L166 214 Q110 222 54 214 L56 90 L30 104 L12 64 Z';
+  const word = `font-family="'Arial Black',Impact,sans-serif" font-size="25" fill="${g}" text-anchor="middle" textLength="104" lengthAdjust="spacingAndGlyphs"`;
+  const body = `
+    <path d="${shirt}" fill="#fbfbf8" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M96 18 Q110 52 124 18" fill="#eceae3" stroke="${INK}" stroke-width="2.2"/>
+    <path d="M90 21 L110 58 L130 21" fill="none" stroke="#d9d6cc" stroke-width="2"/>
+    <path d="M56 90 L58 210 M164 90 L162 210" stroke="#e6e3da" stroke-width="2"/><path d="M30 104 L48 70 M190 104 L172 70" stroke="#e6e3da" stroke-width="1.6"/>
+    <text x="146" y="74" font-family="'Arial Black',Impact,sans-serif" font-size="15" fill="${g}" stroke="#fff" stroke-width=".8" paint-order="stroke" text-anchor="middle">33</text>
+    <text x="110" y="116" ${word}>LINDSAY</text>
+    <text x="110" y="124" ${word} transform="rotate(180 110 130)">LINDSAY</text>`;
+  // on a hanger: the wooden bar is inside the jersey, seen only through the neck hole; the metal hook comes up out of
+  // the bar's centre and curls over a nail
+  return `<svg viewBox="0 -40 220 264" class="js-svg" role="img" aria-label="Lindsay's number 33 goalie jersey on a hanger">
+    <defs><clipPath id="jsN"><path d="M96 18 Q110 52 124 18 Z"/></clipPath>
+      <linearGradient id="jsW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c58a48"/><stop offset="1" stop-color="#8a5726"/></linearGradient></defs>
+    ${body}
+    <g clip-path="url(#jsN)">
+      <rect x="90" y="16" width="40" height="40" fill="#d8d4c8"/>
+      <path d="M86 26 Q110 18 134 26 L134 33 Q110 25 86 33 Z" fill="url(#jsW)" stroke="${INK}" stroke-width="1.4"/>
+    </g>
+    <path d="M96 18 Q110 52 124 18" fill="none" stroke="${INK}" stroke-width="2.2"/>
+    <circle cx="110" cy="23" r="2.6" fill="#b9c1c8" stroke="${INK}" stroke-width="1.2"/>
+    <path d="M110 22 V-6 Q110 -16 117 -21 Q123 -27 118 -33 Q113 -38 106 -34" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>
+    <path d="M110 22 V-6 Q110 -16 117 -21 Q123 -27 118 -33 Q113 -38 106 -34" fill="none" stroke="#c3cad1" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="112" cy="-31" r="3.2" fill="#8a939c" stroke="${INK}" stroke-width="1.4"/>
+    </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -897,7 +926,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"><span class="tc-scratch">${scratchSVG()}</span></div>
-      <div class="tc-shelf tc-level2">${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-shelf tc-level2"><div class="tc-jersey" aria-hidden="true">${jerseySVG()}</div>${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
       <span class="tc-squives">${squivesSVG()}</span>${stickyHTML()}
