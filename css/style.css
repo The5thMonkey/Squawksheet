@@ -576,3 +576,7 @@ body{overflow-x:clip}
 @keyframes tvz-in{from{transform:scale(.25);opacity:.2}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){ .tvz{animation:none} }
 @media (max-width:700px){ .tc-tv{position:relative;right:auto;bottom:auto;display:block;margin:0 auto 1rem} }
+/* the skeleton sitting on the top-left of the case, legs over the front */
+.tcase{margin-top:clamp(4.5rem,8vw,7rem)}
+.tc-skel{position:absolute;left:4%;top:0;z-index:6;width:clamp(80px,9.5vw,124px);transform:translateY(calc(-132 / 246 * 100%));pointer-events:none}
+.tc-skel svg{display:block;width:100%;height:auto}

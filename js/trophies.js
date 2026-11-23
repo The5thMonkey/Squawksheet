@@ -734,16 +734,16 @@ function beanieSVG() {
 // A wall-mounted TV with an idle screen; clicking it zooms in and plays the video
 const TV_VIDEO = 'JeRkCnOnmmc';
 function tvHTML() {
-  return `<button class="tc-tv" type="button" data-trophy="tv" aria-label="TV: Reserved for Steve. Play the video">
+  return `<button class="tc-tv" type="button" data-trophy="tv" aria-label="TV: Squawks Fan Reaction. Play the video">
     <span class="tv-mount" aria-hidden="true"></span>
-    <span class="tv-bezel"><span class="tv-screen"><span class="tv-idle"><span>Reserved for Steve</span></span></span><span class="tv-led"></span></span></button>`;
+    <span class="tv-bezel"><span class="tv-screen"><span class="tv-idle"><span>Squawks Fan Reaction</span></span></span><span class="tv-led"></span></span></button>`;
 }
 export function openTV() {
-  const ov = document.createElement('div'); ov.className = 'kv tvz-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Reserved for Steve');
+  const ov = document.createElement('div'); ov.className = 'kv tvz-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Squawks Fan Reaction');
   ov.innerHTML = `<div class="kv-stage tvz-stage"><div class="tvz"><span class="tv-bezel"><span class="tv-screen">
-      <iframe src="https://www.youtube-nocookie.com/embed/${TV_VIDEO}?autoplay=1&rel=0&playsinline=1" title="Reserved for Steve" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      <iframe src="https://www.youtube-nocookie.com/embed/${TV_VIDEO}?autoplay=1&rel=0&playsinline=1" title="Squawks Fan Reaction" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
     </span><span class="tv-led on"></span></span></div></div>
-    <div class="kv-bar"><div class="kv-cap"><b>Reserved for Steve</b><a class="small" href="https://www.youtube.com/watch?v=${TV_VIDEO}" target="_blank" rel="noopener">Open on YouTube ↗</a></div>
+    <div class="kv-bar"><div class="kv-cap"><b>Squawks Fan Reaction</b><a class="small" href="https://www.youtube.com/watch?v=${TV_VIDEO}" target="_blank" rel="noopener">Open on YouTube ↗</a></div>
       <button class="kv-btn kv-x" data-tv="close" aria-label="Close">✕</button></div>`;
   document.body.appendChild(ov); document.body.classList.add('kv-open');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -753,6 +753,69 @@ export function openTV() {
   addEventListener('keydown', key);
   ov.querySelector('[data-tv="close"]').focus();
 }
+// The skeleton sitting on top of the case, as in the bar photo: Squawks beanie, white shoulder pads, head tilted with a
+// grin, one hand on the top of the case, legs dangling over the front. The seat (the case's top edge) is at y=118.
+function skeletonSVG() {
+  const id = 'sk' + (++uid), bone = '#efe8d4', ink = `stroke="${INK}" stroke-linejoin="round" stroke-linecap="round"`;
+  const b = (d, w = 1.8) => `<path d="${d}" fill="${bone}" ${ink} stroke-width="${w}"/>`;
+  const long = (x1, y1, x2, y2, w = 5) => { const a = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI, l = Math.hypot(x2 - x1, y2 - y1);
+    return `<g transform="translate(${x1} ${y1}) rotate(${a})"><path d="M0 ${-w * .75} Q${l * .12} ${-w * .4} ${l / 2} ${-w * .42} Q${l * .88} ${-w * .4} ${l} ${-w * .75} Q${l + w} 0 ${l} ${w * .75} Q${l * .88} ${w * .4} ${l / 2} ${w * .42} Q${l * .12} ${w * .4} 0 ${w * .75} Q${-w} 0 0 ${-w * .75} Z" fill="${bone}" ${ink} stroke-width="1.6"/></g>`; };
+  const toes = (x, y, dir) => [0, 1, 2, 3].map(i => `<path d="M${x + dir * (i * 2.4 - 3)} ${y} l${dir * (i - 1.5) * .8} 7" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M${x + dir * (i * 2.4 - 3)} ${y} l${dir * (i - 1.5) * .8} 7" stroke="${bone}" stroke-width="1.8" stroke-linecap="round"/>`).join('');
+  const fingers = (x, y) => [0, 1, 2, 3].map(i => `<path d="M${x + i * 2.6} ${y} q1 -4 ${.5 + i * .4} -7" stroke="${INK}" stroke-width="3.2" stroke-linecap="round" fill="none"/><path d="M${x + i * 2.6} ${y} q1 -4 ${.5 + i * .4} -7" stroke="${bone}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`).join('');
+  const pom = Array.from({ length: 26 }, (_, k) => { const a = k * 2.39, r = 2 + (k % 4) * 1.6, x = 50 + Math.cos(a) * r, y = 7 + Math.sin(a) * r * .85;
+    return `<path d="M${x.toFixed(1)} ${y.toFixed(1)} l${(Math.cos(a) * 3.4).toFixed(1)} ${(Math.sin(a) * 3).toFixed(1)}" stroke="${['#e3262b', '#8fc3ea', '#16181b'][k % 3]}" stroke-width="2" stroke-linecap="round"/>`; }).join('');
+  return `<svg viewBox="0 -14 140 246" class="sk-svg" aria-hidden="true">
+  <defs><clipPath id="${id}h"><path d="M30 40 Q30 12 52 10 Q74 12 74 40 Z"/></clipPath></defs>
+  <!-- shadow on the case top -->
+  <ellipse cx="70" cy="118" rx="44" ry="3" fill="#000" opacity=".3"/>
+  <!-- legs: thighs come toward us over the edge, shins dangle down the front of the case -->
+  ${long(50, 116, 46, 128, 7)}${long(88, 116, 94, 128, 7)}
+  <ellipse cx="45" cy="130" rx="7" ry="5" fill="${bone}" ${ink} stroke-width="1.6"/><ellipse cx="95" cy="130" rx="7" ry="5" fill="${bone}" ${ink} stroke-width="1.6"/>
+  ${long(43, 134, 38, 196, 4.4)}${long(49, 134, 45, 196, 2.6)}
+  ${long(97, 134, 104, 194, 4.4)}${long(91, 134, 97, 194, 2.6)}
+  ${b('M34 196 Q42 192 49 197 L47 206 Q40 208 35 204 Z', 1.5)}${toes(39, 205, 1)}
+  ${b('M93 195 Q100 190 108 194 L108 203 Q102 206 95 203 Z', 1.5)}${toes(102, 202, 1)}
+  <!-- pelvis on the ledge -->
+  ${b('M46 104 Q56 96 70 100 Q84 96 94 104 Q96 114 88 118 Q78 112 70 117 Q62 112 52 118 Q44 114 46 104 Z')}
+  <circle cx="58" cy="110" r="3" fill="#2a2620"/><circle cx="82" cy="110" r="3" fill="#2a2620"/>
+  <!-- spine and ribs -->
+  ${[0, 1, 2, 3].map(i => `<rect x="66.5" y="${86 + i * 4}" width="7" height="3.4" rx="1.4" fill="${bone}" ${ink} stroke-width="1.2"/>`).join('')}
+  ${b('M52 58 Q70 52 88 58 Q92 74 84 84 Q70 90 56 84 Q48 74 52 58 Z')}
+  ${[64, 70, 76].map(y => `<path d="M55 ${y} Q70 ${y + 5} 85 ${y}" stroke="${INK}" stroke-width="1.3" fill="none"/>`).join('')}
+  <path d="M70 56 V84" stroke="${INK}" stroke-width="1.6"/>
+  <!-- his right arm hangs down to the case top; his left arm reaches up and back -->
+  ${long(42, 58, 36, 86, 4)}${long(36, 88, 40, 112, 3.4)}
+  ${b('M35 110 Q41 108 45 112 L44 118 Q38 119 35 116 Z', 1.4)}
+  ${long(98, 56, 112, 34, 4)}${long(112, 32, 120, 12, 3.4)}
+  ${b('M115 12 Q119 6 125 8 L126 14 Q121 16 116 15 Z', 1.4)}${fingers(117, 8)}
+  <!-- white hockey shoulder pads -->
+  <path d="M40 52 Q46 42 62 44 L70 50 L78 44 Q94 42 100 52 L100 70 Q92 76 88 70 L86 60 Q78 66 70 64 Q62 66 54 60 L52 70 Q48 76 40 70 Z" fill="#f4f6f8" ${ink} stroke-width="2"/>
+  <path d="M36 50 Q36 38 50 38 Q58 40 58 50 Q56 62 48 64 Q38 62 36 50 Z" fill="#fbfcfd" ${ink} stroke-width="2"/>
+  <path d="M84 48 Q84 36 96 36 Q106 38 106 48 Q104 60 96 62 Q86 60 84 48 Z" fill="#fbfcfd" ${ink} stroke-width="2"/>
+  <path d="M40 46 Q46 41 54 43 M88 44 Q94 39 102 41" stroke="#fff" stroke-width="2" fill="none"/><path d="M38 56 Q46 62 56 58 M86 54 Q94 60 104 56" stroke="#b9c3cc" stroke-width="1.2" fill="none"/>
+  <rect x="58" y="60" width="9" height="3" rx="1" fill="#c8302c"/><path d="M56 70 L84 70" stroke="#cfd6dc" stroke-width="1.2"/>
+  <path d="M50 66 L50 82 M90 66 L90 82" stroke="#e4e8ec" stroke-width="3"/>
+  <!-- skull, tilted, grinning -->
+  <g transform="rotate(-14 52 40)">
+    ${b('M33 30 Q33 12 52 12 Q71 12 71 30 Q71 40 64 44 L64 50 Q52 56 40 50 L40 44 Q33 40 33 30 Z', 2)}
+    <ellipse cx="44.5" cy="31" rx="5.6" ry="5" fill="#26221c"/><ellipse cx="59.5" cy="31" rx="5.6" ry="5" fill="#26221c"/>
+    <path d="M52 35 L50 40 L54 40 Z" fill="#26221c"/>
+    <path d="M41 45 Q52 50 63 45" stroke="${INK}" stroke-width="1.4" fill="none"/>
+    ${[43, 46.5, 50, 53.5, 57, 60.5].map(x => `<path d="M${x} 44.5 v4" stroke="${INK}" stroke-width=".9"/>`).join('')}
+    <!-- Squawks beanie, pulled down to his brow -->
+    <g transform="translate(0 -16)"><g clip-path="url(#${id}h)">
+      <rect x="28" y="0" width="50" height="22" fill="#e3262b"/>
+      <rect x="28" y="20" width="50" height="2.2" fill="#f3ecdc"/><rect x="28" y="22.2" width="50" height="1" fill="#16181b"/><rect x="28" y="23.2" width="50" height="2.2" fill="#8fc3ea"/><rect x="28" y="25.4" width="50" height="1" fill="#16181b"/>
+      <rect x="28" y="26.4" width="50" height="14" fill="#16181b"/>
+      <text x="52" y="35.8" text-anchor="middle" font-family="'Arial Black',Impact,sans-serif" font-size="6.4" fill="#e3262b" stroke="#f3ecdc" stroke-width=".35" letter-spacing=".4">SQUAWKS</text>
+    </g>
+    <path d="M30 40 Q30 12 52 10 Q74 12 74 40" fill="none" ${ink} stroke-width="2"/>
+    <path d="M28 36 Q52 31 76 36 L76 45 Q52 41 28 45 Z" fill="#1d1f23" ${ink} stroke-width="2"/>
+    <image href="img/logos/primary.png" x="46" y="36.4" width="12" height="8.9"/>
+    ${pom}<circle cx="52" cy="8" r="1.2" fill="#16181b"/></g>
+  </g>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -760,7 +823,7 @@ export function trophyCase(ctx) {
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
-    <div class="tc-frame"><div class="tc-inner">
+    <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>
       ${ctx.runnerUps.length ? `<div class="tc-rail-wrap"><div class="tc-rail"></div><div class="tc-medals">${medals}</div>
         </div>` : ''}
