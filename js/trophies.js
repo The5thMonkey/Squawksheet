@@ -1017,6 +1017,7 @@ export function trophyCase(ctx) {
   const medals = ctx.runnerUps.map(r => `<a class="tc-medal" href="#/season/${r.id}" title="Runner-up, ${svgText(r.name)}">
       <span class="tc-hook"></span>${medalSVG({ season: r.name })}</a>`).join('');
   return `<section class="tcase" aria-label="Trophy case">
+    <div class="tc-banner" aria-hidden="true"><span class="tb-rope"></span><span class="tb-cloth"><span class="tb-text">Trophy Room</span></span></div>
     <div class="tc-crown"><span>WinterSquawks</span> Trophy Case</div>
     <div class="tc-frame"><div class="tc-skel" aria-hidden="true">${skeletonSVG()}</div><div class="tc-jello" title="Break glass for goal">${jelloBoxSVG()}</div><div class="tc-sharpener" title="Sharpies tonight?">${sharpenerSVG()}</div><div class="tc-inner">
       <div class="tc-spots" aria-hidden="true"><i></i><i></i><i></i></div>

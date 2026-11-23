@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=4e917ae224';
-import * as C from './core.js?v=4e917ae224';
+import * as TR from './trophies.js?v=86d1689baa';
+import * as C from './core.js?v=86d1689baa';
 
 const $app = document.getElementById('app');
 let IX = null;
@@ -555,7 +555,7 @@ function pageTrophies() {
   const A = [...IX.data.awards].sort((a, b) => C.seasonSort({ id: a.season }, { id: b.season })).reverse();
   const hl = c => tchip(c);
   const cupWinners = IX.seasons.filter(s => s.tracking === 'game-log').map(s => ({ s, x: seasonSummary(s) })).filter(r => r.x.cup);
-  return `<h1>Trophy Room</h1>
+  return `<h1 class="sr-only">Trophy Room</h1>
   ${TR.trophyCase(trophyData())}
   <h2>Squawk 🏆 (three-stars points) winners</h2>${table('cupw', [{ k: 's', h: 'Season', l: 1, f: r => slink(r.s.id) }, { k: 'w', h: 'Winner', l: 1, f: r => whoList(r.x.cup) }], cupWinners.reverse(), null)}
   <h2>Division 4 awards</h2>${table('aw', [{ k: 'season', h: 'Season', l: 1 }, { k: 'p', h: "President's", l: 1, f: r => hl(r.presidents) }, { k: 'k', h: 'Stanley Keg', l: 1, f: r => hl(r.stanley_keg) }, { k: 'r', h: 'Runner-up', l: 1, f: r => hl(r.runner_up) },

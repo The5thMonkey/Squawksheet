@@ -614,3 +614,16 @@ body{overflow-x:clip}
 .tc-top .tc-clip{position:absolute;right:-.4rem;bottom:0;z-index:0;width:clamp(70px,8vw,104px)}
 .tc-clip svg{display:block;width:100%;height:auto}
 @media (max-width:700px){ .tc-top .tc-clip{display:none} }
+/* the page title as a felt banner hanging on the wall behind the things on top of the case */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tcase>.tc-banner{position:absolute;left:4%;right:4%;bottom:calc(100% + .2rem);height:clamp(6rem,17vw,15rem);z-index:0;pointer-events:none}
+.tb-rope{position:absolute;left:0;right:0;top:.6rem;height:3px;background:#2a1a0c;border-radius:2px}
+.tb-rope::before,.tb-rope::after{content:"";position:absolute;top:-6px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f1f1f1,#7d7d7d 60%,#3a3a3a)}
+.tb-rope::before{left:-6px}.tb-rope::after{right:-6px}
+.tb-cloth{position:absolute;left:3%;right:3%;top:.75rem;bottom:0;display:grid;place-items:center;
+  background:linear-gradient(90deg,#00000030,transparent 8%,transparent 92%,#00000030),repeating-linear-gradient(90deg,#ffffff07 0 2px,transparent 2px 5px),linear-gradient(#b81f24,#8e1418);
+  border-top:6px solid var(--ink);box-shadow:0 10px 20px #0004;
+  clip-path:polygon(0 0,100% 0,100% 82%,97% 100%,94% 82%,91% 100%,88% 82%,85% 100%,82% 82%,79% 100%,76% 82%,73% 100%,70% 82%,67% 100%,64% 82%,61% 100%,58% 82%,55% 100%,52% 82%,49% 100%,46% 82%,43% 100%,40% 82%,37% 100%,34% 82%,31% 100%,28% 82%,25% 100%,22% 82%,19% 100%,16% 82%,13% 100%,10% 82%,7% 100%,4% 82%,1% 100%,0 82%)}
+.tb-cloth::before{content:"";position:absolute;inset:10px 10px 22% 10px;border:2px dashed #f3d27a99}
+.tb-text{position:relative;margin:-6% 0 0 -3%;font:900 clamp(1.4rem,4.3vw,3.7rem)/1 var(--head);text-transform:uppercase;letter-spacing:.06em;color:#f6e6b8;
+  text-shadow:0 4px 0 #5a0c0e;-webkit-text-stroke:2px #3a0809;paint-order:stroke fill}
