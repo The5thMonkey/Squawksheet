@@ -943,6 +943,54 @@ function sharpenerSVG() {
     <text x="330" y="67" text-anchor="middle" font-family="'Permanent Marker','Marker Felt',cursive" font-size="12" fill="#1b1b1b">tonight?</text></g>
   </svg>`;
 }
+// Hot-dog aftermath: crumpled foil wrappers, bread crumbs and smears of ketchup and mustard
+function foilPileSVG() {
+  let seed = 23; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const ball = (cx, cy, r) => {
+    const n = 11, pts = Array.from({ length: n }, (_, i) => { const a = i / n * 6.283, rr = r * (.8 + rnd() * .32); return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .9]; });
+    const d = 'M' + pts.map(p => p.map(v => v.toFixed(1)).join(' ')).join(' L') + ' Z';
+    const facets = Array.from({ length: 7 }, () => { const a = rnd() * 6.283, b = a + 1 + rnd() * 2, r1 = r * rnd() * .8, r2 = r * (.4 + rnd() * .5);
+      return `M${(cx + Math.cos(a) * r1).toFixed(1)} ${(cy + Math.sin(a) * r1).toFixed(1)} L${(cx + Math.cos(b) * r2).toFixed(1)} ${(cy + Math.sin(b) * r2).toFixed(1)}`; }).join(' ');
+    return `<path d="${d}" fill="url(#flG)" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="${facets}" stroke="#7d8894" stroke-width="1" fill="none"/>
+      <path d="M${cx - r * .5} ${cy - r * .3} l${r * .3} ${-r * .25}" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`;
+  };
+  const crumbs = Array.from({ length: 26 }, () => { const x = 6 + rnd() * 168, y = 62 + rnd() * 9, r = .8 + rnd() * 1.6;
+    return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(r * 1.3).toFixed(1)}" ry="${r.toFixed(1)}" fill="${rnd() > .5 ? '#d9a560' : '#c08442'}" stroke="#6b4518" stroke-width=".4"/>`; }).join('');
+  return `<svg viewBox="0 0 180 74" class="fl-svg" aria-label="Crumpled foil hot-dog wrappers, crumbs, ketchup and mustard">
+  <defs><radialGradient id="flG" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#cfd6dc"/><stop offset="1" stop-color="#8c97a2"/></radialGradient></defs>
+  <ellipse cx="90" cy="71" rx="86" ry="3" fill="#000" opacity=".3"/>
+  <path d="M112 66 Q124 61 138 64 Q148 68 140 71 Q126 74 114 71 Q106 69 112 66 Z" fill="#d8231f" opacity=".92"/><path d="M118 65 Q126 63 132 65" stroke="#ff7a6e" stroke-width="1" fill="none"/>
+  <path d="M138 70 Q150 66 166 69 Q170 71 160 72.5 Q146 73.5 138 70 Z" fill="#f2c218"/>
+  <path d="M30 70 Q40 67 52 69 Q46 72 30 70 Z" fill="#f2c218" opacity=".9"/>
+  <path d="M98 70 q4 -2 8 0" stroke="#d8231f" stroke-width="2" stroke-linecap="round"/>
+  ${ball(40, 52, 17)}${ball(74, 56, 14)}${ball(58, 36, 13)}${ball(98, 60, 10)}
+  ${crumbs}
+  </svg>`;
+}
+// A stage microphone hanging by its cable from a hook screwed into the back wall
+function micSVG() {
+  return `<svg viewBox="0 0 60 190" class="mc-svg" aria-label="A stage microphone hanging from a hook">
+  <defs><radialGradient id="mcG" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#f2f4f6"/><stop offset=".55" stop-color="#9aa4ad"/><stop offset="1" stop-color="#4b545c"/></radialGradient>
+    <linearGradient id="mcH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a2d31"/><stop offset=".35" stop-color="#55595f"/><stop offset="1" stop-color="#16181b"/></linearGradient>
+    <pattern id="mcM" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".7" fill="#3b4148" opacity=".55"/></pattern></defs>
+  <!-- hook -->
+  <rect x="24" y="2" width="12" height="7" rx="2" fill="#8a939c" stroke="${INK}" stroke-width="1.4"/>
+  <path d="M30 9 V18 Q30 26 37 26 Q43 26 43 20" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M30 9 V18 Q30 26 37 26 Q43 26 43 20" fill="none" stroke="#c3cad1" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- cable looped over the hook and hanging down to the mic -->
+  <path d="M33 25 Q38 17 41 25 Q44 40 34 58 Q24 76 32 96 L30 104" fill="none" stroke="#111" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M35 25 Q28 34 26 46 Q24 58 30 66" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+  <!-- the mic, hanging head-down: XLR end, tapered handle, ring, mesh ball -->
+  <rect x="25" y="102" width="10" height="8" rx="1.5" fill="#9aa4ad" stroke="${INK}" stroke-width="1.4"/>
+  <path d="M24 110 H36 L39 150 H21 Z" fill="url(#mcH)" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M27 114 L25 146" stroke="#8a9098" stroke-width="1.4" opacity=".8"/>
+  <rect x="19" y="150" width="22" height="6" rx="1.5" fill="#c9ced3" stroke="${INK}" stroke-width="1.6"/>
+  <circle cx="30" cy="170" r="15" fill="url(#mcG)" stroke="${INK}" stroke-width="2"/>
+  <circle cx="30" cy="170" r="15" fill="url(#mcM)"/>
+  <path d="M15.5 168 Q30 174 44.5 168" stroke="#6b757e" stroke-width="1.3" fill="none"/>
+  <path d="M22 162 Q25 158 29 157" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </svg>`;
+}
 export function trophyCase(ctx) {
   const pres = ctx.presidents.map(p => `<a class="tc-item tc-pres" href="#/season/${p.id}" title="${svgText(p.name)}: ${svgText(p.record)}">
       ${presidentsSVG({ season: p.name, record: p.record })}<div class="tc-card">President's Trophy<br><b>${svgText(p.name)}</b></div></a>`).join('');
@@ -965,7 +1013,7 @@ export function trophyCase(ctx) {
           <div class="tc-mini-rocket">${rocketSVG(ctx.rocket)}</div><div class="tc-card">"Rocket" Richard Trophy<br><b>Goal leaders</b></div></button>` : '<div></div>'}
       </div>
       <div class="tc-board"><span class="tc-scratch">${scratchSVG()}</span></div>
-      <div class="tc-shelf tc-level2"><div class="tc-jersey" aria-hidden="true">${jerseySVG()}</div>${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
+      <div class="tc-shelf tc-level2"><div class="tc-mic" title="Hot dogs and karaoke?">${micSVG()}</div><div class="tc-foil" title="Somebody had hot dogs">${foilPileSVG()}</div><div class="tc-jersey" aria-hidden="true">${jerseySVG()}</div>${pres}<div class="tc-pucks-wrap">${tvHTML()}${ctx.cups.length ? `<button class="tc-item tc-pucks" type="button" data-trophy="pucks" aria-label="Squawk Cup winners: look at the pucks">${puckPileSVG(ctx.cups, true)}<div class="tc-card">Squawk 🏆 winners<br><b>${ctx.cups.length} season${ctx.cups.length === 1 ? '' : 's'}</b></div></button>` : ''}</div>
         <div class="tc-squawkcup has-tip" title="The Squawk Cup">${squawkCupSVG()}<div class="tc-baseball" title="A worn-out baseball">${baseballSVG()}</div></div></div>
       <div class="tc-board"></div>
       <span class="tc-squives">${squivesSVG()}</span>${stickyHTML()}
