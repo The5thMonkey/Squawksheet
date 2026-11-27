@@ -66,7 +66,7 @@ export function kegSVG({ wins, stickers }) {
   const id = 'k' + (++uid);
   // the real stickers on the Keg: Dublin Pub and the Oregon stick logo are big; Meow and the cat are small
   // the body's two ridges (y 138-148 and 200-210) split it into three flat panels; every sticker sits inside one
-  const st = [['img/stickers/dublin.png', 90, 174, 48, 48, -4, 'Dublin Pub'], ['img/stickers/oregon.png', 102, 119, 46, 34, 3, 'WinterSquawks'],
+  const st = [['img/stickers/dublin.png', 120, 174, 48, 48, -4, 'Dublin Pub'], ['img/stickers/oregon.png', 102, 119, 46, 34, 3, 'WinterSquawks'],
     ['img/stickers/cat.png', 152, 118, 19, 19, 10, 'Cat sticker'], ['img/stickers/meow.png', 86, 230, 18, 18, -8, 'Apuckalypse Meow']]
     .map(([src, x, y, w, h, r, t]) => `<g transform="translate(${x} ${y}) rotate(${r})"><image href="${src}" x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/><title>${t}</title></g>`).join('');
   return `<svg viewBox="0 0 240 340" class="tc-svg" role="img" aria-label="The Stanley Keg">

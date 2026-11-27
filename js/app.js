@@ -1,5 +1,5 @@
-import * as TR from './trophies.js?v=b2f3d20ccb';
-import * as C from './core.js?v=b2f3d20ccb';
+import * as TR from './trophies.js?v=522cee18c9';
+import * as C from './core.js?v=522cee18c9';
 
 const $app = document.getElementById('app');
 let IX = null;
