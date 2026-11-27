@@ -64,14 +64,10 @@ function iceFill(cx, cy, rx, ry, kind) {
 }
 export function kegSVG({ wins, stickers }) {
   const id = 'k' + (++uid);
-  const spots = [[84, 122, -14], [150, 118, 11], [104, 178, 8], [158, 186, -9], [80, 228, 12], [134, 232, -6], [118, 120, 4], [96, 150, -4], [150, 152, 14], [126, 206, -12]];
-  const st = stickers.slice(0, spots.length).map((s, i) => {
-    const [x, y, r] = spots[i], cid = `${id}c${i}`;
-    const inner = s.logo
-      ? `<clipPath id="${cid}"><circle cx="0" cy="0" r="11"/></clipPath><circle r="11" fill="#fff"/><image href="${svgText(s.logo)}" x="-11" y="-11" width="22" height="22" preserveAspectRatio="xMidYMid meet" clip-path="url(#${cid})"/>`
-      : `<circle r="11" fill="${s.bg}"/><text y="3.2" text-anchor="middle" font-size="8" font-weight="800" fill="${s.fg}" font-family="system-ui,sans-serif">${svgText(s.code)}</text>`;
-    return `<g transform="translate(${x} ${y}) rotate(${r})"><circle r="13.5" fill="#fff" stroke="${INK}" stroke-width="2"/>${inner}<title>${svgText(s.name)}</title></g>`;
-  }).join('');
+  // the real stickers on the Keg: Dublin Pub and the Oregon stick logo are big; Meow and the cat are small
+  const st = [['img/stickers/dublin.png', 96, 142, 64, 64, -8, 'Dublin Pub'], ['img/stickers/oregon.png', 140, 206, 68, 52, 6, 'WinterSquawks'],
+    ['img/stickers/cat.png', 156, 128, 23, 23, 12, 'Cat sticker'], ['img/stickers/meow.png', 86, 214, 22, 22, -10, 'Apuckalypse Meow']]
+    .map(([src, x, y, w, h, r, t]) => `<g transform="translate(${x} ${y}) rotate(${r})"><image href="${src}" x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/><title>${t}</title></g>`).join('');
   return `<svg viewBox="0 0 240 340" class="tc-svg" role="img" aria-label="The Stanley Keg">
   <defs>${chrome(id + 'g')}${chrome(id + 'r', '#3d474f')}
     <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8642c"/><stop offset="1" stop-color="#6b3815"/></linearGradient>
